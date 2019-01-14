@@ -18,32 +18,45 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
     ###
         
     def test_new_user_setup(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver just learned about this cool new growing app.
-        # He goes to the homepage and sees that he can specify the capacity of his greenhouse.
+        # He goes to the homepage and sees that he can specify the capacity of his greenhouse by number of trays.
+        # TODO -- what other information will Oliver have to put in the first time he uses it?
         
     def test_plant_new_crop_in_a_tray(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver wants to plant a new crop to track with the growing app.
         # He goes to the website
         
+    def test_move_crop_from_one_tray_to_another(self):
+        self.browser.get(self.live_server_url)
+        self.fail("Test incomplete")
+        # Oliver wants to move his crop from one spot in the greenhouse to another
+        
     def test_water_the_crop(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver wants to water a crop of microgreens.
         
     def test_harvest_the_crop(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver would like to harvest a crop of microgreens.
         
     def test_record_dead_crop(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver notices mold on a crop, and decides to dispose of it.
         
     def test_add_note_about_crop(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
         
     def test_lookup_crop_history(self):
+        self.browser.get(self.live_server_url)
         self.fail("Test incomplete")
         # Oliver wants to look back at the crop's life to understand how it grew.
     

@@ -14,3 +14,9 @@ keep mine in `~/.virtualenvs`). Just make sure that your IDE is configured to us
 your virtual env, and that none of your virtual env files enter version control.
 
 To add a new dependency to the project just run `pip freeze > requirements.txt`
+
+## Project Structure
+The project follows the structure of a standard Django project for the most part -- consult the docs if you need more
+info. The `functional tests/` directory contains only a `tests.py` file because all it does is run automated web 
+browser tests on the entire application. In your IDE, be sure to make a _Run Configuration_ for `python manage.py test 
+functional_tests` so that you can run those tests immediately. 
