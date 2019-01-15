@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from grow_app.inventory import views
+from inventory import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/', views.homepage, name="home"),
-    path('/crop/new/', views.create_crop, name="create_crop"),
+    path('', views.homepage, name="home"),
+    path('crop/new/', views.create_crop, name="create_crop"),
     path('crop/(\d+)/', views.crop_detail, name="crop_detail"),
     path('crop/(\d+)/record/', views.record_crop_info, name="record_crop_info"),
     path('crop/(\d+)/lifecycle/', views.update_crop_lifecycle, name="update_crop_lifecycle"),
