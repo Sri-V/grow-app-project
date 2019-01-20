@@ -4,6 +4,7 @@ This file contains functional tests, meant to test the behavior of the system fr
 
 from django.test import LiveServerTestCase
 from selenium import webdriver
+from time import sleep
 
 
 class BasicInventoryInteractionsTest(LiveServerTestCase):
@@ -24,8 +25,20 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
         # He goes to the homepage and reads the title.
         self.assertEqual('Home -- BMG', self.browser.title)  # TODO -- cooler name
         # He sees that he currently has no trays set up.
-        self.assertIn("You have 0 trays.", self.browser.find_element_by_tag_name("body").text)
-        # He sees that he can specify the capacity of his greenhouse by number of trays.
+        body = self.browser.find_element_by_tag_name("body").text
+        self.assertIn("You have 0 trays.", body)
+        # He sees that he can put in the number of trays he has.
+        tray_qty = self.browser.find_element_by_id("form-set-tray-count-qty")
+        # He types in that he has 400 trays and hits submit
+        tray_qty.send_keys("400")
+        self.browser.find_element_by_id("form-set-tray-count-submit").click()
+        sleep(1)
+        
+        # He sees that he is redirected to the home page
+        self.assertRegex(self.browser.current_url, r"/")
+        # He also sees that the number of trays has updated to 400
+        body = self.browser.find_element_by_tag_name("body").text
+        self.assertIn("You have 400 trays.", body)
         
     # def test_plant_new_crop_in_a_tray(self):
     #     self.browser.get(self.live_server_url)

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home -- BMG</title>
+</head>
+<body>
+<p>
+    You have {{ tray_count }} trays.
+</p>
+<form id="form-set-tray-count" method="POST" action="/tray/set_qty">
+    {% csrf_token %}
+    <input id="form-set-tray-count-qty" type="number" min="0" name="quantity"/>
+    <input id="form-set-tray-count-submit" type="submit" />
+</form>
+</body>
+</html>

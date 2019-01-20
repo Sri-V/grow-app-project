@@ -12,10 +12,10 @@ class Crop(models.Model):
 class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
     list of all CropRecords describe the entire life of a plant from start to finish."""
-    crop = models.ForeignKey(Crop)
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
 
 
 class Tray(models.Model):
     """Represents a space in the greenhouse as opposed to a particular plant. Receives any growing actions that can be
     performed on a plant in the greenhouse"""
-    current_crop = models.OneToOneField(Crop, on_delete=models.CASCADE())
+    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
