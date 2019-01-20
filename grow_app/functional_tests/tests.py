@@ -6,6 +6,8 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from time import sleep
 
+SLEEPY_TIME = 1
+
 
 class BasicInventoryInteractionsTest(LiveServerTestCase):
     def setUp(self):
@@ -32,7 +34,7 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
         # He types in that he has 400 trays and hits submit
         tray_qty.send_keys("400")
         self.browser.find_element_by_id("form-set-tray-count-submit").click()
-        sleep(1)
+        sleep(SLEEPY_TIME)
         
         # He sees that he is redirected to the home page
         self.assertRegex(self.browser.current_url, r"/")

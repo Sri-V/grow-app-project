@@ -22,7 +22,7 @@ def set_tray_quantity(request):
         # Reducing the number of trays is currently not a supported operation.
         return HttpResponseBadRequest()
             
-    return redirect("inventory/index.html")
+    return redirect(homepage)
 
 
 def create_crop():
