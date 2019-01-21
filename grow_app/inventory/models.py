@@ -46,7 +46,7 @@ class Location(models.Model):
     location_type = models.CharField(max_length=4, choices=LOCATION_TYPES)
 
 class Order(models.Model):
-    """Represents a Customer's order, with details necessary for generating Crops and """
+    """Represents a Customer's order, with details necessary for generating Crops and tasks. Implement later."""
     pass
 
 class Tray(models.Model):
@@ -59,6 +59,7 @@ class Tray(models.Model):
     barcode = models.charField(max_length=50)
     current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
     size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1010')
+    location = models.ForeignKey(Location)
 
 class Variety(models.Model):
     """Represents the types of plants that can be grown. Has a name and number of days between plant and harvest."""

@@ -24,7 +24,7 @@ functional_tests` so that you can run those tests immediately.
 
 # Glossary
 
-Crop - a single tray of a plant through a single grow cycle. Has a variety, start date, and grow schedule. ID used to track actions and notes.
+Crop - an attempt to grow a tray of Microgreens at a given time through a single grow cycle. Has a variety and grow schedule. ID used to track actions and notes.
 
 CropRecord - anything done to or noticed about a crop. (Ex: watered, moved from x to y, trashed, notes)
 
@@ -36,6 +36,6 @@ Order - information on what was ordered (varieties, quantity), which Customer or
 
 Slot - a location in-house that holds a tray. 
 
-Tray - the container holding the crop. Has a barcode, Crop, size, and Location. Used to track crop lifecycle steps, actions, and location.
+Tray - the container holding the crop. Has a barcode, Crop, size, and Location. Links barcode ID to crop for recording actions.
 
-Variety - the kind of plant growing and the size of the tray. Size only listed if different from the standard. (Ex: mustard; shiso; basil, small)
+Variety - the kind of plant growing. Has a field for the number of days between plant and harvest, used for planning/scheduling.
