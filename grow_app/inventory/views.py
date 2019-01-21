@@ -1,10 +1,28 @@
-from django.shortcuts import render
+from django.http import HttpResponseBadRequest
+from django.shortcuts import redirect, render
+from inventory.models import Tray
 
 
 # Create your views here.
-def homepage():
+def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and trays."""
-    return None
+    tray_count = Tray.objects.count()
+    return render(request, "inventory/index.html", context={"tray_count": tray_count})
+
+
+def set_tray_quantity(request):
+    """POST: Update the number of Tray objects, redirect to homepage."""
+    desired_tray_count = int(request.POST["quantity"])
+    current_tray_count = Tray.objects.count()
+    
+    if desired_tray_count >= current_tray_count:
+        for tray in range(desired_tray_count - Tray.objects.count()):
+            Tray.objects.create()
+    else:
+        # Reducing the number of trays is currently not a supported operation.
+        return HttpResponseBadRequest()
+            
+    return redirect(homepage)
 
 
 def create_crop():

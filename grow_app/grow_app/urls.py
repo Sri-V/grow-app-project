@@ -19,11 +19,12 @@ from inventory import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/', views.homepage, name="home"),
-    path('/crop/new/', views.create_crop, name="create_crop"),
+    path('', views.homepage, name="home"),
+    path('crop/new/', views.create_crop, name="create_crop"),
     path('crop/(\d+)/', views.crop_detail, name="crop_detail"),
     path('crop/(\d+)/record/', views.record_crop_info, name="record_crop_info"),
     path('crop/(\d+)/lifecycle/', views.update_crop_lifecycle, name="update_crop_lifecycle"),
+    path('tray/set_qty', views.set_tray_quantity, name="set_tray_quantity"),
     path('tray/(\d+)/', views.tray_detail, name="tray_detail"),
     path('tray/(\d+)/action/', views.tray_action, name="do_tray_action"),  # TODO -- pull out into more URLs?
 ]
