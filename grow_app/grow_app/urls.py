@@ -24,7 +24,7 @@ urlpatterns = [
     path('crop/(\d+)/', views.crop_detail, name="crop_detail"),
     path('crop/(\d+)/record/', views.record_crop_info, name="record_crop_info"),
     path('crop/(\d+)/lifecycle/', views.update_crop_lifecycle, name="update_crop_lifecycle"),
-    path('tray/set_qty', views.set_tray_quantity, name="set_tray_quantity"),
-    path('tray/(\d+)/', views.tray_detail, name="tray_detail"),
-    path('tray/(\d+)/action/', views.tray_action, name="do_tray_action"),  # TODO -- pull out into more URLs?
+    path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
+    path('slot/(\d+)/', views.slot_detail, name="slot_detail"),
+    path('slot/(\d+)/action/', views.slot_action, name="slot_action"),  # TODO -- pull out into more URLs?
 ]

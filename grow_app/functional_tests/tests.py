@@ -28,21 +28,21 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
         self.assertEqual('Home -- BMG', self.browser.title)  # TODO -- cooler name
         # He sees that he currently has no trays set up.
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 0 trays.", body)
-        # He sees that he can put in the number of trays he has.
-        tray_qty = self.browser.find_element_by_id("form-set-tray-count-qty")
-        # He types in that he has 400 trays and hits submit
-        tray_qty.send_keys("400")
-        self.browser.find_element_by_id("form-set-tray-count-submit").click()
+        self.assertIn("You have 0 total slots.", body)
+        # He sees that he can put in the number of total slots he has.
+        slot_qty = self.browser.find_element_by_id("form-set-slot-count-qty")
+        # He types in that he has 400 total slots and hits submit
+        slot_qty.send_keys("400")
+        self.browser.find_element_by_id("form-set-slot-count-submit").click()
         sleep(SLEEPY_TIME)
         
         # He sees that he is redirected to the home page
         self.assertRegex(self.browser.current_url, r"/")
-        # He also sees that the number of trays has updated to 400
+        # He also sees that the number of total slots has updated to 400
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 400 trays.", body)
+        self.assertIn("You have 400 total slots.", body)
         
-    # def test_plant_new_crop_in_a_tray(self):
+    # def test_plant_new_crop_in_a_slot(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
     #     # Oliver wants to plant a new crop to track with the growing app.

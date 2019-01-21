@@ -1,23 +1,23 @@
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
-from inventory.models import Tray
+from inventory.models import Slot
 
 
 # Create your views here.
 def homepage(request):
-    """GET: Display a homepage that offers links to detail pages for crops and trays."""
-    tray_count = Tray.objects.count()
-    return render(request, "inventory/index.html", context={"tray_count": tray_count})
+    """GET: Display a homepage that offers links to detail pages for crops and slots."""
+    total_slot_count = Slot.objects.count()
+    return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
 
 
-def set_tray_quantity(request):
-    """POST: Update the number of Tray objects, redirect to homepage."""
-    desired_tray_count = int(request.POST["quantity"])
-    current_tray_count = Tray.objects.count()
+def set_total_slot_quantity(request):
+    """POST: Update the number of total Slot objects, redirect to homepage."""
+    desired_slot_count = int(request.POST["quantity"])
+    current_slot_count = Slot.objects.count()
     
-    if desired_tray_count >= current_tray_count:
-        for tray in range(desired_tray_count - Tray.objects.count()):
-            Tray.objects.create()
+    if desired_slot_count >= current_slot_count:
+        for slot in range(desired_slot_count - Slot.objects.count()):
+            Slot.objects.create()
     else:
         # Reducing the number of trays is currently not a supported operation.
         return HttpResponseBadRequest()
@@ -46,14 +46,14 @@ def update_crop_lifecycle():
     return None
 
 
-def tray_detail():
+def slot_detail():
     """GET: Display all the buttons used to control a tray in the greenhouse. Provides buttons and forms to perform
     tray actions.This is the page that people using the barcode scanner are going to see as they're working all day, so
     it needs to feel like a control panel."""
     return None
 
 
-def tray_action():
+def slot_action():
     """GET: Display a form for a user to record an action on a tray.
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
     return None
