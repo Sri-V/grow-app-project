@@ -37,7 +37,7 @@ class CropRecord(models.Model):
         ('RETURNED', 'Tray Returned'),
         ('NOTE', 'Notes')
     )
-    crop = models.ForeignKey(Crop, on_delete=models.CASCADE())
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
     date = models.DateField()
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
     note = models.CharField(max_length=200)
