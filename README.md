@@ -21,3 +21,21 @@ The project follows the structure of a standard Django project for the most part
 info. The `functional tests/` directory contains only a `tests.py` file because all it does is run automated web 
 browser tests on the entire application. In your IDE, be sure to make a _Run Configuration_ for `python manage.py test 
 functional_tests` so that you can run those tests immediately.
+
+# Glossary
+
+Crop - a single tray of a plant through a single grow cycle. Has a variety, start date, and grow schedule. ID used to track actions and notes.
+
+CropRecord - anything done to or noticed about a crop. (Ex: watered, moved from x to y, trashed, notes)
+
+Customer - an individual or restaurant who placed an order. Should be linked with online order/accounting modules, later.
+
+Location - where the tray can be found. Can be a Slot in-house (rack, house, TBD) or a Customer upon delivery.
+
+Order - information on what was ordered (varieties, quantity), which Customer ordered it, when deliveries are expected, and whether or not it's recurring/active.
+
+Slot - a location in-house that holds a tray. 
+
+Tray - the container holding the crop. Has a barcode, Crop, size, and Location. Used to track crop lifecycle steps, actions, and location.
+
+Variety - the kind of plant growing and the size of the tray. Size only listed if different from the standard. (Ex: mustard; shiso; basil, small)
