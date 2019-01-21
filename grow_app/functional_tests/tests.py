@@ -48,7 +48,7 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
     #     # Oliver wants to plant a new crop to track with the growing app.
     #     # He goes to the website
     #
-    # def test_move_crop_from_one_tray_to_another(self):
+    # def test_move_crop_from_one_slot_to_another(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
     #     # Oliver wants to move his crop from one spot in the greenhouse to another
@@ -82,10 +82,13 @@ class BasicInventoryInteractionsTest(LiveServerTestCase):
     # # SPRINT 2
     # ###
     #
-    # def test_interact_with_groups_of_trays(self):
+    # def test_interact_with_groups_of_slots(self):
     #     self.fail("Test incomplete")
-    #     # Oliver wants to group his trays together on a rack.
-    #     # Oliver wants to label 10 specific plants as experimental (comparing brands of fertilizer).
+    #     # Oliver wants to make a group of addresses that represents a rack
+    #
+    # def test_interact_with_groups_of_crops(self):
+    #     self.fail("Test incomplete")
+    #     # Oliver wants to label 10 specific crops as experimental (comparing brands of fertilizer).
     #
     # def test_bulk_plant_water(self):
     #     self.fail("Test incomplete")
