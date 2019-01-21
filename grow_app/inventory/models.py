@@ -20,7 +20,6 @@ class Crop(models.Model):
     days_germ = models.IntegerField()
     days_grow = models.IntegerField()
     harvest_in_house = models.BooleanField(default=False)
-    pass
 
 
 class CropRecord(models.Model):
