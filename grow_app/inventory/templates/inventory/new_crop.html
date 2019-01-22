@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Crop -- BMG</title>
+</head>
+<body>
+<h1>Add a New Crop</h1>
+<form id="form-new-crop" method="post">
+    <select id="form-new-crop-variety">
+        <!-- TODO -- for all varieties make option tag -->
+    </select>
+    <ol id="form-new-crop-tray-size">
+        <!-- TODO -- do template to refer to model enum for tray sizes -->
+        <li><input type="radio" name="tray-size" value="1020" checked>10" × 20"</li>
+        <li><input type="radio" name="tray-size" value="1010">10" × 10"</li>
+        <li><input type="radio" name="tray-size" value="0505">5" × 5"</li>
+    </ol>
+    <ol id="form-new-crop-delivered-live">
+        <li><input type="radio" name="delivered-live" value="true" checked>Delivered live</li>
+        <li><input type="radio" name="delivered-live" value="false">Harvested on-site</li>
+    </ol>
+    <input id="form-new-crop-germination-length" type="number" min="1">
+    <input id="form-new-crop-grow-length" type="number" min="1">
+    <select id="form-new-crop-slot">
+        <!-- TODO -- for all open slots make option tag -->
+    </select>
+    <input id="form-new-crop-submit" type="submit">
+</form>
+</body>
+</html>
