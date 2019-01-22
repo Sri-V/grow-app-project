@@ -21,7 +21,7 @@ class Crop(models.Model):
         ('0505', '5x5"'),
     )
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1010')
+    tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
     live_delivery = models.BooleanField(default=True)  # Do we deliver the live tray to the customer or cut it for them?
     # The number of days we plan to let the Crop germinate and grow, respectively
     # Different from the actual length of germination/grow time, encoded as CropRecords
@@ -52,7 +52,7 @@ class CropRecord(models.Model):
 class Slot(models.Model):
     """Represents an address on a grow rack for a single Crop. Has a barcode, links to a Crop object, and is part
     of one or more Locations in the greenhouse hierarchy (e.g.: a rack or a shelf on a rack)."""
-    barcode = models.CharField(max_length=50)
+    barcode = models.CharField(max_length=50, blank=True)  # TODO -- check with JP that the max_length is accurate
     current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
     # location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
     
