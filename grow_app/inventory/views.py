@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
-from inventory.models import Slot
+from inventory.models import Slot, Variety
 
 
 # Create your views here.
@@ -25,10 +25,12 @@ def set_total_slot_quantity(request):
     return redirect(homepage)
 
 
-def create_crop():
+def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
-    return None
+    variety_list = Variety.objects.all()
+    slot_list = Slot.objects.all()
+    return render(request, "inventory/new_crop.html", context={"variety_list": variety_list, "slot_list": slot_list})
 
 
 def crop_detail():

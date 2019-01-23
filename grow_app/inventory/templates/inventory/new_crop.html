@@ -8,7 +8,9 @@
 <h1>Add a New Crop</h1>
 <form id="form-new-crop" method="post">
     <select id="form-new-crop-variety">
-        <!-- TODO -- for all varieties make option tag -->
+        {% for variety in variety_list %}
+            <option>{{ variety.name }}</option>
+        {% endfor %}
     </select>
     <ol id="form-new-crop-tray-size">
         <!-- TODO -- do template to refer to model enum for tray sizes -->
@@ -23,7 +25,9 @@
     <input id="form-new-crop-germination-length" type="number" min="1">
     <input id="form-new-crop-grow-length" type="number" min="1">
     <select id="form-new-crop-slot">
-        <!-- TODO -- for all open slots make option tag -->
+        {% for slot in slot_list %}
+            <option>{{ slot.id }}</option>
+        {% endfor %}
     </select>
     <input id="form-new-crop-submit" type="submit">
 </form>

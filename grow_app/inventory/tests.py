@@ -24,7 +24,14 @@ class HomePageTest(TestCase):
         response = self.client.post("/slot/set_qty", data={"quantity": 3})
         # And we get an error saying we can't
         self.assertEqual(response.status_code, 400)
-        
+
+
+class NewCropTest(TestCase):
+    """Tests that the new crop page works as expected internally."""
+
+    def test_uses_correct_template(self):
+        response = self.client.get("/crop/new/")
+        self.assertTemplateUsed(response, "inventory/new_crop.html")
 
 class CropModelTest(TestCase):
     pass
