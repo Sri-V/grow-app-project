@@ -18,10 +18,10 @@ class GreenhouseSetupTest(LiveServerTestCase):
     def setUp(self):
         # Set the browser
         self.browser = webdriver.Firefox()
-        
+
     def tearDown(self):
         self.browser.quit()
-        
+
     def test_new_user_setup(self):
         # Oliver just learned about this cool new growing app.
         self.browser.get(self.live_server_url)
@@ -36,14 +36,14 @@ class GreenhouseSetupTest(LiveServerTestCase):
         slot_qty.send_keys("400")
         self.browser.find_element_by_id("form-set-slot-count-submit").click()
         sleep(SLEEPY_TIME)
-        
+
         # He sees that he is redirected to the home page
         self.assertRegex(self.browser.current_url, r"/")
         # He also sees that the number of total slots has updated to 400
         body = self.browser.find_element_by_tag_name("body").text
         self.assertIn("You have 400 total slots.", body)
         # TODO -- Add variety information too
-        
+
 
 class BasicUserInteractionsTest(LiveServerTestCase):
     """
@@ -104,14 +104,27 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         else:
             self.fail("Unable to find Tray #2 in the new crop form!")
         # Then he hits submit
-        self.browser.find_element_by_id("form-new-crop-submit")
-        
+        self.browser.find_element_by_id("form-new-crop-submit").click()
         # He notices that he's been redirected to the slot detail page
-        self.assertEquals(self.browser.current_url, "/slot/2/")
-        self.fail("Test incomplete!")
+        self.assertRegex(self.browser.current_url, r"/slot/2/")
+        self.assertEqual(self.browser.title, "Slot Details")
         # Appropriate crop is listed below
+        current_crop_type = self.browser.find_element_by_id("current-crop-type")
+        self.assertEqual(current_crop_type, "Basil")
         # Navigate to crop detail
+        self.browser.find_element_by_id("link-crop-details")
+        # He finds himself redirected to the crop details page
+        self.assertRegex(self.browser.current_url, r"/crop/1/")
+        self.assertEqual(self.browser.title, "Crop Details")
         # Crop stuff listed there too
+        crop_type = self.browser.find_element_by_id("crop-type")
+        # tray size =
+        # live_delivery =
+        # exp_num_germ_days = models.IntegerField()
+        # exp_num_grow_days =
+
+        # add list of slots "locations" that the crop is in
+
         
     def test_move_crop_from_one_slot_to_another(self):
         # Oliver wants to move his crop from one spot in the greenhouse to another

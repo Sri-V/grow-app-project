@@ -36,7 +36,7 @@ def create_crop(request):
     if request.method == 'POST':
         # TODO -- add input verification check
         variety_name = request.POST["variety"]
-        tray_size = str(request.POST["tray-size"].value)
+        tray_size = str(request.POST["tray-size"])
         delivered_live = bool(request.POST["delivered-live"])
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
@@ -47,7 +47,7 @@ def create_crop(request):
         # Update the corresponding slot with that crop
         Slot.objects.filter(id=designated_slot).update(current_crop=new_crop)
 
-        return HttpResponseRedirect('/slot/' + designated_slot + '/')
+        return HttpResponseRedirect('/slot/' + str(designated_slot) + '/')
 
 
 def crop_detail():
