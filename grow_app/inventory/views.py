@@ -65,11 +65,12 @@ def update_crop_lifecycle():
     return None
 
 
-def slot_detail():
-    """GET: Display all the buttons used to control a tray in the greenhouse. Provides buttons and forms to perform
-    tray actions.This is the page that people using the barcode scanner are going to see as they're working all day, so
-    it needs to feel like a control panel."""
-    return None
+def slot_detail(request, slot_id):
+    """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
+    Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
+     see as they're working all day, so it needs to feel like a control panel."""
+    current_crop = Slot.objects.get(id=slot_id).current_crop
+    return render(request, "inventory/slot_details.html", context={"current_crop": current_crop})
 
 
 def slot_action():

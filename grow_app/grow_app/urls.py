@@ -24,6 +24,6 @@ urlpatterns = [
     path('crop/(\d+)/', views.crop_detail, name="crop_detail"),
     path('crop/(\d+)/record/', views.record_crop_info, name="record_crop_info"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
-    path('slot/(\d+)/', views.slot_detail, name="slot_detail"),
-    path('slot/(\d+)/action', views.slot_action, name="slot_action"),
+    path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
+    path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
 ]

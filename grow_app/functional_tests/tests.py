@@ -109,23 +109,28 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertRegex(self.browser.current_url, r"/slot/2/")
         self.assertEqual(self.browser.title, "Slot Details")
         # Appropriate crop is listed below
-        current_crop_type = self.browser.find_element_by_id("current-crop-type")
-        self.assertEqual(current_crop_type, "Basil")
+        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+        self.assertEqual(current_crop_type, "Current Crop: Basil")
         # Navigate to crop detail
-        self.browser.find_element_by_id("link-crop-details")
+        self.browser.find_element_by_id("link-crop-details").click()
         # He finds himself redirected to the crop details page
         self.assertRegex(self.browser.current_url, r"/crop/1/")
         self.assertEqual(self.browser.title, "Crop Details")
         # Crop stuff listed there too
         crop_type = self.browser.find_element_by_id("crop-type")
-        # tray size =
-        # live_delivery =
-        # exp_num_germ_days = models.IntegerField()
-        # exp_num_grow_days =
+        self.assertEqual(crop_type, "Basil")
+        tray_size = self.browser.find_element_by_id("tray-size")
+        self.assertEqual(tray_size, "10\" × 20\"")
+        live_delivery = self.browser.find_element_by_id("live-delivery")
+        self.assertEqual(live_delivery, "false")
+        exp_num_germ_days = self.browser.find_element_by_id("exp-num-germ-days")
+        self.assertEqual(exp_num_germ_days, "5")
+        exp_num_grow_days = self.browser.find_element_by_id("exp-num-grow-days")
+        self.assertEqual(exp_num_germ_days, "10")
 
-        # add list of slots "locations" that the crop is in
+        # add list of slot "locations" that the crop is in
 
-        
+
     def test_move_crop_from_one_slot_to_another(self):
         # Oliver wants to move his crop from one spot in the greenhouse to another
         self.browser.get(self.live_server_url)
@@ -138,7 +143,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He then goes back to the old slot's page
         # And sees that slot is listed as empty
         self.fail("Test incomplete")
-        
+    #
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
