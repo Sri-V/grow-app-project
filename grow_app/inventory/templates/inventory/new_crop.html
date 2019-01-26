@@ -7,7 +7,8 @@
 <body>
 <h1>Add a New Crop</h1>
 <form id="form-new-crop" method="post">
-    <select id="form-new-crop-variety">
+    {% csrf_token %}
+    <select id="form-new-crop-variety" name="variety">
         {% for variety in variety_list %}
             <option>{{ variety.name }}</option>
         {% endfor %}
@@ -22,9 +23,9 @@
         <li><input type="radio" name="delivered-live" value="true" checked>Delivered live</li>
         <li><input type="radio" name="delivered-live" value="false">Harvested on-site</li>
     </ol>
-    <input id="form-new-crop-germination-length" type="number" min="1">
-    <input id="form-new-crop-grow-length" type="number" min="1">
-    <select id="form-new-crop-slot">
+    <input id="form-new-crop-germination-length" name="germination-length" type="number" min="1">
+    <input id="form-new-crop-grow-length" name="grow-length" type="number" min="1">
+    <select id="form-new-crop-slot" name="designated-slot">
         {% for slot in slot_list %}
             <option>{{ slot.id }}</option>
         {% endfor %}

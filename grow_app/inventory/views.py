@@ -1,6 +1,6 @@
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from inventory.models import Slot, Variety
+from inventory.models import Crop, Slot, Variety
 
 
 # Create your views here.
@@ -28,9 +28,26 @@ def set_total_slot_quantity(request):
 def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
-    variety_list = Variety.objects.all()
-    slot_list = Slot.objects.all()
-    return render(request, "inventory/new_crop.html", context={"variety_list": variety_list, "slot_list": slot_list})
+    if request.method == 'GET':
+        variety_list = Variety.objects.all()
+        slot_list = Slot.objects.all()
+        return render(request, "inventory/new_crop.html", context={"variety_list": variety_list, "slot_list": slot_list})
+
+    if request.method == 'POST':
+        # TODO -- add input verification check
+        variety_name = request.POST["variety"]
+        tray_size = str(request.POST["tray-size"].value)
+        delivered_live = bool(request.POST["delivered-live"])
+        germination_length = int(request.POST["germination-length"])
+        grow_length = int(request.POST["grow-length"])
+        designated_slot = int(request.POST["designated-slot"])
+        variety = Variety.objects.get(name=variety_name)
+        # Create the crop object
+        new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live, exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
+        # Update the corresponding slot with that crop
+        Slot.objects.filter(id=designated_slot).update(current_crop=new_crop)
+
+        return HttpResponseRedirect('/slot/' + designated_slot + '/')
 
 
 def crop_detail():
