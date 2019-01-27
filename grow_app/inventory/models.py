@@ -16,9 +16,9 @@ class Crop(models.Model):
     -> History recorded elsewhere, but linked by the crop's ID.
     """
     TRAY_SIZES = (
-        ('1020', 'Standard - 10x20"'),
-        ('1010', '10x10"'),
-        ('0505', '5x5"'),
+        ('1020', 'Standard - 10"x20"'),
+        ('1010', '10"x10"'),
+        ('0505', '5"x5"'),
     )
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
     tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
