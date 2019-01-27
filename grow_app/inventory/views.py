@@ -37,7 +37,9 @@ def create_crop(request):
         # TODO -- add input verification check
         variety_name = request.POST["variety"]
         tray_size = str(request.POST["tray-size"])
-        delivered_live = bool(request.POST["delivered-live"])
+        print("Post: " + request.POST["delivered-live"])
+        delivered_live = (request.POST["delivered-live"] == 'True')
+        print("delivered_live: " + str(delivered_live))
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
         designated_slot = int(request.POST["designated-slot"])
@@ -50,9 +52,10 @@ def create_crop(request):
         return HttpResponseRedirect('/slot/' + str(designated_slot) + '/')
 
 
-def crop_detail():
+def crop_detail(request, crop_id):
     """GET: Display the crop's history, link to its tray."""
-    return None
+    crop = Crop.objects.get(id=crop_id)
+    return render(request, "inventory/crop_details.html", context={"crop": crop})
 
 
 def record_crop_info():

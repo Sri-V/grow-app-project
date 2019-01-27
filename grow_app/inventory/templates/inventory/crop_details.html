@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Details</title>
+</head>
+<body>
+    <h1>Crop Details</h1>
+    <div id="crop-type">
+        Crop Type: {{ crop.variety.name }}
+    </div>
+    <div id="tray-size">
+        Tray Size: {{ crop.get_tray_size_display }}
+    </div>
+    <div id="live-delivery">
+        Live Delivery: {{ crop.live_delivery }}
+    </div>
+    <div id="exp-num-germ-days">
+        Expected number of germination days: {{ crop.exp_num_germ_days }}
+    </div>
+    <div id="exp-num-grow-days">
+        Expected number of grow days: {{ crop.exp_num_grow_days }}
+    </div>
+</body>
+</html>
