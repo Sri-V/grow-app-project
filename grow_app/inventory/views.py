@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from inventory.models import Crop, Slot, Variety
+from inventory.models import Crop, CropRecord, Slot, Variety
 
 
 # Create your views here.
@@ -37,9 +37,7 @@ def create_crop(request):
         # TODO -- add input verification check
         variety_name = request.POST["variety"]
         tray_size = str(request.POST["tray-size"])
-        print("Post: " + request.POST["delivered-live"])
         delivered_live = (request.POST["delivered-live"] == 'True')
-        print("delivered_live: " + str(delivered_live))
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
         designated_slot = int(request.POST["designated-slot"])
@@ -48,7 +46,9 @@ def create_crop(request):
         new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live, exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
         # Update the corresponding slot with that crop
         Slot.objects.filter(id=designated_slot).update(current_crop=new_crop)
-
+        # Create crop record for this event
+        CropRecord.objects.create(crop=new_crop, record_type='GERM')
+        # Redirect the user to the slot details page
         return HttpResponseRedirect('/slot/' + str(designated_slot) + '/')
 
 

@@ -6,7 +6,7 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from time import sleep
 
-from inventory.models import Slot, Variety
+from inventory.models import Crop, Slot, Variety
 
 SLEEPY_TIME = 1
 
@@ -49,23 +49,28 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     """
     Tests that the application can support basic crop management tasks post-setup.
     """
-    
+
     def setUp(self):
         # Set the browser
         self.browser = webdriver.Firefox()
-        
+
         # Add slots in the greenhouse
         for i in range(5):
             Slot.objects.create()
-        
+
         # Add some plant varieties
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
         Variety.objects.create(name="Parsley", days_plant_to_harvest=15)
         Variety.objects.create(name="Radish", days_plant_to_harvest=12)
-    
+
+        # Add a single crop into the first slot
+        variety = Variety.objects.get(name="Radish")
+        first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True, exp_num_germ_days=3, exp_num_grow_days=8)
+        Slot.objects.filter(id=1).update(current_crop=first_crop)
+
     def tearDown(self):
         self.browser.quit()
-        
+
     def test_plant_new_crop_in_a_slot(self):
         # Oliver wants to plant a new crop to track with the growing app.
         # He goes to the website and sees that his slots are there
@@ -114,7 +119,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Navigate to crop detail
         self.browser.find_element_by_id("link-crop-details").click()
         # He finds himself redirected to the crop details page
-        self.assertRegex(self.browser.current_url, r"/crop/1/")
+        self.assertRegex(self.browser.current_url, r"/crop/2/")
         self.assertEqual(self.browser.title, "Crop Details")
         # Crop stuff listed there too
         crop_type = self.browser.find_element_by_id("crop-type").text
@@ -153,12 +158,21 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
     #     # Oliver would like to harvest a crop of microgreens.
-    #
+
     # def test_record_dead_crop(self):
     #     self.browser.get(self.live_server_url)
-    #     self.fail("Test incomplete")
     #     # Oliver notices mold on a crop, and decides to dispose of it.
+    #     # He scans slot 1 with the barcode scanner
     #
+    #     # And is redirected to the slot details page
+    #     self.assertRegex(self.browser.current_url, r"/slot/1/")
+    #     self.assertEqual(self.browser.title, "Crop Details")
+    #     # He clicks on the button to record a dead crop
+    #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
+    #     # He is redirected to the home page
+    #     self.assertEqual('Home -- BMG', self.browser.title)
+
+
     # def test_add_note_about_crop(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
