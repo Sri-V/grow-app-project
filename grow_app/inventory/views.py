@@ -80,3 +80,11 @@ def slot_action():
     """GET: Display a form for a user to record an action on a tray.
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
     return None
+
+def trash_crop(request, slot_id):
+    """POST: Record that the crop has been trashed and redirect user to homepage."""
+    slot = Slot.objects.get(id=slot_id)
+    crop = slot.current_crop
+    slot.current_crop = None
+    CropRecord.objects.create(crop=crop, record_type='TRASH')
+    return redirect(homepage)
