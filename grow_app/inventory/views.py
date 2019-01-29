@@ -73,7 +73,7 @@ def slot_detail(request, slot_id):
     Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
-    return render(request, "inventory/slot_details.html", context={"current_crop": current_crop})
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop})
 
 
 def slot_action():
