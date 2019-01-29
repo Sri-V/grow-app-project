@@ -26,4 +26,5 @@ urlpatterns = [
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
+    path('slot/<int:slot_id>/action/trash', views.trash_crop, name="trash_crop"),
 ]
