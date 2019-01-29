@@ -160,12 +160,10 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     # Oliver would like to harvest a crop of microgreens.
 
     # def test_record_dead_crop(self):
-    #     self.browser.get(self.live_server_url)
     #     # Oliver notices mold on a crop, and decides to dispose of it.
     #     # He scans slot 1 with the barcode scanner
-    #
+    #     self.browser.get(self.live_server_url + "slot/1/")
     #     # And is redirected to the slot details page
-    #     self.assertRegex(self.browser.current_url, r"/slot/1/")
     #     self.assertEqual(self.browser.title, "Crop Details")
     #     # He clicks on the button to record a dead crop
     #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
