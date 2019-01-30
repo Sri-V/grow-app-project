@@ -15,5 +15,9 @@
         {% csrf_token %}
         <input type="submit" value="Trash Crop" name="record-dead-crop" id="form-record-dead-crop-submit" />
     </form>
+    <form action="/slot/{{ slot_id }}/action/water" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
+    </form>
 </body>
 </html>
