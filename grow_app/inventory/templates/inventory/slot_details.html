@@ -9,6 +9,9 @@
     <div id="current-crop-type">
         Current Crop: <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
     </div>
+    <div id="slot-id">
+        Slot ID: {{ slot_id }}
+    </div>
     <h4>Slot Actions</h4>
     <form action="/slot/{{ slot_id }}/action/trash" method="post">
         {% csrf_token %}
@@ -17,6 +20,10 @@
     <form action="/slot/{{ slot_id }}/action/water" method="post">
         {% csrf_token %}
         <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
+    </form>
+    <form action="/slot/{{ slot_id }}/action/move/tray/" method="get">
+        {% csrf_token %}
+        <input type="submit" value="Move Tray" name="move-tray" id="form-move-tray-submit" />
     </form>
 </body>
 </html>
