@@ -159,22 +159,30 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     self.fail("Test incomplete")
     #     # Oliver would like to harvest a crop of microgreens.
 
-    def test_record_dead_crop(self):
-        # Oliver notices mold on a crop, and decides to dispose of it.
-        # He scans slot 1 with the barcode scanner
-        self.browser.get(self.live_server_url + "/slot/1/")
-        # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
-        # He clicks on the button to record a dead crop
-        self.browser.find_element_by_id("form-record-dead-crop-submit").click()
-        # He is redirected to the home page
-        self.assertEqual('Home -- BMG', self.browser.title)
+    # def test_record_dead_crop(self):
+    #     # Oliver notices mold on a crop, and decides to dispose of it.
+    #     # He scans slot 1 with the barcode scanner
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # And is redirected to the slot details page
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     # He clicks on the button to record a dead crop
+    #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
+    #     # He is redirected to the home page
+    #     self.assertEqual('Home -- BMG', self.browser.title)
 
 
     # def test_add_note_about_crop(self):
-    #     self.browser.get(self.live_server_url)
-    #     self.fail("Test incomplete")
     #     # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
+    #     # He scans slot 1 with the barcode scanner
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # He gets directed be on the page associated with that slot
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     # Oliver clicks a button to add a note to the crop
+    #     # He gets redirected to the notes page
+    #     # He writes a note about what happened and hits submit
+    #     # He is then redirected back to the slot details page
+    #     self.fail("Test incomplete")
+    #
     #
     # def test_lookup_crop_history(self):
     #     self.browser.get(self.live_server_url)
