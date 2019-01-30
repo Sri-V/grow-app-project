@@ -75,7 +75,6 @@ def slot_detail(request, slot_id):
     current_crop = Slot.objects.get(id=slot_id).current_crop
     return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop})
 
-
 def slot_action():
     """GET: Display a form for a user to record an action on a tray.
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
@@ -87,4 +86,31 @@ def trash_crop(request, slot_id):
     crop = slot.current_crop
     slot.current_crop = None
     CropRecord.objects.create(crop=crop, record_type='TRASH')
+    return redirect(homepage)
+
+def crop_history(request, crop_id):
+    """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
+    Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
+     see as they're working all day, so it needs to feel like a control panel."""
+    crop = Slot.objects.get(id=crop_id)
+    records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('date')
+    notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('date')
+    
+    seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('date')[0]
+    grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('date')[0]
+    water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('date')[0]
+    harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('date')[0]
+    delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('date')[0]
+    trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('date')[0]
+    returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('date')[0]
+
+    return render(request, "inventory/crop_history.html", 
+                    context={"crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
+                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
+
+def water_crop(request, slot_id):
+    """POST: Record that the crop has been watered and redirect user to homepage."""
+    slot = Slot.objects.get(id=slot_id)
+    crop = slot.current_crop
+    CropRecord.objects.create(crop=crop, record_type='WATER')
     return redirect(homepage)

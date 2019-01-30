@@ -22,9 +22,11 @@ urlpatterns = [
     path('', views.homepage, name="home"),
     path('crop/new/', views.create_crop, name="create_crop"),
     path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
+    path('slot/<int:crop_id>/', views.crop_history, name="crop_history"),
     path('crop/<int:crop_id>/record/', views.record_crop_info, name="record_crop_info"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
     path('slot/<int:slot_id>/action/trash', views.trash_crop, name="trash_crop"),
+    path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
 ]
