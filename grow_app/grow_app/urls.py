@@ -29,4 +29,5 @@ urlpatterns = [
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
     path('slot/<int:slot_id>/action/trash', views.trash_crop, name="trash_crop"),
     path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
+    path('slot/<int:slot_id>/action/move_tray/', views.move_tray, name="move_tray"),
 ]

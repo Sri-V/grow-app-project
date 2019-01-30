@@ -114,3 +114,20 @@ def water_crop(request, slot_id):
     crop = slot.current_crop
     CropRecord.objects.create(crop=crop, record_type='WATER')
     return redirect(homepage)
+
+
+def move_tray(request, slot_id):
+    """GET: Render form for user to specify where to move tray
+    POST: Update the database with the tray that has been moved"""
+    if request.method == 'GET':
+        available_slots = Slot.objects.get(current_crop=None)
+        return render(request, "inventory/forms/move_tray.html", context={"current_slot_id": slot_id,
+                                                                          "available_slots": available_slots})
+
+    if request.method == 'POST':
+        leaving_slot = Slot.objects.get(id=slot_id)
+        arriving_slot_id = int(request.POST["slot-destination-id"])
+        arriving_slot = Slot.objects.get(id=arriving_slot_id)
+        arriving_slot.current_crop = leaving_slot.current_crop
+        leaving_slot.current_crop = None
+        return redirect(homepage)
