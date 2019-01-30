@@ -145,7 +145,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     slot_id = self.browser.find_element_by_id("slot-id").text
     #     self.assertEqual(slot_id, "Slot ID: 1")
     #     # Then he clicks the button that says "Move tray"
-    #     self.browser.find_element_by_id("form-move-tray-submit").click
+    #     self.browser.find_element_by_id("button-move-tray-submit").click
     #     # He is redirected to a form that allows him to enter the new slot number or scan it with a barcode
     #     # He fills out the form manualy and hits submit
     #     self.browser.find_element_by_id("form-move-to-slot").send_keys("4")
