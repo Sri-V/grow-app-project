@@ -135,33 +135,33 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # possibly add list of slot "locations" that the crop is in
 
 
-    def test_move_crop_from_one_slot_to_another(self):
-        # Oliver wants to move his crop from one spot in the greenhouse to another
-        # He scans the barcode of the slot he would like to move
-        self.browser.get(self.live_server_url + "/slot/1/")
-        # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
-        slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 1")
-        # Then he clicks the button that says "Move tray"
-        self.browser.find_element_by_id("form-move-tray-submit").click
-        # He is redirected to a form that allows him to enter the new slot number or scan it with a barcode
-        # He fills out the form manually and hits submit
-        self.browser.find_element_by_id("form-move-to-slot").send_keys("4")
-        self.browser.find_element_by_id("form-move-to-slot-submit").click()
-        # And he gets redirected to the page belonging to the new slot
-        self.assertRegex(self.browser.current_url, r"/crop/4/")
-        self.assertEqual(self.browser.title, "Slot Details")
-        slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 1")
-        # And the crop is listed below
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop: Basil")
-        # He then goes back to the old slot's page
-        self.browser.get(self.live_server_url + "/slot/1/")
-        # And sees that slot is listed as empty
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop: ")
+    # def test_move_crop_from_one_slot_to_another(self):
+    #     # Oliver wants to move his crop from one spot in the greenhouse to another
+    #     # He scans the barcode of the slot he would like to move
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # And is redirected to the slot details page
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     slot_id = self.browser.find_element_by_id("slot-id").text
+    #     self.assertEqual(slot_id, "Slot ID: 1")
+    #     # Then he clicks the button that says "Move tray"
+    #     self.browser.find_element_by_id("button-move-tray-submit").click
+    #     # He is redirected to a form that allows him to enter the new slot number or scan it with a barcode
+    #     # He fills out the form manualy and hits submit
+    #     self.browser.find_element_by_id("form-move-to-slot").send_keys("4")
+    #     self.browser.find_element_by_id("form-move-to-slot-submit").click()
+    #     # And he gets redirected to the page belonging to the new slot
+    #     self.assertRegex(self.browser.current_url, r"/crop/4/")
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     slot_id = self.browser.find_element_by_id("slot-id").text
+    #     self.assertEqual(slot_id, "Slot ID: 1")
+    #     # And the crop is listed below
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop: Basil")
+    #     # He then goes back to the old slot's page
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # And sees that slot is listed as empty
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop: ")
     #
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)
@@ -201,7 +201,19 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He is then redirected back to the home page
         self.assertEqual('Home -- BMG', self.browser.title)
 
-
+    # def test_add_note_about_crop(self):
+    #     # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
+    #     # He scans slot 1 with the barcode scanner
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # He gets directed be on the page associated with that slot
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     # Oliver clicks a button to add a note to the crop
+    #     # He gets redirected to the notes page
+    #     # He writes a note about what happened and hits submit
+    #     # He is then redirected back to the slot details page
+    #     self.fail("Test incomplete")
+    #
+    #
     # def test_lookup_crop_history(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")

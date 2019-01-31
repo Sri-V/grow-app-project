@@ -21,9 +21,9 @@
         {% csrf_token %}
         <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
     </form>
-    <form action="/slot/{{ slot_id }}/action/move/tray/" method="get">
+    <form action="/slot/{{ slot_id }}/action/move_tray/" method="get">
         {% csrf_token %}
-        <input type="submit" value="Move Tray" name="move-tray" id="form-move-tray-submit" />
+        <input type="submit" value="Move Tray" name="move-tray" id="button-move-tray-submit" />
     </form>
     <form action="/slot/{{ slot_id }}/action/note/" method="get">
         {% csrf_token %}
