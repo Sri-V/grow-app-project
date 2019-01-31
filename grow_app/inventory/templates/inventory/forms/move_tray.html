@@ -10,6 +10,7 @@
     Current Slot ID: {{ slot_id }}
 </div>
 <form id="form-move-tray" method="post">
+    {% csrf_token %}
     <select id="form-slot-destination-id" name="slot-destination-id">
         {% for slot in available_slots %}
             <option>{{ slot.id }}</option>
