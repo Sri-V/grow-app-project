@@ -114,3 +114,10 @@ def water_crop(request, slot_id):
     crop = slot.current_crop
     CropRecord.objects.create(crop=crop, record_type='WATER')
     return redirect(homepage)
+
+def record_note(request, slot_id) :
+    """POST: Record that the crop has been moved and redirect user to homepage."""
+    slot = Slot.objects.get(id=slot_id)
+    crop = slot.current_crop
+    CropRecord.object.create(crop=crop, record_type='NOTE')
+    return redirect(homepage)

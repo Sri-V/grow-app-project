@@ -25,5 +25,10 @@
         {% csrf_token %}
         <input type="submit" value="Move Tray" name="move-tray" id="form-move-tray-submit" />
     </form>
+    <form action="/slot/{{ slot_id }}/action/note/" method="get">
+        {% csrf_token %}
+        <input type="submit" value="Record Note" name="record-note" id="form-record-note-submit" />
+    </form>
+    <textarea name="note" form="form-record-note-submit"></textarea>
 </body>
 </html>
