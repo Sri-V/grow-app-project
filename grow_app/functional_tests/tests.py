@@ -135,40 +135,40 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     # possibly add list of slot "locations" that the crop is in
 
 
-    def test_move_crop_from_one_slot_to_another(self):
-        # Oliver wants to move his crop from one spot in the greenhouse to another
-        # He scans the barcode of the radish tray he would like to move
-        self.browser.get(self.live_server_url + "/slot/1/")
-        # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
-        slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 1")
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop: Radish")
-        # He selects the tray he wants it to move to and hits submit
-        select_slot_destination = self.browser.find_element_by_id("form-slot-destination-id")
-        for option in select_slot_destination.find_elements_by_tag_name("option"):
-            if option.text == "4":
-                option.click()
-                break
-        else:
-            self.fail("Could not find the tray you are trying to move to")
-
-        self.browser.find_element_by_id("form-move-tray-submit").click()
-        sleep(SLEEPY_TIME)
-        # And he gets redirected to the page belonging to the new slot
-        self.assertRegex(self.browser.current_url, r"/slot/4/")
-        self.assertEqual(self.browser.title, "Slot Details")
-        slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 4")
-        # And the crop is listed below
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop: Radish")
-        # He then goes back to the old slot's page
-        self.browser.get(self.live_server_url + "/slot/1/")
-        # And sees that slot is listed as empty
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop:")
+    # def test_move_crop_from_one_slot_to_another(self):
+    #     # Oliver wants to move his crop from one spot in the greenhouse to another
+    #     # He scans the barcode of the radish tray he would like to move
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # And is redirected to the slot details page
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     slot_id = self.browser.find_element_by_id("slot-id").text
+    #     self.assertEqual(slot_id, "Slot ID: 1")
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop: Radish")
+    #     # He selects the tray he wants it to move to and hits submit
+    #     select_slot_destination = self.browser.find_element_by_id("form-slot-destination-id")
+    #     for option in select_slot_destination.find_elements_by_tag_name("option"):
+    #         if option.text == "4":
+    #             option.click()
+    #             break
+    #     else:
+    #         self.fail("Could not find the tray you are trying to move to")
+    #
+    #     self.browser.find_element_by_id("form-move-tray-submit").click()
+    #     sleep(SLEEPY_TIME)
+    #     # And he gets redirected to the page belonging to the new slot
+    #     self.assertRegex(self.browser.current_url, r"/slot/4/")
+    #     self.assertEqual(self.browser.title, "Slot Details")
+    #     slot_id = self.browser.find_element_by_id("slot-id").text
+    #     self.assertEqual(slot_id, "Slot ID: 4")
+    #     # And the crop is listed below
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop: Radish")
+    #     # He then goes back to the old slot's page
+    #     self.browser.get(self.live_server_url + "/slot/1/")
+    #     # And sees that slot is listed as empty
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop:")
 
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)
@@ -186,11 +186,14 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     self.browser.get(self.live_server_url + "/slot/1/")
     #     # And is redirected to the slot details page
     #     self.assertEqual(self.browser.title, "Slot Details")
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop: Radish")
     #     # He clicks on the button to record a dead crop
     #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
+    #     sleep(SLEEPY_TIME)
     #     # The slot details page reloads and he sees that the crop has been removed from the slot
-    #     # He is redirected to the home page
-    #     self.assertEqual('Home -- BMG', self.browser.title)
+    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+    #     self.assertEqual(current_crop_type, "Current Crop:")
 
 
     # def test_add_note_about_crop(self):

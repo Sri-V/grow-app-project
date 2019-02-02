@@ -49,7 +49,7 @@ def create_crop(request):
         # Create crop record for this event
         CropRecord.objects.create(crop=new_crop, record_type='GERM')
         # Redirect the user to the slot details page
-        return HttpResponseRedirect('/slot/' + str(designated_slot_id) + '/')
+        return redirect('/slot/' + str(designated_slot_id) + '/')
 
 
 def crop_detail(request, crop_id):
@@ -87,8 +87,9 @@ def trash_crop(request, slot_id):
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
     slot.current_crop = None
+    slot.save()
     CropRecord.objects.create(crop=crop, record_type='TRASH')
-    return redirect(homepage)
+    return redirect('/slot/' + str(slot_id) + '/')
 
 def crop_history(request, crop_id):
     """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
@@ -127,7 +128,7 @@ def move_tray(request, slot_id):
     leaving_slot.current_crop = None
     leaving_slot.save()
     arriving_slot.save()
-    return HttpResponseRedirect('/slot/' + str(arriving_slot_id) + '/')
+    return redirect('/slot/' + str(arriving_slot_id) + '/')
 
 def record_note(request, slot_id) :
     """POST: Record that the crop has been moved and redirect user to homepage."""
