@@ -125,6 +125,8 @@ def move_tray(request, slot_id):
     arriving_slot = Slot.objects.get(id=arriving_slot_id)
     arriving_slot.current_crop = leaving_slot.current_crop
     leaving_slot.current_crop = None
+    leaving_slot.save()
+    arriving_slot.save()
     return HttpResponseRedirect('/slot/' + str(arriving_slot_id) + '/')
 
 def record_note(request, slot_id) :
