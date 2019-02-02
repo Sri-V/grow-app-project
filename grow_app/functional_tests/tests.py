@@ -186,6 +186,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     self.assertEqual(self.browser.title, "Slot Details")
     #     # He clicks on the button to record a dead crop
     #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
+    #     # The slot details page reloads and he sees that the crop has been removed from the slot
     #     # He is redirected to the home page
     #     self.assertEqual('Home -- BMG', self.browser.title)
 
