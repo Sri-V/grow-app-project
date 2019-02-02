@@ -40,12 +40,13 @@ def create_crop(request):
         delivered_live = (request.POST["delivered-live"] == 'True')
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
-        designated_slot = int(request.POST["designated-slot"])
+        designated_slot_id = int(request.POST["designated-slot-id"])
         variety = Variety.objects.get(name=variety_name)
         # Create the crop object
         new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live, exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
         # Update the corresponding slot with that crop
-        Slot.objects.filter(id=designated_slot).update(current_crop=new_crop)
+        designated_slot = Slot.objects.filter(id=designated_slot_id)
+        designated_slot.update(current_crop=new_crop)
         # Create crop record for this event
         CropRecord.objects.create(crop=new_crop, record_type='GERM')
         # Redirect the user to the slot details page
@@ -128,9 +129,11 @@ def move_tray(request, slot_id):
         leaving_slot = Slot.objects.get(id=slot_id)
         arriving_slot_id = int(request.POST["slot-destination-id"])
         arriving_slot = Slot.objects.get(id=arriving_slot_id)
-        arriving_slot.current_crop = leaving_slot.current_crop
-        leaving_slot.current_crop = None
-        return HttpResponseRedirect('/slot/' + str(arriving_slot_id) + '/')
+        arriving_slot.update(current_crop=leaving_slot.current_crop)
+        leaving_slot.update(current_crop=None)
+        print("TESTING")
+        print("Arriving slot: ", arriving_slot_id)
+        return redirect('/slot/' + str(arriving_slot_id) + '/')
 
 def record_note(request, slot_id) :
     """POST: Record that the crop has been moved and redirect user to homepage."""
