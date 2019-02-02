@@ -58,6 +58,31 @@ class NewCropTest(TestCase):
         self.assertEqual(slot.current_crop.exp_num_germ_days, 4)
         self.assertEqual(slot.current_crop.exp_num_grow_days, 16)
 
+class MoveTrayTest(TestCase):
+    """Tests that move tray action modifies the model correctly."""
+
+    def test_move_crop(self):
+        # There are five total slots in the database
+        slot = [Slot.objects.create() for i in range(5)]
+        # A single crop exists
+        variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        basil = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8, exp_num_grow_days=12)
+        # The crop is added to the first slot
+        Slot.objects.filter(id=2).update(current_crop=basil)
+        # Check that the crop exists in slot 2
+        slot = Slot.objects.get(id=2)
+        self.assertEqual(slot.current_crop.variety.name, "Basil")
+        # And that slot 4 is empty
+        slot = Slot.objects.get(id=4)
+        self.assertEqual(slot.current_crop, None)
+        # Make a post to the move tray endpoint
+        response = self.client.post("/slot/2/action/move_tray", data={"slot-destination-id": 4})
+        # Check that the crop now lives in slot 4
+        slot = Slot.objects.get(id=4)
+        self.assertEqual(slot.current_crop.variety.name, "Basil")
+        # And that slot 2 is now empty
+        slot = Slot.objects.get(id=2)
+        self.assertEqual(slot.current_crop, None)
 
 class CropModelTest(TestCase):
     pass
