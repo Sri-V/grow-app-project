@@ -58,6 +58,7 @@ class NewCropTest(TestCase):
         self.assertEqual(slot.current_crop.exp_num_germ_days, 4)
         self.assertEqual(slot.current_crop.exp_num_grow_days, 16)
 
+
 class MoveTrayTest(TestCase):
     """Tests that move tray action modifies the model correctly."""
 
@@ -83,6 +84,7 @@ class MoveTrayTest(TestCase):
         # And that slot 2 is now empty
         slot = Slot.objects.get(id=2)
         self.assertEqual(slot.current_crop, None)
+
 
 class CropModelTest(TestCase):
     pass
