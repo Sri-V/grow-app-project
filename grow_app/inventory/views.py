@@ -55,7 +55,7 @@ def create_crop(request):
         # Update the corresponding slot with that crop
         designated_slot = Slot.objects.filter(id=designated_slot_id).update(current_crop=new_crop)
         # Create crop record for this event
-        CropRecord.objects.create(crop=new_crop, record_type='GERM')
+        CropRecord.objects.create(crop=new_crop, record_type='SEED')
         # Redirect the user to the slot details page
         return redirect('/slot/' + str(designated_slot_id) + '/')
 
