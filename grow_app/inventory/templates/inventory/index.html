@@ -13,6 +13,12 @@
     <input id="form-set-slot-count-qty" type="number" min="0" name="quantity"/>
     <input id="form-set-slot-count-submit" type="submit" />
 </form>
+<form id="form-add-variety" method="POST" action="/crop/add_variety">
+    {% csrf_token %}
+    Variety Name <input id="form-add-variety-name" type="text" name="variety-name"/>
+    Days Until Harvest <input id="form-add-variety-days-to-harvest" type="text" name="days-to-harvest"/>
+    <input id="form-add-variety-submit" type="submit" />
+</form>
 <a id="link-new-crop" href="{% url 'create_crop' %}">Add a new crop</a>
 </body>
 </html>

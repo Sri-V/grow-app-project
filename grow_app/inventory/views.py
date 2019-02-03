@@ -25,6 +25,14 @@ def set_total_slot_quantity(request):
     return redirect(homepage)
 
 
+def add_variety(request):
+    """POST: Adds Variety Objects"""
+    variety_name = request.POST["variety-name"]
+    days_to_harvest = request.POST["days-to-harvest"]
+    Variety.objects.create(name=variety_name, days_plant_to_harvest=days_to_harvest)
+    return redirect(homepage)
+
+
 def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""

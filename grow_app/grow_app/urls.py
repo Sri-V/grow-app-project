@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.homepage, name="home"),
     path('crop/new/', views.create_crop, name="create_crop"),
+    path('crop/add_variety', views.add_variety, name="add_variety"),
     path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
     path('crop/<int:crop_id>/history/', views.crop_history, name="crop_history"),
     path('crop/<int:crop_id>/record/', views.record_crop_info, name="record_crop_info"),
