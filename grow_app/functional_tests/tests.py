@@ -44,8 +44,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.assertIn("You have 400 total slots.", body)
 
     def test_add_varieties(self):
-        # Oliver has just set the total number of slots to the grow app
-        # TODO -- combine with previous test method
+        # Oliver wants to input some different crop varieties
         self.browser.get(self.live_server_url)
         # He now wants to add some crop varieties to the database so he clicks add variety
         add_variety_name = self.browser.find_element_by_id("form-add-variety-name")
@@ -143,7 +142,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(exp_num_germ_days, "Expected number of germination days: 5")
         exp_num_grow_days = self.browser.find_element_by_id("exp-num-grow-days").text
         self.assertEqual(exp_num_grow_days, "Expected number of grow days: 10")
-        # TODO -- add list of slot "locations" that the crop is in
 
     def test_move_crop_from_one_slot_to_another(self):
         # Oliver wants to move his crop from one spot in the greenhouse to another
@@ -180,7 +178,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that slot is listed as empty
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop:")  # FIXME -- Display a better message than this
+        self.assertEqual(current_crop_type, "Current Crop:")  # FIXME -- Display a better message than this for empty crop
 
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)
