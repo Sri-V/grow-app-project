@@ -1,5 +1,5 @@
 from django.test import TestCase
-from inventory.models import Crop, Slot, Variety
+from inventory.models import Crop, Slot, Variety, CropRecord
 
 
 class HomePageTest(TestCase):
@@ -90,3 +90,23 @@ class CropModelTest(TestCase):
 
 class TrayModelTest(TestCase):
     pass
+
+class AddNoteTest(TestCase):
+
+    def setUp(self):
+        self.slot_ids = [Slot.objects.create().id for i in range(3)]
+        self.id_of_plant_slot = self.slot_ids[0]
+        self.variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        self.basil = Crop.objects.create(variety=self.variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                    exp_num_grow_days=12)
+        # The crop is added to the slot
+        Slot.objects.filter(id=self.id_of_plant_slot).update(current_crop=self.basil)
+
+    def testMakeNote(self):
+        # Make a note about how the basil lamp died
+        note = self.client.post(f'/slot/{self.id_of_plant_slot}/action/note',
+                                data={"note": "Basil lamp died"})
+        # Check that note is stored in crop record
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        self.assertEqual(1, len(record_list))
+        self.assertEqual("Basil lamp died", record_list[0].note)
