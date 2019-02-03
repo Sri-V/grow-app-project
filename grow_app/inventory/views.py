@@ -1,7 +1,7 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
-
+from datetime import datetime
 
 # Create your views here.
 def homepage(request):
@@ -132,9 +132,10 @@ def move_tray(request, slot_id):
         leaving_slot.current_crop = None
         return redirect(homepage)
 
-def record_note(request, slot_id) :
+def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
-    slot = Slot.objects.get(id=slot_id)
-    crop = slot.current_crop
-    CropRecord.object.create(crop=crop, record_type='NOTE')
+    crop = Slot.objects.get(id=slot_id).current_crop
+    note = request.POST["note"]
+    date = datetime.datetime.now()
+    CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
     return redirect(homepage)
