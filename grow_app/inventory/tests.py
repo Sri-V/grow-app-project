@@ -93,8 +93,9 @@ class CropModelTest(TestCase):
 class TrayModelTest(TestCase):
     pass
 
-class AddNoteTest(TestCase):
 
+class AddNoteTest(TestCase):
+    """Unit test that we can add a note to a crop and have it appear in the crop history."""
     def setUp(self):
         self.slot_ids = [Slot.objects.create().id for i in range(3)]
         self.id_of_plant_slot = self.slot_ids[0]
