@@ -188,10 +188,20 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     # Oliver wants to water a crop of microgreens.
 
     def test_harvest_the_crop(self):
-        self.browser.get(self.live_server_url)
-        self.fail("Test incomplete")
         # Oliver would like to harvest a crop of microgreens.
-
+        # He navigates to the detail page of the slot he'd like to harvest
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        # Then he finds the form for harvesting a crop
+        harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
+        # He clicks the submit button to harvest the crop
+        harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
+        sleep(SLEEPY_TIME)
+        # Then he gets redirected to the crop detail page
+        self.fail("Test incomplete.")
+        # And the history displays a crop record indicating it was harvested
+        # Then he navigates back to the slot that the crop was in
+        # And sees that it is empty
+        
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
         # FIXME -- he scans the slot of interest with the barcode scanner
@@ -224,10 +234,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-record-note").click()
         # He is then redirected back to the slot details page
         self.assertEqual('Slot Details', self.browser.title)
-
-    #
-    #
-    #
+        
     # def test_lookup_crop_history(self):
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
