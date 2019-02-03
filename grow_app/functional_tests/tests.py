@@ -22,7 +22,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_new_user_setup(self):
+    def test_set_number_of_slots(self):
         # Oliver just learned about this cool new growing app.
         self.browser.get(self.live_server_url)
         # He goes to the homepage and reads the title.
@@ -42,10 +42,10 @@ class GreenhouseSetupTest(LiveServerTestCase):
         # He also sees that the number of total slots has updated to 400
         body = self.browser.find_element_by_tag_name("body").text
         self.assertIn("You have 400 total slots.", body)
-        # TODO -- Add variety information too
 
-    def test_add_variety(self):
+    def test_add_varieties(self):
         # Oliver has just set the total number of slots to the grow app
+        # TODO -- combine with previous test method
         self.browser.get(self.live_server_url)
         # He now wants to add some crop varieties to the database so he clicks add variety
         add_variety_name = self.browser.find_element_by_id("form-add-variety-name")
@@ -62,13 +62,11 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     def setUp(self):
         # Set the browser
         self.browser = webdriver.Firefox()
-
-        # Add slots in the greenhouse
-        for i in range(5):
-            if i == 1:
-                self.desired_slot_id = Slot.objects.create().id
-            else:
-                Slot.objects.create()
+        
+        # Make some slots and save their ids -- this is to avoid hard-coding primary keys in the test methods
+        self.plant_origin_slot_id = Slot.objects.create().id
+        self.plant_destination_slot_id = Slot.objects.create().id
+        self.free_slot_id = Slot.objects.create().id
         
         # Add some plant varieties
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
@@ -79,7 +77,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         variety = Variety.objects.get(name="Radish")
         first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True, exp_num_germ_days=3,
                                          exp_num_grow_days=8)
-        Slot.objects.filter(id=1).update(current_crop=first_crop)
+        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=first_crop)
 
     def tearDown(self):
         self.browser.quit()
@@ -89,13 +87,13 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He goes to the website and sees that his slots are there
         self.browser.get(self.live_server_url)
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 5 total slots.", body)
+        self.assertIn("You have 3 total slots.", body)  # FIXME -- more useful as "n free slots out of 3 total."
+        
         # Then he clicks a link to add a new crop
         self.browser.find_element_by_id("link-new-crop").click()
         # He lands on a page that presents a form for adding a new crop
         self.assertRegex(self.browser.current_url, r"/crop/new/")
         self.assertEqual(self.browser.title, "New Crop -- BMG")
-        
         # He selects Basil from the variety dropdown menu
         select_variety = self.browser.find_element_by_id("form-new-crop-variety")
         for option in select_variety.find_elements_by_tag_name("option"):
@@ -113,19 +111,17 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He enters that the crop should germinate for 5 days and grow for another 10
         self.browser.find_element_by_id("form-new-crop-germination-length").send_keys("5")
         self.browser.find_element_by_id("form-new-crop-grow-length").send_keys("10")
-        
-        # Lastly he selects an open slot from a dropdown list
-        # TODO -- replace with a barcode scan
+        # FIXME -- he scans the barcode of the slot in which the crop will live
         select_slot = self.browser.find_element_by_id("form-new-crop-slot")
         for option in select_slot.find_elements_by_tag_name("option"):
-            if option.text == str(self.desired_slot_id):
+            if option.text == str(self.free_slot_id):
                 option.click()
                 break
         else:
-            self.fail("Unable to find Tray #2 in the new crop form!")
-        
-        # Then he hits submit
+            self.fail(f'Unable to find Tray #{self.free_slot_id} in the new crop form!')
+        # Then he hits submit and waits
         self.browser.find_element_by_id("form-new-crop-submit").click()
+        sleep(SLEEPY_TIME)
         
         # He notices that he's been redirected to the slot detail page
         self.assertRegex(self.browser.current_url, r"/slot/\d+/")
@@ -151,38 +147,40 @@ class BasicUserInteractionsTest(LiveServerTestCase):
 
     def test_move_crop_from_one_slot_to_another(self):
         # Oliver wants to move his crop from one spot in the greenhouse to another
-        # He scans the barcode of the radish tray he would like to move
-        self.browser.get(self.live_server_url + "/slot/1/")
+        # FIXME -- He scans the barcode of the radish tray he would like to move
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And is redirected to the slot details page
         self.assertEqual(self.browser.title, "Slot Details")
         slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 1")
+        self.assertEqual(slot_id, f'Slot ID: {self.plant_origin_slot_id}')
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
-        # He selects the tray he wants it to move to and hits submit
+        
+        # FIXME -- He scans the barcode of the crop's destination slot
         select_slot_destination = self.browser.find_element_by_id("form-slot-destination-id")
         for option in select_slot_destination.find_elements_by_tag_name("option"):
-            if option.text == "4":
+            if option.text == str(self.plant_destination_slot_id):
                 option.click()
                 break
         else:
-            self.fail("Unable to find Tray #4 in the dropdown menu!")
-
+            self.fail(f'Unable to find destination tray #{self.plant_destination_slot_id} in the dropdown menu!')
+        # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
         sleep(SLEEPY_TIME)
+        
         # And he gets redirected to the page belonging to the new slot
-        self.assertRegex(self.browser.current_url, r"/slot/4/")
+        self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot_id}/')
         self.assertEqual(self.browser.title, "Slot Details")
         slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, "Slot ID: 4")
+        self.assertEqual(slot_id, f'Slot ID: {self.plant_destination_slot_id}')
         # And the crop is listed below
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He then goes back to the old slot's page
-        self.browser.get(self.live_server_url + "/slot/1/")
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that slot is listed as empty
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop:")
+        self.assertEqual(current_crop_type, "Current Crop:")  # FIXME -- Display a better message than this
 
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)
@@ -194,20 +192,23 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.fail("Test incomplete")
         # Oliver would like to harvest a crop of microgreens.
 
-    # def test_record_dead_crop(self):
-    #     # Oliver notices mold on a crop, and decides to dispose of it.
-    #     # He scans slot 1 with the barcode scanner
-    #     self.browser.get(self.live_server_url + "/slot/1/")
-    #     # And is redirected to the slot details page
-    #     self.assertEqual(self.browser.title, "Slot Details")
-    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-    #     self.assertEqual(current_crop_type, "Current Crop: Radish")
-    #     # He clicks on the button to record a dead crop
-    #     self.browser.find_element_by_id("form-record-dead-crop-submit").click()
-    #     sleep(SLEEPY_TIME)
-    #     # The slot details page reloads and he sees that the crop has been removed from the slot
-    #     current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-    #     self.assertEqual(current_crop_type, "Current Crop:")
+    def test_record_dead_crop(self):
+        # Oliver notices mold on a crop, and decides to dispose of it.
+        # FIXME -- he scans the slot of interest with the barcode scanner
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        # And is redirected to the slot details page
+        self.assertEqual(self.browser.title, "Slot Details")
+        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+        self.assertEqual(current_crop_type, "Current Crop: Radish")
+        # He clicks on the button to record a dead crop
+        # TODO -- this form needs a text input for Oliver to record why the crop died
+        self.browser.find_element_by_id("form-record-dead-crop-submit").click()
+        sleep(SLEEPY_TIME)
+        # The slot details page reloads and he sees that the crop has been removed from the slot
+        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
+        self.assertEqual(current_crop_type, "Current Crop:")
+        # TODO -- also need to see that the death is recorded the crop history
+        self.fail("Test incomplete.")
 
 
     # def test_add_note_about_crop(self):
