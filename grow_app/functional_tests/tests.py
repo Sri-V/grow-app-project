@@ -210,10 +210,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # TODO -- also need to see that the death is recorded the crop history
         self.fail("Test incomplete.")
 
-
     def test_add_note_about_crop(self):
-
-        bulb_died = "The crop lamp bulb died";
+        bulb_died = "The crop lamp bulb died"
 
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
         # He scans slot 1 with the barcode scanner
