@@ -142,6 +142,6 @@ def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
     crop = Slot.objects.get(id=slot_id).current_crop
     note = request.POST["note"]
-    date = datetime.datetime.now()
+    date = datetime.now()
     CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
-    return redirect(homepage)
+    return redirect(slot_detail, slot_id=slot_id)
