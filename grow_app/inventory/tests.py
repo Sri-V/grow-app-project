@@ -87,10 +87,12 @@ class MoveTrayTest(TestCase):
 
 
 class CropModelTest(TestCase):
+    """Unit tests for Crop data structure."""
     pass
     
 
-class TrayModelTest(TestCase):
+class SlotModelTest(TestCase):
+    """Unit tests for Slot data structure."""
     pass
 
 class AddNoteTest(TestCase):
