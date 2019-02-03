@@ -206,21 +206,22 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     #     self.assertEqual(current_crop_type, "Current Crop:")
 
 
-    # def test_add_note_about_crop(self):
-    #
-    #     bulb_died = "The crop lamp bulb died";
-    #
-    #     # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
-    #     # He scans slot 1 with the barcode scanner
-    #     self.browser.get(self.live_server_url + "/slot/1/")
-    #     # He gets directed be on the page associated with that slot
-    #     self.assertEqual(self.browser.title, "Slot Details")
-    #     # Oliver types a note about the crop in the notes field
-    #     self.browser.find_element_by_name("note").send_keys(bulb_died)
-    #     # Oliver hits the submit button
-    #     self.browser.find_element_by_id("form-record-note-submit").click()
-    #     # He is then redirected back to the home page
-    #     self.assertEqual('Home -- BMG', self.browser.title)
+    def test_add_note_about_crop(self):
+
+        bulb_died = "The crop lamp bulb died";
+
+        # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
+        # He scans slot 1 with the barcode scanner
+        self.browser.get(self.live_server_url + "/slot/1/")
+        # He gets directed be on the page associated with that slot
+        self.assertEqual("Slot Details", self.browser.title)
+        # Oliver types a note about the crop in the notes field
+        self.browser.find_element_by_name("note").send_keys(bulb_died)
+        # Oliver hits the submit button
+        self.browser.find_element_by_id("form-record-note").click()
+        # He is then redirected back to the slot details page
+        self.assertEqual('Slot Details', self.browser.title)
+
     #
     #
     #
