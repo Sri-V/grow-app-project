@@ -22,10 +22,15 @@
         {% csrf_token %}
         <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
     </form>
-
-    <form action="/slot/{{ slot_id }}/action/move_tray/" method="get">
+    <form action="/slot/{{ slot_id }}/action/move_tray" method="post">
         {% csrf_token %}
-        <input type="submit" value="Move Tray" name="move-tray" id="button-move-tray-submit" />
+        Destination slot id:
+        <select id="form-slot-destination-id" name="slot-destination-id">
+            {% for slot in open_slots %}
+                <option>{{ slot.id }}</option>
+            {% endfor %}
+        </select>
+        <input id="form-move-tray-submit" value="Move Tray" type="submit">
     </form>
 
     <form action="/slot/{{ slot_id }}/action/note/" method="get">
@@ -33,6 +38,6 @@
         <textarea name="note" form="form-record-note-submit"></textarea>
         <input type="submit" value="Record Note" name="record-note" id="form-record-note-submit" />
     </form>
-
+    <textarea name="note" form="form-record-note-submit"></textarea>
 </body>
 </html>

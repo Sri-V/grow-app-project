@@ -25,6 +25,14 @@ def set_total_slot_quantity(request):
     return redirect(homepage)
 
 
+def add_variety(request):
+    """POST: Adds Variety Objects"""
+    variety_name = request.POST["variety-name"]
+    days_to_harvest = request.POST["days-to-harvest"]
+    Variety.objects.create(name=variety_name, days_plant_to_harvest=days_to_harvest)
+    return redirect(homepage)
+
+
 def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
@@ -40,16 +48,16 @@ def create_crop(request):
         delivered_live = (request.POST["delivered-live"] == 'True')
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
-        designated_slot = int(request.POST["designated-slot"])
+        designated_slot_id = int(request.POST["designated-slot-id"])
         variety = Variety.objects.get(name=variety_name)
         # Create the crop object
         new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live, exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
         # Update the corresponding slot with that crop
-        Slot.objects.filter(id=designated_slot).update(current_crop=new_crop)
+        designated_slot = Slot.objects.filter(id=designated_slot_id).update(current_crop=new_crop)
         # Create crop record for this event
         CropRecord.objects.create(crop=new_crop, record_type='GERM')
         # Redirect the user to the slot details page
-        return HttpResponseRedirect('/slot/' + str(designated_slot) + '/')
+        return redirect('/slot/' + str(designated_slot_id) + '/')
 
 
 def crop_detail(request, crop_id):
@@ -73,7 +81,9 @@ def slot_detail(request, slot_id):
     Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop})
+    open_slots = Slot.objects.filter(current_crop=None)
+
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots})
 
 def slot_action():
     """GET: Display a form for a user to record an action on a tray.
@@ -85,8 +95,9 @@ def trash_crop(request, slot_id):
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
     slot.current_crop = None
+    slot.save()
     CropRecord.objects.create(crop=crop, record_type='TRASH')
-    return redirect(homepage)
+    return redirect('/slot/' + str(slot_id) + '/')
 
 def crop_history(request, crop_id):
     """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
@@ -117,20 +128,15 @@ def water_crop(request, slot_id):
 
 
 def move_tray(request, slot_id):
-    """GET: Render form for user to specify where to move tray
-    POST: Update the database with the tray that has been moved"""
-    if request.method == 'GET':
-        available_slots = Slot.objects.get(current_crop=None)
-        return render(request, "inventory/forms/move_tray.html", context={"current_slot_id": slot_id,
-                                                                          "available_slots": available_slots})
-
-    if request.method == 'POST':
-        leaving_slot = Slot.objects.get(id=slot_id)
-        arriving_slot_id = int(request.POST["slot-destination-id"])
-        arriving_slot = Slot.objects.get(id=arriving_slot_id)
-        arriving_slot.current_crop = leaving_slot.current_crop
-        leaving_slot.current_crop = None
-        return redirect(homepage)
+    """POST: Update the database with the tray that has been moved"""
+    leaving_slot = Slot.objects.get(id=slot_id)
+    arriving_slot_id = int(request.POST["slot-destination-id"])
+    arriving_slot = Slot.objects.get(id=arriving_slot_id)
+    arriving_slot.current_crop = leaving_slot.current_crop
+    leaving_slot.current_crop = None
+    leaving_slot.save()
+    arriving_slot.save()
+    return redirect('/slot/' + str(arriving_slot_id) + '/')
 
 def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
