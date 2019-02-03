@@ -10,16 +10,16 @@ from inventory.models import Crop, Slot, Variety
 
 SLEEPY_TIME = 1
 
-# class GreenhouseSetupTest(LiveServerTestCase):
-#     """
-#     Tests that the application can support first-time setup tasks for a greenhouse or growing operation.
-#     """
-#     def setUp(self):
-#         # Set the browser
-#         self.browser = webdriver.Firefox()
-#
-#     def tearDown(self):
-#         self.browser.quit()
+class GreenhouseSetupTest(LiveServerTestCase):
+    """
+    Tests that the application can support first-time setup tasks for a greenhouse or growing operation.
+    """
+    def setUp(self):
+        # Set the browser
+        self.browser = webdriver.Firefox()
+
+    def tearDown(self):
+        self.browser.quit()
 #
 #     def test_new_user_setup(self):
 #         # Oliver just learned about this cool new growing app.
@@ -42,6 +42,16 @@ SLEEPY_TIME = 1
 #         body = self.browser.find_element_by_tag_name("body").text
 #         self.assertIn("You have 400 total slots.", body)
 #         # TODO -- Add variety information too
+
+    def test_add_variety(self):
+        # Oliver has just set the total number of slots to the grow app
+        self.browser.get(self.live_server_url)
+        # He now wants to add some crop varieties to the database so he clicks add variety
+        add_variety_name = self.browser.find_element_by_id("form-add-variety-name")
+#       # He add Kale for the name of his variety
+#       # And sets teh expected days until harvest to 18
+
+
 
 
 class BasicUserInteractionsTest(LiveServerTestCase):
