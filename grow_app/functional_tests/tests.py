@@ -198,8 +198,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He then goes back to the old slot's page
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that slot is listed as empty
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop:")  # FIXME -- Display a better message than this for empty crop
+        empty_slot = self.browser.find_element_by_id("empty-slot").text
+        self.assertEqual(empty_slot, "This slot is empty")
 
     # def test_water_the_crop(self):
     #     self.browser.get(self.live_server_url)

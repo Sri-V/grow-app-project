@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Slot Details</h1>
+    {% if current_crop is not none %}
     <div id="current-crop-type">
         Current Crop: <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
     </div>
@@ -44,5 +45,10 @@
         {% csrf_token %}
         <input type="submit" value="Trash Crop" name="record-dead-crop" id="form-record-dead-crop-submit" />
     </form>
+    {% else %}
+    <div id="empty-slot">
+        This slot is empty
+    </div>
+    {% endif %}
 </body>
 </html>
