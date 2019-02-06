@@ -5,8 +5,9 @@ This file contains functional tests, meant to test the behavior of the system fr
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from time import sleep
+from datetime import datetime
 
-from inventory.models import Crop, Slot, Variety
+from inventory.models import Crop, Slot, Variety, CropRecord
 
 SLEEPY_TIME = 1
 
@@ -201,10 +202,16 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "This slot is empty")
 
-    # def test_water_the_crop(self):
-    #     self.browser.get(self.live_server_url)
-    #     self.fail("Test incomplete")
-    #     # Oliver wants to water a crop of microgreens.
+    def test_water_the_crop(self): #TODO
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        water_crop_form = self.browser.find_element_by_id("form-water-crop")
+        #self.fail("Test incomplete")
+        # Oliver wants to water a crop of microgreens.
+        water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
+        sleep(SLEEPY_TIME)
+        # Verify that a water action was recorded for this crop
+        record = CropRecord.objects.filter(record_type='WATER')[0]
+        self.assertEqual(record.date, datetime.now().date())
 
     def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
@@ -253,8 +260,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-record-note").click()
         # He is then redirected back to the slot details page
         self.assertEqual('Slot Details', self.browser.title)
-        
-    # def test_lookup_crop_history(self):
+    
+    # def test_lookup_crop_history(self): #TODO
     #     self.browser.get(self.live_server_url)
     #     self.fail("Test incomplete")
     #     # Oliver wants to look back at the crop's life to understand how it grew.

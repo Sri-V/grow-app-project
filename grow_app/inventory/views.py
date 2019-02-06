@@ -123,7 +123,7 @@ def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
-    CropRecord.objects.create(crop=crop, record_type='WATER')
+    rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
     return redirect(homepage)
 
 
