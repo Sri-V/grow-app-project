@@ -96,7 +96,8 @@ def trash_crop(request, slot_id):
     crop = slot.current_crop
     slot.current_crop = None
     slot.save()
-    CropRecord.objects.create(crop=crop, record_type='TRASH')
+    reason_for_trash = request.POST["reason-for-trash-text"]
+    CropRecord.objects.create(crop=crop, record_type='TRASH', note=reason_for_trash)
     return redirect('/slot/' + str(slot_id) + '/')
 
 def crop_history(request, crop_id):

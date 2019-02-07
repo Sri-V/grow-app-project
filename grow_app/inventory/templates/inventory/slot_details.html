@@ -43,7 +43,7 @@
 
     <form action="/slot/{{ slot_id }}/action/trash" method="post">
         {% csrf_token %}
-        Reason for trashing crop <input type="text" id="form-record-dead-crop-text" />
+        Reason for trashing crop <input type="text" name="reason-for-trash-text" id="form-record-dead-crop-text" />
         <input type="submit" value="Trash Crop" id="form-record-dead-crop-submit" />
     </form>
 
