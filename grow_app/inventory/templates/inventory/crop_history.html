@@ -7,7 +7,7 @@
 <body>
     <h1>Crop Details</h1>
     <div id="crop-detail">
-        Crop Type: {{ crop.variety.name }}
+        Crop Type: {{ crop.variety.name }} <br />
         Tray Size: {{ crop.get_tray_size_display }}
     </div>
     {% if water %}

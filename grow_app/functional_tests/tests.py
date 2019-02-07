@@ -202,7 +202,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "This slot is empty")
 
-    def test_water_the_crop(self): #TODO
+    def test_water_the_crop(self):
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         #self.fail("Test incomplete")
@@ -278,10 +278,12 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # TODO -- also need to see that the note is recorded in the crop history
         self.fail("Test incomplete.")
     
-    # def test_lookup_crop_history(self): #TODO
-    #     self.browser.get(self.live_server_url)
-    #     self.fail("Test incomplete")
-    #     # Oliver wants to look back at the crop's life to understand how it grew.
+    def test_lookup_crop_history(self): #TODO
+        self.browser.get(self.live_server_url + f'/crop/{Slot.objects.get(id=self.plant_origin_slot_id).current_crop.id}/history')
+        sleep(20)
+        self.assertEqual(True, True)
+        # self.fail("Test incomplete")
+        # Oliver wants to look back at the crop's life to understand how it grew.
     #
     # ###
     # # SPRINT 2
