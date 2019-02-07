@@ -43,8 +43,10 @@
 
     <form action="/slot/{{ slot_id }}/action/trash" method="post">
         {% csrf_token %}
-        <input type="submit" value="Trash Crop" name="record-dead-crop" id="form-record-dead-crop-submit" />
+        Reason for trashing crop <input type="text" id="form-record-dead-crop-text" />
+        <input type="submit" value="Trash Crop" id="form-record-dead-crop-submit" />
     </form>
+
     {% else %}
     <div id="empty-slot">
         This slot is empty
