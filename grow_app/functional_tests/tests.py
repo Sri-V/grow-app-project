@@ -236,13 +236,19 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(self.browser.title, "Slot Details")
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
-        # He clicks on the button to record a dead crop
-        # TODO -- this form needs a text input for Oliver to record why the crop died
+        # He writes that mold is the reason for trashing the crop
+        self.browser.find_element_by_id("form-record-dead-crop-text").send_keys("mold on crop ")
+        # And clicks on the button to record a dead crop
         self.browser.find_element_by_id("form-record-dead-crop-submit").click()
         sleep(SLEEPY_TIME)
         # The slot details page reloads and he sees that the crop has been removed from the slot
-        current_crop_type = self.browser.find_element_by_id("current-crop-type").text
-        self.assertEqual(current_crop_type, "Current Crop:")
+        empty_slot = self.browser.find_element_by_id("empty-slot").text
+        self.assertEqual(empty_slot, "This slot is empty")
+        # He then goes to the crop history page
+        self.browser.get(self.live_server_url + f'/crop/1/history/')
+        # And sees that the crop death has been recorded in the crop history
+        current_crop_type = self.browser.find_element_by_id("trash-date").text
+        self.assertEqual(current_crop_type, "Trashed Date: ")
         # TODO -- also need to see that the death is recorded the crop history
         self.fail("Test incomplete.")
 
