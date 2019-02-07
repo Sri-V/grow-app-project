@@ -18,7 +18,7 @@
     {% csrf_token %}
     Variety Name <input id="form-add-variety-name" type="text" name="variety-name"/>
     Days Until Harvest <input id="form-add-variety-days-to-harvest" type="number" min="1" name="days-to-harvest"/>
-    <input id="form-add-variety-submit" type="submit" />
+    <input id="form-add-variety-submit" value="Add Variety" type="submit" />
 </form>
 <a id="link-new-crop" href="{% url 'create_crop' %}">Add a new crop</a>
 </body>
