@@ -266,6 +266,18 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-record-note").click()
         # He is then redirected back to the slot details page
         self.assertEqual('Slot Details', self.browser.title)
+        # He then clicks the crop details link to see the crop details
+        self.browser.find_element_by_id("link-crop-details").click()
+        # He is directed to the crop details page
+        self.assertEqual('Crop Details', self.browser.title)
+        # He then clicks the crop history link to see the crop history
+        self.browser.find_element_by_id("link-crop-history").click()
+        # He is directed to the crop history page
+        # TODO -- currently getting a 500 server error
+        # self.assertEqual('Crop History -- BMG', self.browser.title)
+        # He reviews the notes about the crop, and sees that the crop lamp bulb has died
+        # TODO -- also need to see that the note is recorded in the crop history
+        self.fail("Test incomplete.")
     
     # def test_lookup_crop_history(self): #TODO
     #     self.browser.get(self.live_server_url)
