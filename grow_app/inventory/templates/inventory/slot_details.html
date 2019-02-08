@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Slot Details</h1>
+    {% if current_crop is not none %}
     <div id="current-crop-type">
         Current Crop: <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
     </div>
@@ -13,7 +14,7 @@
         Slot ID: {{ slot_id }}
     </div>
     <h4>Slot Actions</h4>
-    <form action="/slot/{{ slot_id }}/action/water" method="post">
+    <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">
         {% csrf_token %}
         <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
     </form>
@@ -42,7 +43,14 @@
 
     <form action="/slot/{{ slot_id }}/action/trash" method="post">
         {% csrf_token %}
-        <input type="submit" value="Trash Crop" name="record-dead-crop" id="form-record-dead-crop-submit" />
+        Reason for trashing crop <input type="text" name="reason-for-trash-text" id="form-record-dead-crop-text" />
+        <input type="submit" value="Trash Crop" id="form-record-dead-crop-submit" />
     </form>
+
+    {% else %}
+    <div id="empty-slot">
+        This slot is empty
+    </div>
+    {% endif %}
 </body>
 </html>

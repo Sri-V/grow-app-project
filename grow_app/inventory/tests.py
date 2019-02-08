@@ -68,7 +68,7 @@ class MoveTrayTest(TestCase):
         # A single crop exists
         variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
         basil = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8, exp_num_grow_days=12)
-        # The crop is added to the first slot
+        # The crop is added to slot 2
         Slot.objects.filter(id=2).update(current_crop=basil)
         # Check that the crop exists in slot 2
         slot = Slot.objects.get(id=2)
@@ -85,6 +85,32 @@ class MoveTrayTest(TestCase):
         slot = Slot.objects.get(id=2)
         self.assertEqual(slot.current_crop, None)
 
+class RecordDeadCropTest(TestCase):
+    """Tests that the record dead crop action modifies the model correctly."""
+
+    def test_record_dead_crop(self):
+        # We create a single slot in the database
+        Slot.objects.create()
+        # And a crop to go in the slot
+        variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        basil = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8, exp_num_grow_days=12)
+        # The crop is added to the slot
+        Slot.objects.filter(id=1).update(current_crop=basil)
+        # Check that the crop exists in the slot
+        slot = Slot.objects.get(id=1)
+        self.assertEqual(slot.current_crop.variety.name, "Basil")
+        # And check that there is no TRASH record that has been recorded for this crop
+        trash = CropRecord.objects.filter(crop=basil).filter(record_type='TRASH')
+        self.assertEqual(trash, None)
+        # Make a post to the record dead crop endpoint
+        response = self.client.post("slot/1/action/trash", data={"reason-for-trash-text": "Got frozen"})
+        # Check that there is no longer a crop in the slot
+        slot = Slot.objects.get(id=1)
+        self.assertEqual(slot.current_crop, None)
+        # Check that the crop record was created and contains the reason for trashing
+        trash_record = CropRecord.objects.filter(crop=basil).filter(record_type='TRASH')
+        self.assertEqual(trash_record.crop.variety.name, "Basil")
+        self.assertEqual(trash_record.note, "Got frozen")
 
 class CropModelTest(TestCase):
     """Unit tests for Crop data structure."""
