@@ -90,6 +90,15 @@ def slot_action():
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
     return None
 
+def harvest_crop(request, slot_id):
+    """POST: Remove the crop from its tray, record crop history as harvest, and redirect to crop detail page."""
+    slot = Slot.objects.get(id=slot_id)
+    current_crop = slot.current_crop
+    slot.current_crop = None
+    slot.save()
+    CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
+    return redirect(crop_history, crop_id=current_crop.id)
+
 def trash_crop(request, slot_id):
     """POST: Record that the crop has been trashed and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)

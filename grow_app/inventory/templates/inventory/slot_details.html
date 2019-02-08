@@ -31,7 +31,7 @@
 
     <form id="form-harvest-crop" action="/slot/{{ slot_id }}/action/harvest" method="post">
         {% csrf_token %}
-        <input type="submit" value="Harvest"/>
+        <input id="form-harvest-tray-submit" type="submit" value="Harvest"/>
     </form>
 
     <form action="/slot/{{ slot_id }}/action/note/" id="form-record-note" method="post">

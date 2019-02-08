@@ -74,9 +74,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
 
         # Add a single crop into the first slot
         variety = Variety.objects.get(name="Radish")
-        first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True, exp_num_germ_days=3,
-                                         exp_num_grow_days=8)
-        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=first_crop)
+        self.first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True,
+                                              exp_num_germ_days=3, exp_num_grow_days=8)
+        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
 
     def tearDown(self):
         self.browser.quit()
@@ -193,12 +193,14 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
         # He clicks the submit button to harvest the crop
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
-        sleep(SLEEPY_TIME)
-        # Then he gets redirected to the crop detail page
-        self.fail("Test incomplete.")
+        # Then he gets redirected to the crop history
+        self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/history/')
         # And the history displays a crop record indicating it was harvested
+        self.assertIn("Harvested", self.browser.find_element_by_tag_name("body").text)
         # Then he navigates back to the slot that the crop was in
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that it is empty
+        self.fail("Finish the test!")
         
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
