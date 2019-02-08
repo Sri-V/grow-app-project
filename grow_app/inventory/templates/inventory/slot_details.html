@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slot Details</title>
+</head>
+<body>
+    <h1>Slot Details</h1>
+    {% if current_crop is not none %}
+    <div id="current-crop-type">
+        Current Crop: <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
+    </div>
+    <div id="slot-id">
+        Slot ID: {{ slot_id }}
+    </div>
+    <h4>Slot Actions</h4>
+    <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Water Crop" name="record-watered-crop" id="form-record-watered-crop-submit" />
+    </form>
+
+    <form action="/slot/{{ slot_id }}/action/move_tray" method="post">
+        {% csrf_token %}
+        Destination slot id:
+        <select id="form-slot-destination-id" name="slot-destination-id">
+            {% for slot in open_slots %}
+                <option>{{ slot.id }}</option>
+            {% endfor %}
+        </select>
+        <input id="form-move-tray-submit" value="Move Tray" type="submit">
+    </form>
+
+    <form id="form-harvest-crop" action="/slot/{{ slot_id }}/action/harvest" method="post">
+        {% csrf_token %}
+        <input id="form-harvest-tray-submit" type="submit" value="Harvest"/>
+    </form>
+
+    <form action="/slot/{{ slot_id }}/action/note/" id="form-record-note" method="post">
+        {% csrf_token %}
+        <textarea name="note" form="form-record-note"></textarea>
+        <input type="submit" id="form-record-note-submit"/>
+    </form>
+
+    <form action="/slot/{{ slot_id }}/action/trash" method="post">
+        {% csrf_token %}
+        Reason for trashing crop <input type="text" name="reason-for-trash-text" id="form-record-dead-crop-text" />
+        <input type="submit" value="Trash Crop" id="form-record-dead-crop-submit" />
+    </form>
+
+    {% else %}
+    <div id="empty-slot">
+        This slot is empty
+    </div>
+    {% endif %}
+</body>
+</html>

@@ -15,15 +15,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from grow_app.inventory import views
+from inventory import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/', views.homepage, name="home"),
-    path('/crop/new/', views.create_crop, name="create_crop"),
-    path('crop/(\d+)/', views.crop_detail, name="crop_detail"),
-    path('crop/(\d+)/record/', views.record_crop_info, name="record_crop_info"),
-    path('crop/(\d+)/lifecycle/', views.update_crop_lifecycle, name="update_crop_lifecycle"),
-    path('tray/(\d+)/', views.tray_detail, name="tray_detail"),
-    path('tray/(\d+)/action/', views.tray_action, name="do_tray_action"),  # TODO -- pull out into more URLs?
+    path('', views.homepage, name="home"),
+    path('crop/new/', views.create_crop, name="create_crop"),
+    path('crop/add_variety', views.add_variety, name="add_variety"),
+    path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
+    path('crop/<int:crop_id>/history', views.crop_history, name="crop_history"),
+    path('crop/<int:crop_id>/record/', views.record_crop_info, name="record_crop_info"),
+    path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
+    path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
+    path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
+    path('slot/<int:slot_id>/action/trash', views.trash_crop, name="trash_crop"),
+    path('slot/<int:slot_id>/action/harvest', views.harvest_crop, name="harvest_crop"),
+    path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
+    path('slot/<int:slot_id>/action/move_tray', views.move_tray, name="move_tray"),
+    path('slot/<int:slot_id>/action/note', views.record_note, name="record_note"),
 ]

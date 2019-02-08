@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home -- BMG</title>
+</head>
+<body>
+{% include "inventory/header.html" %}
+<p>
+    You have {{ total_slot_count }} total slots.
+</p>
+<form id="form-set-slot-count" method="POST" action="/slot/set_qty">
+    {% csrf_token %}
+    <input id="form-set-slot-count-qty" type="number" min="0" name="quantity"/>
+    <input id="form-set-slot-count-submit" type="submit" />
+</form>
+<form id="form-add-variety" method="POST" action="/crop/add_variety">
+    {% csrf_token %}
+    Variety Name <input id="form-add-variety-name" type="text" name="variety-name"/>
+    Days Until Harvest <input id="form-add-variety-days-to-harvest" type="number" min="1" name="days-to-harvest"/>
+    <input id="form-add-variety-submit" value="Add Variety" type="submit" />
+</form>
+<a id="link-new-crop" href="{% url 'create_crop' %}">Add a new crop</a>
+</body>
+</html>
