@@ -222,7 +222,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He clicks the submit button to harvest the crop
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         # Then he gets redirected to the crop history
-        self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/history/')
+        self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/history')
         # And the history displays a crop record indicating it was harvested
         self.assertIn("Harvested", self.browser.find_element_by_tag_name("body").text)
         # Then he navigates back to the slot that the crop was in
