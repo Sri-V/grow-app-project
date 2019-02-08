@@ -205,7 +205,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     def test_water_the_crop(self):
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
-        #self.fail("Test incomplete")
         # Oliver wants to water a crop of microgreens.
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         sleep(SLEEPY_TIME)
@@ -213,7 +212,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         record = CropRecord.objects.filter(record_type='WATER')[0]
         self.assertEqual(record.date, datetime.now().date())
 
-    def test_harvest_the_crop(self):
+    def test_harvest_the_crop(self):  # TODO -- clean
         # Oliver would like to harvest a crop of microgreens.
         # He navigates to the detail page of the slot he'd like to harvest
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
