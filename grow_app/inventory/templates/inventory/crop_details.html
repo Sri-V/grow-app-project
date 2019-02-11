@@ -68,10 +68,10 @@
         <table id="notes">
             <row>
             {% for note in notes %}
-                <column width='30%'>
+                <column id="note-date" width='30%'>
                 {{ note.date }}
                 </column>
-                <column width='70%'>
+                <column id="note-text" width='70%'>
                     {{ note.note }}
                 </column>
             {% endfor %}

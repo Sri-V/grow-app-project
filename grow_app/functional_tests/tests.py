@@ -5,7 +5,8 @@ This file contains functional tests, meant to test the behavior of the system fr
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from time import sleep
-from datetime import datetime
+import datetime
+
 
 from inventory.models import Crop, Slot, Variety, CropRecord
 
@@ -245,44 +246,35 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # The slot details page reloads and he sees that the crop has been removed from the slot
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "This slot is empty")
-        # He then goes to the crop history page
-        self.browser.get(self.live_server_url + f'/crop/1/history/')
-        # And sees that the crop death has been recorded in the crop history
+        # Oliver then navigates to the crop details page to look at the crop history
+        self.browser.get(self.live_server_url + "/crop/1/")
+        self.assertEqual("Crop Details", self.browser.title)
+        # Under the crop history section he sees that the trashed crop record has been recorded
         current_crop_type = self.browser.find_element_by_id("trash-date").text
-        self.assertEqual(current_crop_type, "Trashed Date: ")
-        # TODO -- also need to see that the death is recorded the crop history
+        self.assertEqual(current_crop_type, "Trashed: " + datetime.date.today().strftime('%b. %d, %Y'))
 
     def test_add_note_about_crop(self):
-        bulb_died = "The crop lamp bulb died"
-
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
-        # He scans slot 1 with the barcode scanner
+        # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + "/slot/1/")
         # He gets directed be on the page associated with that slot
-        self.assertEqual("Slot Details", self.browser.title)
+        self.assertEqual('Slot Details', self.browser.title)
         # Oliver types a note about the crop in the notes field
-        self.browser.find_element_by_name("note").send_keys(bulb_died)
+        self.browser.find_element_by_name("note").send_keys("The crop lamp bulb died")
         # Oliver hits the submit button
-        self.browser.find_element_by_id("form-record-note").click()
+        self.browser.find_element_by_id("form-record-note-submit").click()
         # He is then redirected back to the slot details page
         self.assertEqual('Slot Details', self.browser.title)
         # He then clicks the crop details link to see the crop details
         self.browser.find_element_by_id("link-crop-details").click()
         # He is directed to the crop details page
         self.assertEqual('Crop Details', self.browser.title)
-        # He then clicks the crop history link to see the crop history
-        self.browser.find_element_by_id("link-crop-history").click()
-        # He is directed to the crop history page
-        # TODO -- currently getting a 500 server error
-        # self.assertEqual('Crop History -- BMG', self.browser.title)
         # He reviews the notes about the crop, and sees that the crop lamp bulb has died
-        # TODO -- also need to see that the note is recorded in the crop history
-        self.fail("Test incomplete.")
+        notes = self.browser.find_element_by_id("note-text").text
+        self.assertEqual("The crop lamp bulb died", notes)
     
     def test_lookup_crop_history(self): #TODO
         self.browser.get(self.live_server_url + f'/crop/{Slot.objects.get(id=self.plant_origin_slot_id).current_crop.id}/history')
-        sleep(20)
-        self.assertEqual(True, True)
         # self.fail("Test incomplete")
         # Oliver wants to look back at the crop's life to understand how it grew.
     #
