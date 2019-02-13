@@ -2,6 +2,7 @@
 This file contains functional tests, meant to test the behavior of the system from the outside.
 """
 
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from time import sleep
@@ -305,3 +306,19 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     # def test_bulk_plant_harvest(self):
     #     self.fail("Test incomplete")
     #     # Oliver wants to harvest an entire rack of trays all at once.
+
+
+class StaticURLTest(StaticLiveServerTestCase):
+    """Tests that the stylesheets and image assets are available from their proper links."""
+    
+    def setUp(self):
+        self.browser = webdriver.Firefox()
+    
+    def tearDown(self):
+        self.browser.quit()
+    
+    def test_base_css_returns_200(self):
+        self.browser.get(self.live_server_url + "/static/base.css")
+        self.fail("Learn how to check whether a response is 200 from FTs")
+        
+        
