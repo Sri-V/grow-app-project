@@ -100,6 +100,10 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True,
                                               exp_num_germ_days=3, exp_num_grow_days=8)
         Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
+        # And record the SEED record
+        self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
+
+
 
     def tearDown(self):
         self.browser.quit()
@@ -229,7 +233,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that it is empty
         self.fail("Finish the test!")
-        
+
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
         # FIXME -- he scans the slot of interest with the barcode scanner
@@ -250,8 +254,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url + "/crop/1/")
         self.assertEqual("Crop Details", self.browser.title)
         # Under the crop history section he sees that the trashed crop record has been recorded
-        current_crop_type = self.browser.find_element_by_id("trash-date").text
-        self.assertEqual(current_crop_type, "Trashed: " + datetime.date.today().strftime('%b. %d, %Y'))
+        trashed_record = self.browser.find_element_by_id("trash-date").text
+        self.assertEqual(trashed_record, "Trashed: " + datetime.date.today().strftime('%b. %d, %Y'))
 
     def test_add_note_about_crop(self):
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
@@ -272,11 +276,35 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He reviews the notes about the crop, and sees that the crop lamp bulb has died
         notes = self.browser.find_element_by_id("note-text").text
         self.assertEqual("The crop lamp bulb died", notes)
-    
-    def test_lookup_crop_history(self): #TODO
-        self.browser.get(self.live_server_url + f'/crop/{Slot.objects.get(id=self.plant_origin_slot_id).current_crop.id}/history')
-        # self.fail("Test incomplete")
+
+    def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
+        # We start by planting a new crop in the empty slot
+        # And add some records that will show up in the crop history
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        water_crop_form = self.browser.find_element_by_id("form-water-crop")
+        water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
+        water_crop_datetime = datetime.date.today()
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
+        harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
+        harvest_crop_datetime = datetime.date.today()
+        sleep(SLEEPY_TIME)
+        # After harvesting the crop Oliver gets redirected to the crop details page to check the crop history
+        self.assertEqual('Crop Details', self.browser.title)
+        # Check that current details of the crop are correct
+        crop = Crop.objects.get(id=self.plant_origin_slot_id)
+        seed_date = self.browser.find_element_by_id("seed-date").text
+        self.assertEqual(seed_date, "Seeded: " + self.first_crop_record.date.strftime('%b. %d, %Y'))
+        last_watered_date = self.browser.find_element_by_id("water-date").text
+        self.assertEqual(last_watered_date, "Last watered: " + water_crop_datetime.strftime('%b. %d, %Y'))
+        harvested_date = self.browser.find_element_by_id("harvest-date").text
+        self.assertEqual(harvested_date, "Harvested: " + harvest_crop_datetime.strftime('%b. %d, %Y'))
+        # Check that the newest crop record shows up first and the oldest is last
+        records = self.browser.find_element_by_id("records").text
+        sleep(60)
+        self.fail("Check that the date and time of the most recent record appears at the top")
+
     #
     # ###
     # # SPRINT 2
