@@ -29,37 +29,37 @@
             <h2>Current Details</h2>
             {% if water %}
             <div id="water-date">
-                Last watered: {{ water.date }}
+                Last watered: {{ water.datetime }}
             </div>
             {% endif %}
             {% if seed %}
             <div id="seed-date">
-                Seeded: {{ seed.date }}
+                Seeded: {{ seed.datetime }}
             </div>
             {% endif %}
             {% if grow %}
             <div id="grow-date">
-                Began Grow Phase: {{ grow.date }}
+                Began Grow Phase: {{ grow.datetime }}
             </div>
             {% endif %}
             {% if harvest %}
             <div id="harvest-date">
-                Harvested: {{ harvest.date }}
+                Harvested: {{ harvest.datetime }}
             </div>
             {% endif %}
             {% if delivered %}
             <div id="delivered-date">
-                Delivered: {{ delivered.date }}
+                Delivered: {{ delivered.datetime }}
             </div>
             {% endif %}
             {% if trash %}
             <div id="trash-date">
-                Trashed: {{ trash.date }}
+                Trashed: {{ trash.datetime }}
             </div>
             {% endif %}
             {% if returned %}
             <div id="returned-date">
-                Returned: {{ returned.date }}
+                Returned: {{ returned.datetime }}
             </div>
             {% endif %}
         </div>
@@ -69,7 +69,7 @@
             <row>
             {% for note in notes %}
                 <column id="note-date" width='30%'>
-                {{ note.date }}
+                {{ note.datetime }}
                 </column>
                 <column id="note-text" width='70%'>
                     {{ note.note }}
@@ -82,20 +82,19 @@
         </table>
         <h2>All Records</h2>
         <table id="records">
+            <tr>
+                <th>Time</th>
+                <th>Record Type</th>
+                <th>Note</th>
+            </tr>
             {% for record in history %}
-            <row>
-                <column width='30%'>
-                    {{ record.date|date  }}
-                </column>
-                <column width='30%'>
-                    {{ record.record_type }}
-                </column>
-                <column width='40%'>
-                    {{ record.note }}
-                </column>
-            {% endfor %}
-            </row>
+            <tr>
+                <td width='20%'>{{ record.datetime|datetime  }}</td>
+                <td width='30%'>{{ record.get_record_type_display }}</td>
+                <td width='50%'>{{ record.note }}</td>
+            </tr>
         </table>
     </div>
 </body>
 </html>
+
