@@ -217,9 +217,10 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         record = CropRecord.objects.filter(record_type='WATER')[0]
         self.assertEqual(record.date, datetime.now().date())
 
-    def test_harvest_the_crop(self):  # TODO -- clean
+    def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
-        # He navigates to the detail page of the slot he'd like to harvest
+        # He navigates to the slot details page of the slot he'd like to harvest
+        # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # Then he finds the form for harvesting a crop
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
@@ -228,11 +229,12 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Then he gets redirected to the crop history
         self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/history')
         # And the history displays a crop record indicating it was harvested
-        self.assertIn("Harvested", self.browser.find_element_by_tag_name("body").text)
+        self.assertIn("Harvested", self.browser.find_element_by_tag_name("records").text)  # TODO -- clean
         # Then he navigates back to the slot that the crop was in
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that it is empty
-        self.fail("Finish the test!")
+        empty_slot = self.browser.find_element_by_id("empty-slot").text
+        self.assertEqual(empty_slot, "This slot is empty")
 
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
