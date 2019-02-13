@@ -65,6 +65,9 @@ def crop_detail(request, crop_id):
     delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
 
+    all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
+
+    # FIXME -- handle this selection client-side via template filtering and selection
     try:
         records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('date')
     except Exception:
@@ -73,7 +76,6 @@ def crop_detail(request, crop_id):
         notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('date')
     except Exception:
         notes = None
-
     try:
         seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('date')[0]
     except Exception:
@@ -103,7 +105,7 @@ def crop_detail(request, crop_id):
     except Exception:
         returned = None
 
-    return render(request, "inventory/crop_details.html", context={"crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
+    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
 
 
