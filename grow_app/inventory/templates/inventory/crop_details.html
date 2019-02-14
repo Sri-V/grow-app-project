@@ -82,20 +82,19 @@
         </table>
         <h2>All Records</h2>
         <table id="records">
+            <tr>
+                <th>Time</th>
+                <th>Record Type</th>
+                <th>Note</th>
+            </tr>
             {% for record in history %}
-            <row>
-                <column width='30%'>
-                    {{ record.date|date  }}
-                </column>
-                <column width='30%'>
-                    {{ record.record_type }}
-                </column>
-                <column width='40%'>
-                    {{ record.note }}
-                </column>
-            {% endfor %}
-            </row>
+            <tr>
+                <td width='20%'>{{ record.datetime|date  }}</td>
+                <td width='30%'>{{ record.get_record_type_display }}</td>
+                <td width='50%'>{{ record.note }}</td>
+            </tr>
         </table>
     </div>
 </body>
 </html>
+
