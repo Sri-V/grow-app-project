@@ -229,7 +229,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Then he gets redirected to the crop history
         self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/')
         # And the history displays a crop record indicating it was harvested
-        self.assertIn("Harvested", self.browser.find_element_by_tag_name("records").text)  # TODO -- clean
+        harvest_text = self.browser.find_element_by_id("harvest-date").text
+        self.assertEqual("Harvested: " + datetime.date.today().strftime('%b. %d, %Y'), harvest_text)
         # Then he navigates back to the slot that the crop was in
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that it is empty
@@ -279,7 +280,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He reviews the notes about the crop, and sees that the crop lamp bulb has died
         notes = self.browser.find_element_by_id("note-text").text
         self.assertEqual("The crop lamp bulb died", notes)
-        sleep(10)
 
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
