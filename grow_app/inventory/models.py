@@ -44,7 +44,7 @@ class CropRecord(models.Model):
         ('NOTE', 'Notes')
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
-    datetime = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
     note = models.CharField(max_length=200)
 

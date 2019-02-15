@@ -214,7 +214,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         sleep(SLEEPY_TIME)
         # Verify that a water action was recorded for this crop
-        record = CropRecord.objects.filter(record_type='WATER')[0]
+        record = CropRecord.objects.filter(record_type='WATER')
         self.assertEqual(record.date, datetime.now().date())
 
     def test_harvest_the_crop(self):
@@ -227,7 +227,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He clicks the submit button to harvest the crop
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         # Then he gets redirected to the crop history
-        self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/history')
+        self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/')
         # And the history displays a crop record indicating it was harvested
         self.assertIn("Harvested", self.browser.find_element_by_tag_name("records").text)  # TODO -- clean
         # Then he navigates back to the slot that the crop was in
@@ -254,6 +254,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(empty_slot, "This slot is empty")
         # Oliver then navigates to the crop details page to look at the crop history
         self.browser.get(self.live_server_url + "/crop/1/")
+        sleep(SLEEPY_TIME)
         self.assertEqual("Crop Details", self.browser.title)
         # Under the crop history section he sees that the trashed crop record has been recorded
         trashed_record = self.browser.find_element_by_id("trash-date").text
@@ -278,6 +279,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He reviews the notes about the crop, and sees that the crop lamp bulb has died
         notes = self.browser.find_element_by_id("note-text").text
         self.assertEqual("The crop lamp bulb died", notes)
+        sleep(10)
 
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
