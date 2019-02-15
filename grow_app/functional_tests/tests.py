@@ -306,7 +306,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(harvested_date, "Harvested: " + harvest_crop_datetime.strftime('%b. %d, %Y'))
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
-        self.fail("Check that the date and time of the most recent record appears at the top")
+
 
     #
     # ###
