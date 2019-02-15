@@ -308,7 +308,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         records = self.browser.find_element_by_id("records").text
 
 
-    #
+
     # ###
     # # SPRINT 2
     # ###
