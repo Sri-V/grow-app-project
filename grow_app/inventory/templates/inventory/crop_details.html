@@ -89,7 +89,7 @@
             </tr>
             {% for record in history %}
             <tr>
-                <td width='20%'>{{ record.date|date }}</td>
+                <td width='20%'>{{ record.date }}</td>
                 <td width='30%'>{{ record.get_record_type_display }}</td>
                 <td width='50%'>{{ record.note }}</td>
             {% endfor %}
