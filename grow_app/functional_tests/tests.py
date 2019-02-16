@@ -147,7 +147,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
             self.fail(f'Unable to find Tray #{self.free_slot_id} in the new crop form!')
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-new-crop-submit").click()
-        sleep(SLEEPY_TIME)
 
         # He notices that he's been redirected to the slot detail page
         self.assertRegex(self.browser.current_url, r"/slot/\d+/")
@@ -191,7 +190,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
             self.fail(f'Unable to find destination tray #{self.plant_destination_slot_id} in the dropdown menu!')
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-        sleep(SLEEPY_TIME)
 
         # And he gets redirected to the page belonging to the new slot
         self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot_id}/')
@@ -212,10 +210,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         # Oliver wants to water a crop of microgreens.
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
-        sleep(SLEEPY_TIME)
         # Verify that a water action was recorded for this crop
-        record = CropRecord.objects.filter(record_type='WATER')
-        self.assertEqual(record.date, datetime.now().date())
+        record = CropRecord.objects.filter(record_type='WATER')[0]
+        self.assertEqual(record.date, datetime.date.today())
 
     def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
@@ -249,13 +246,11 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-record-dead-crop-text").send_keys("mold on crop ")
         # And clicks on the button to record a dead crop
         self.browser.find_element_by_id("form-record-dead-crop-submit").click()
-        sleep(SLEEPY_TIME)
         # The slot details page reloads and he sees that the crop has been removed from the slot
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "This slot is empty")
         # Oliver then navigates to the crop details page to look at the crop history
         self.browser.get(self.live_server_url + "/crop/1/")
-        sleep(SLEEPY_TIME)
         self.assertEqual("Crop Details", self.browser.title)
         # Under the crop history section he sees that the trashed crop record has been recorded
         trashed_record = self.browser.find_element_by_id("trash-date").text
@@ -284,20 +279,19 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
         # We start by planting a new crop in the empty slot
-        # And add some records that will show up in the crop history
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         water_crop_datetime = datetime.date.today()
+        # And add some records that will show up in the crop history
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         harvest_crop_datetime = datetime.date.today()
-        sleep(SLEEPY_TIME)
         # After harvesting the crop Oliver gets redirected to the crop details page to check the crop history
         self.assertEqual('Crop Details', self.browser.title)
         # Check that current details of the crop are correct
-        crop = Crop.objects.get(id=self.plant_origin_slot_id)
+        crop = Slot.objects.get(id=self.plant_origin_slot_id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
         self.assertEqual(seed_date, "Seeded: " + self.first_crop_record.date.strftime('%b. %d, %Y'))
         last_watered_date = self.browser.find_element_by_id("water-date").text
