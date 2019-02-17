@@ -40,13 +40,17 @@
 
 	<script>
 
+        // FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
+		var data = ""; // The raw data read in from the scanner
+		var focused = false; // Is the input focused?
+
         /**
          * Decodes the character input from the KeyPress event.
          * @param event A KeyPress Event
          * @returns String or null.
          */
 		function getChar(event) {
-		    // FIXME -- use an alternative to the deprecated event.which
+		    // FIXME -- Event.which is deprecated according to MDN. Can we replace it?
 		    // If a numeric code doesn't exist on this event
   			if (event.which == null) {
   			    // Take the keyCode and convert it to a String
@@ -57,46 +61,52 @@
                 return String.fromCharCode(event.which);
             // Otherwise return null
   			} else {
-    			return null; // FIXME -- throw an error!
+    			return null; // FIXME -- encoding an error using null is fragile. We should throw an error instead.
   			}	
 		}
-
-		// FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
-		var data = "";
-		var focused = false;
 
         /**
          * On keypress in the input tag, get characters from input and store it in a variable.
          */
-		document.getElementById('input').onkeypress = function(event) { // FIXME -- onchange?
-  			let char = getChar(event || window.event); // FIXME -- what does this do?
- 			 if (!char) { // FIXME -- handle an error instead
+		document.getElementById('input').onkeypress = function(event) {
+  			let char = getChar(event || window.event); // FIXME -- what does this condition check for?
+ 			 if (!char) { // FIXME -- this should accept an error instead
 				  alert("special key");
+				  // FIXME -- Need to reset the data in the form field so user can access it again
 				  return false; 
 			}
 			data += char;
             return true;
 		};
 
-		document.getElementById('input').onfocus = function(event){
-			focus = true 
+        /**
+         * When the input tag is in focus for the user, set focus equal to true.
+         * FIXME -- This shouldn't exist as a state variable.
+         * Try https://stackoverflow.com/questions/36430561/how-can-i-check-if-my-element-id-has-focus
+         *   and/or https://developer.mozilla.org/en-US/docs/Web/API/Document/hasFocus for ways to programmatically
+         *   check element focus.
+         */
+		document.getElementById('input').onfocus = function(event) {
+			focus = true;
 		}
 
 	</script>
 		
 	<script>
 
+        // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
 		var dataScan = "";
 		var det = false;
 
         /**
-         * On keypress in the document, get the data from the scanner if the form field is not focused
+         * When the document registers a keypress, get the data from the scanner if the form field is not focused.
          */
 		$(document).keypress(function(e){
-		
-			if (e.keyCode== 2) {
-			det = true;
-			dataScan = "";
+
+		    // FIXME -- what do these condition checks mean?
+			if (e.keyCode === 2) {
+                det = true;
+                dataScan = "";
 			} else {
 				let char = getChar(event || window.event);
  			 	if (!char) {
@@ -104,8 +114,9 @@
 				  return false; 
 				}
 				 dataScan += char;
-			}	
-			if (e.keyCode== 13 && !focused && det) {
+			}
+
+			if (e.keyCode === 13 && !focused && det) {
 				document.getElementById("scan").innerHTML = dataScan + "scanner detected no form";
 				//$("body").append(dataScan);
 				dataScan = "";
@@ -116,25 +127,30 @@
 	</script>
 
 	<script>
+
         /**
-         * On click the submit button, determine if an input came from user or scanner in the form field
+         * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
          */
 		document.getElementById("submit").onclick = function(event){
-			if (data.charCodeAt(0) !== 002) {
+			if (data.charCodeAt(0) !== 002) {  // FIXME -- this is a fragile way to check where the data came from
+                                               // Is there a way to do better?
 				document.getElementById("scan").innerHTML = data + " came from user ";
 			} else {
 				document.getElementById("scan").innerHTML = data.slice(1) + "scanner detected from form";
 			}
+
+
 			// Finally reset the data variable and the contents of the form field
+            // FIXME -- this should be a separate event handler, eventually in the controller
 			data = "";
 			let inputElements = document.getElementsByTagName('input');
- 
   			for (let i = 0; i < inputElements.length; i++) {
  				if (inputElements[i].type == "text") {
   					  inputElements[i].value = "";
 			  	}
  			}
-		}
+		};
+
 	</script>
 
 </body >
