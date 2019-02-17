@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>test2</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body {
+			font-size: 1.6em;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.show {
+			display: inline !important;
+		}
+
+		button {
+			border: 2px solid black;
+			background: #E5E4E2;
+			font-size: .5em;
+			font-weight: bold;
+			color: black;
+			padding: .8em 2em;
+			margin-top: .4em;
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+
+	<form action = "#" id="forms">
+		Input: <br />
+		<input type="text" id="input" ><br />
+		<input type="submit" value="sumbimt" id="submit"><br/>
+		<p id="scan"></p>
+	</form>
+
+	<script>
+
+		function getChar(event) {
+  			if (event.which == null) {
+    			return String.fromCharCode(event.keyCode); 
+  			} else if (event.which!=0 && event.charCode!=0) {
+  				  return String.fromCharCode(event.which);   
+  			} else {
+    			return null; 
+  			}	
+		}
+				
+		var data = "";
+		// quet characters from form field and store it in a variable 
+		document.getElementById('input').onkeypress = function(event) {
+  			var char = getChar(event || window.event)
+ 			 if (!char) {
+				  alert("special key");
+				  return false; 
+			}
+			data += char;
+
+ 			 return true;
+		}	
+
+	
+		var focused = false
+		document.getElementById('input').onfocus = function (event){
+			focus = true 
+		}
+
+	</script>
+		
+	<script>
+
+		var dataScan = "";
+		var det = false;
+		// get the data from the scanner if the form field is not focused 
+		$(document).keypress(function(e){
+		
+			if (e.keyCode== 2 ){
+			det = true;
+			dataScan = "";
+			}else{
+				var char = getChar(event || window.event)
+ 			 	if (!char) {
+				  alert("special key");
+				  return false; 
+				}
+				 dataScan += char;
+			}	
+			if (e.keyCode== 13 && !focused && det){
+				document.getElementById("scan").innerHTML = dataScan + "scanner detected no form";
+				//$("body").append(dataScan);
+				dataScan = "";
+				det = false;
+			}
+		});
+		
+	</script>
+
+	<script>	
+		// after submission determine if the data came from user or scaner in the form field 
+		document.getElementById("submit").onclick = function(event){
+			if (data.charCodeAt(0) !== 002){
+				document.getElementById("scan").innerHTML = data + " came from user ";
+			}else{
+				document.getElementById("scan").innerHTML = data.slice(1) + "scanner detected from form";
+			}
+			//clear data and imput data 
+			data = "";
+			var inputElements = document.getElementsByTagName('input');
+ 
+  			for (var i = 0; i < inputElements.length; i++) {
+ 				if (inputElements[i].type == "text") {
+  					  inputElements[i].value = "";
+			  	}
+ 			}
+		}
+	</script>
+
+</body >
+</html >
