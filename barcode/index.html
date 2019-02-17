@@ -34,38 +34,51 @@
 	<form action = "#" id="forms">
 		Input: <br />
 		<input type="text" id="input" ><br />
-		<input type="submit" value="sumbimt" id="submit"><br/>
+		<input type="submit" value="Submit" id="submit"><br/>
 		<p id="scan"></p>
 	</form>
 
 	<script>
 
+        /**
+         * Decodes the character input from the KeyPress event.
+         * @param event A KeyPress Event
+         * @returns String or null.
+         */
 		function getChar(event) {
+		    // FIXME -- use an alternative to the deprecated event.which
+		    // If a numeric code doesn't exist on this event
   			if (event.which == null) {
-    			return String.fromCharCode(event.keyCode); 
-  			} else if (event.which!=0 && event.charCode!=0) {
-  				  return String.fromCharCode(event.which);   
+  			    // Take the keyCode and convert it to a String
+    			return String.fromCharCode(event.keyCode);
+            // Otherwise if the numeric code isn't zero and the character code isn't zero
+  			} else if (event.which!==0 && event.charCode!==0) {
+                // Take the charCode and convert it to a string
+                return String.fromCharCode(event.which);
+            // Otherwise return null
   			} else {
-    			return null; 
+    			return null; // FIXME -- throw an error!
   			}	
 		}
-				
+
+		// FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
 		var data = "";
-		// quet characters from form field and store it in a variable 
-		document.getElementById('input').onkeypress = function(event) {
-  			var char = getChar(event || window.event)
- 			 if (!char) {
+		var focused = false;
+
+        /**
+         * On keypress in the input tag, get characters from input and store it in a variable.
+         */
+		document.getElementById('input').onkeypress = function(event) { // FIXME -- onchange?
+  			let char = getChar(event || window.event); // FIXME -- what does this do?
+ 			 if (!char) { // FIXME -- handle an error instead
 				  alert("special key");
 				  return false; 
 			}
 			data += char;
+            return true;
+		};
 
- 			 return true;
-		}	
-
-	
-		var focused = false
-		document.getElementById('input').onfocus = function (event){
+		document.getElementById('input').onfocus = function(event){
 			focus = true 
 		}
 
@@ -75,21 +88,24 @@
 
 		var dataScan = "";
 		var det = false;
-		// get the data from the scanner if the form field is not focused 
+
+        /**
+         * On keypress in the document, get the data from the scanner if the form field is not focused
+         */
 		$(document).keypress(function(e){
 		
-			if (e.keyCode== 2 ){
+			if (e.keyCode== 2) {
 			det = true;
 			dataScan = "";
-			}else{
-				var char = getChar(event || window.event)
+			} else {
+				let char = getChar(event || window.event);
  			 	if (!char) {
 				  alert("special key");
 				  return false; 
 				}
 				 dataScan += char;
 			}	
-			if (e.keyCode== 13 && !focused && det){
+			if (e.keyCode== 13 && !focused && det) {
 				document.getElementById("scan").innerHTML = dataScan + "scanner detected no form";
 				//$("body").append(dataScan);
 				dataScan = "";
@@ -99,19 +115,21 @@
 		
 	</script>
 
-	<script>	
-		// after submission determine if the data came from user or scaner in the form field 
+	<script>
+        /**
+         * On click the submit button, determine if an input came from user or scanner in the form field
+         */
 		document.getElementById("submit").onclick = function(event){
-			if (data.charCodeAt(0) !== 002){
+			if (data.charCodeAt(0) !== 002) {
 				document.getElementById("scan").innerHTML = data + " came from user ";
-			}else{
+			} else {
 				document.getElementById("scan").innerHTML = data.slice(1) + "scanner detected from form";
 			}
-			//clear data and imput data 
+			// Finally reset the data variable and the contents of the form field
 			data = "";
-			var inputElements = document.getElementsByTagName('input');
+			let inputElements = document.getElementsByTagName('input');
  
-  			for (var i = 0; i < inputElements.length; i++) {
+  			for (let i = 0; i < inputElements.length; i++) {
  				if (inputElements[i].type == "text") {
   					  inputElements[i].value = "";
 			  	}
