@@ -2,6 +2,7 @@
 This file contains functional tests, meant to test the behavior of the system from the outside.
 """
 
+from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from selenium import webdriver
@@ -318,4 +319,8 @@ class StaticURLTest(StaticLiveServerTestCase):
     
     def test_base_css_returns_200(self):
         response = self.client.get("/static/inventory/base.css")
+        self.assertContains(response, 200)
+        
+    def test_favicon_returns_200(self):
+        response = self.client.get("/favicon.ico")
         self.assertContains(response, 200)
