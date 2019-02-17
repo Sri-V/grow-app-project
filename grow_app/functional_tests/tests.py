@@ -282,7 +282,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     
     def test_lookup_crop_history(self): #TODO
         self.browser.get(self.live_server_url + f'/crop/{Slot.objects.get(id=self.plant_origin_slot_id).current_crop.id}/history')
-        sleep(20)
         self.assertEqual(True, True)
         # self.fail("Test incomplete")
         # Oliver wants to look back at the crop's life to understand how it grew.
@@ -318,7 +317,5 @@ class StaticURLTest(StaticLiveServerTestCase):
         self.browser.quit()
     
     def test_base_css_returns_200(self):
-        self.browser.get(self.live_server_url + "/static/base.css")
-        self.fail("Learn how to check whether a response is 200 from FTs")
-        
-        
+        response = self.client.get("/static/inventory/base.css")
+        self.assertContains(response, 200)
