@@ -27,22 +27,21 @@
 		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 </head>
 <body>
-
-
 	<form action = "#" id="forms">
 		Input: <br />
 		<input type="text" id="input" ><br />
-		<input type="submit" value="Submit" id="submit"><br/>
-		<p id="scan"></p>
+		<input type="submit" value="Submit" id="submit"><br/>	
 	</form>
+
+	<p id="scan"></p>
 
 	<script>
 
         // FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
-		var data = ""; // The raw data read in from the scanner
-		var focused = false; // Is the input focused?
+		var data = ""; // The raw data read from the form field  
 
         /**
          * Decodes the character input from the KeyPress event.
@@ -69,7 +68,7 @@
          * On keypress in the input tag, get characters from input and store it in a variable.
          */
 		document.getElementById('input').onkeypress = function(event) {
-  			let char = getChar(event || window.event); // FIXME -- what does this condition check for?
+  			let char = getChar(event || window.event); 
  			 if (!char) { // FIXME -- this should accept an error instead
 				  alert("special key");
 				  // FIXME -- Need to reset the data in the form field so user can access it again
@@ -78,55 +77,34 @@
 			data += char;
             return true;
 		};
-
-        /**
-         * When the input tag is in focus for the user, set focus equal to true.
-         * FIXME -- This shouldn't exist as a state variable.
-         * Try https://stackoverflow.com/questions/36430561/how-can-i-check-if-my-element-id-has-focus
-         *   and/or https://developer.mozilla.org/en-US/docs/Web/API/Document/hasFocus for ways to programmatically
-         *   check element focus.
-         */
-		document.getElementById('input').onfocus = function(event) {
-			focus = true;
-		}
-
+		
 	</script>
 		
 	<script>
 
         // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
-		var dataScan = "";
-		var det = false;
+		var dataScan = "";// The raw data read from the scanner
 
         /**
          * When the document registers a keypress, get the data from the scanner if the form field is not focused.
          */
 		$(document).keypress(function(e){
 
-		    // FIXME -- what do these condition checks mean?
-			if (e.keyCode === 2) {
-                det = true;
-                dataScan = "";
-			} else {
-				let char = getChar(event || window.event);
- 			 	if (!char) {
-				  alert("special key");
-				  return false; 
-				}
-				 dataScan += char;
+			let char = getChar(event || window.event);
+ 		 	if (!char) {
+			  alert("special key");
+			  return false; 
 			}
-
-			if (e.keyCode === 13 && !focused && det) {
-				document.getElementById("scan").innerHTML = dataScan + "scanner detected no form";
-				//$("body").append(dataScan);
+			 dataScan += char;
+			 console.log(dataScan);
+			// If keycode 13 (enter key) is detected, any input tag is focused 
+			// and scanner was detected, show the data and where it came from 
+			if (e.keyCode === 13 && (document.activeElement.tagName != "INPUT") && dataScan.charCodeAt(0) == 002) {
+				document.getElementById("scan").innerHTML = dataScan.slice(1) + "scanner detected no form";
 				dataScan = "";
-				det = false;
-			}
+			// Otherwise clear the dataSacan variable 
+			}else if(e.keyCode === 13){dataScan = "";}
 		});
-		
-	</script>
-
-	<script>
 
         /**
          * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
