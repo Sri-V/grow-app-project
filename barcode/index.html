@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>test2</title>
+	<title>Barcode Test</title>
 	<meta charset="utf-8">
 	<style type="text/css">
 		body {
@@ -44,38 +44,13 @@
 		var data = ""; // The raw data read from the form field  
 
         /**
-         * Decodes the character input from the KeyPress event.
-         * @param event A KeyPress Event
-         * @returns String or null.
-         */
-		function getChar(event) {
-		    // FIXME -- Event.which is deprecated according to MDN. Can we replace it?
-		    // If a numeric code doesn't exist on this event
-  			if (event.which == null) {
-  			    // Take the keyCode and convert it to a String
-    			return String.fromCharCode(event.keyCode);
-            // Otherwise if the numeric code isn't zero and the character code isn't zero
-  			} else if (event.which!==0 && event.charCode!==0) {
-                // Take the charCode and convert it to a string
-                return String.fromCharCode(event.which);
-            // Otherwise return null
-  			} else {
-    			return null; // FIXME -- encoding an error using null is fragile. We should throw an error instead.
-  			}	
-		}
-
-        /**
          * On keypress in the input tag, get characters from input and store it in a variable.
          */
 		document.getElementById('input').onkeypress = function(event) {
-  			let char = getChar(event || window.event); 
- 			 if (!char) { // FIXME -- this should accept an error instead
-				  alert("special key");
-				  // FIXME -- Need to reset the data in the form field so user can access it again
-				  return false; 
-			}
-			data += char;
+  			if (event.key != "Enter"){
+            data += event.key;
             return true;
+            }
 		};
 		
 	</script>
@@ -88,22 +63,22 @@
         /**
          * When the document registers a keypress, get the data from the scanner if the form field is not focused.
          */
-		$(document).keypress(function(e){
+		$(document).keypress(function(event){
 
-			let char = getChar(event || window.event);
- 		 	if (!char) {
-			  alert("special key");
-			  return false; 
-			}
-			 dataScan += char;
-			 console.log(dataScan);
+			if (event.key != "Enter"){
+			 	dataScan += event.key;
+            }
 			// If keycode 13 (enter key) is detected, any input tag is focused 
 			// and scanner was detected, show the data and where it came from 
-			if (e.keyCode === 13 && (document.activeElement.tagName != "INPUT") && dataScan.charCodeAt(0) == 002) {
-				document.getElementById("scan").innerHTML = dataScan.slice(1) + "scanner detected no form";
+			if (event.keyCode === 13 && (document.activeElement.tagName != "INPUT") && dataScan.charCodeAt(0) == 002) {
+				document.getElementById("scan").innerHTML = dataScan.slice(1) + " Scanner detected no form";
 				dataScan = "";
 			// Otherwise clear the dataSacan variable 
-			}else if(e.keyCode === 13){dataScan = "";}
+			}else if(event.keyCode === 13){
+				dataScan = "";
+			}
+
+			return true; 
 		});
 
         /**
@@ -112,9 +87,10 @@
 		document.getElementById("submit").onclick = function(event){
 			if (data.charCodeAt(0) !== 002) {  // FIXME -- this is a fragile way to check where the data came from
                                                // Is there a way to do better?
-				document.getElementById("scan").innerHTML = data + " came from user ";
+                data = document.getElementById("input").value;
+				document.getElementById("scan").innerHTML = data + " Came from user ";
 			} else {
-				document.getElementById("scan").innerHTML = data.slice(1) + "scanner detected from form";
+				document.getElementById("scan").innerHTML = data.slice(1) + " Scanner detected from form";
 			}
 
 
