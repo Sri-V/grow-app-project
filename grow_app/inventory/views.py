@@ -177,3 +177,24 @@ def record_note(request, slot_id):
     date = datetime.now()
     CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
+
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+
+def sign_up(request):
+    """GET: Render the sign up page for the user
+    POST: Create a new "employee" user based on the inputs provided"""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    elif request.method == 'GET':
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
