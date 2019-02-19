@@ -6,6 +6,9 @@
 </head>
 <body>
 {% include "inventory/header.html" %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}
+    <p><a href="{% url 'logout' %}">logout</a></p>
 <p>
     You have {{ total_slot_count }} total slots.
 </p>
@@ -21,5 +24,9 @@
     <input id="form-add-variety-submit" value="Add Variety" type="submit" />
 </form>
 <a id="link-new-crop" href="{% url 'create_crop' %}">Add a new crop</a>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">login</a>
+{% endif %}
 </body>
 </html>
