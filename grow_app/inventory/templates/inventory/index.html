@@ -7,8 +7,6 @@
 <body>
 {% include "inventory/header.html" %}
 {% if user.is_authenticated %}
-  Hi {{ user.username }}
-    <p><a href="{% url 'logout' %}">logout</a></p>
 <p>
     You have {{ total_slot_count }} total slots.
 </p>
