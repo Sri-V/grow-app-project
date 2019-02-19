@@ -7,8 +7,9 @@ from selenium import webdriver
 from time import sleep
 import datetime
 
-
 from inventory.models import Crop, Slot, Variety, CropRecord
+from django.contrib.auth.models import User, Group
+from django.test import Client
 
 SLEEPY_TIME = 1
 
@@ -330,8 +331,17 @@ class UserAuthenticationAndPermissionsTest(LiveServerTestCase):
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
 
         # TODO - Set up the user accounts and permissions system
+        # Create permissions group
+        self.group = Group(name="My Test Group")
+        self.group.save()
+        self.c = Client()
+        # Create user
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+
 
     def tearDown(self):
+        self.user.delete()
+        self.group.delete()
         self.browser.quit()
 
     def test_staff_interaction(self):
