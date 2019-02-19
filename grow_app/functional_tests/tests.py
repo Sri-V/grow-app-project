@@ -302,6 +302,44 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         records = self.browser.find_element_by_id("records").text
 
 
+class UserAuthenticationAndPermissionsTest(LiveServerTestCase):
+    """
+    Tests that the user authentication and permissions system works properly
+    """
+
+    def setUp(self):
+        # Set the browser
+        self.browser = webdriver.Firefox()
+
+        # Make some slots and save their ids -- this is to avoid hard-coding primary keys in the test methods
+        self.plant_origin_slot_id = Slot.objects.create().id
+        self.plant_destination_slot_id = Slot.objects.create().id
+        self.free_slot_id = Slot.objects.create().id
+
+        # Add some plant varieties
+        Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        Variety.objects.create(name="Parsley", days_plant_to_harvest=15)
+        Variety.objects.create(name="Radish", days_plant_to_harvest=12)
+
+        # Add a single crop into the first slot
+        variety = Variety.objects.get(name="Radish")
+        self.first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True,
+                                              exp_num_germ_days=3, exp_num_grow_days=8)
+        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
+        # And record the SEED record
+        self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
+
+        # TODO - Set up the user accounts and permissions system
+
+    def tearDown(self):
+        self.browser.quit()
+
+    def test_staff_interaction(self):
+       pass
+
+    def test_employee_interaction(self):
+        pass
+
 
     # ###
     # # SPRINT 2
