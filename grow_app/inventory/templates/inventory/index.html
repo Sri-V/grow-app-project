@@ -21,9 +21,9 @@
     <link rel="stylesheet" href="{% static "inventory/base.css" %}">
 </head>
 <body>
-{% include "inventory/header.html" %}
+<div class="main-container container-fluid d-flex flex-column justify-content-between">
 
-<div class="main-container container-fluid d-flex flex-column justify-content-around">
+    {% include "inventory/header.html" %}
 
     <section id="primary-actions" class="row d-flex justify-content-center">
         <h1>Scan a crop to begin.</h1>
@@ -67,10 +67,11 @@
         </div>
 
     </section>
-</div>
 
-<footer class="d-flex justify-content-center">
-    <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
-</footer>
+    <footer class="row d-flex justify-content-center">
+        <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
+    </footer>
+
+</div>
 </body>
 </html>
