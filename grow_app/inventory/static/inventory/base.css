@@ -1,6 +1,6 @@
 body {
     height: 100vh;
-    background-color: white;
+    background-color: rgb(233, 251, 241);
     font-family: Comfortaa, Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
@@ -12,7 +12,7 @@ nav {
 .big-header a {
     font-family: 'Libre Barcode 39 Text', sans-serif;
     text-decoration: none;
-    color: white;
+    color: rgb(152, 251, 152);
     font-size: 1.5em;
 }
 
