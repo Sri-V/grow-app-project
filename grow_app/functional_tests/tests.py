@@ -2,6 +2,8 @@
 This file contains functional tests, meant to test the behavior of the system from the outside.
 """
 
+from django.contrib.staticfiles import finders
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
@@ -103,8 +105,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
         # And record the SEED record
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
-
-
 
     def tearDown(self):
         self.browser.quit()
@@ -303,8 +303,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
 
-
-
     # ###
     # # SPRINT 2
     # ###
@@ -324,3 +322,15 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     # def test_bulk_plant_harvest(self):
     #     self.fail("Test incomplete")
     #     # Oliver wants to harvest an entire rack of trays all at once.
+
+
+class StaticURLTest(StaticLiveServerTestCase):
+    """Tests that the stylesheets and image assets are available from their proper links."""
+    
+    def test_base_css_returns_200(self):
+        result = finders.find('inventory/base.css')
+        self.assertIsNotNone(result)
+        
+    def test_favicon_returns_200(self):
+        result = finders.find('favicon.ico')
+        self.assertIsNotNone(result)

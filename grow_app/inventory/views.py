@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 
+
 # Create your views here.
 def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and slots."""
