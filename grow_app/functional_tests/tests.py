@@ -311,16 +311,10 @@ class BasicUserInteractionsTest(LiveServerTestCase):
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
     
-    def setUp(self):
-        self.browser = webdriver.Firefox()
-    
-    def tearDown(self):
-        self.browser.quit()
-    
     def test_base_css_returns_200(self):
-        response = self.client.get("/static/inventory/base.css")
-        self.assertContains(response, 200)
+        result = finders.find('inventory/base.css')
+        self.assertIsNotNone(result)
         
     def test_favicon_returns_200(self):
-        response = self.client.get("/favicon.ico")
-        self.assertContains(response, 200)
+        result = finders.find('favicon.ico')
+        self.assertIsNotNone(result)
