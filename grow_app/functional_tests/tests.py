@@ -9,6 +9,7 @@ import datetime
 
 from inventory.models import Crop, Slot, Variety, CropRecord
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, login
 from django.test import Client
 
 SLEEPY_TIME = 1
@@ -336,7 +337,9 @@ class UserAuthenticationAndPermissionsTest(LiveServerTestCase):
         self.group.save()
         self.c = Client()
         # Create user
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user_object = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user = authenticate(username=self.user_object.username, password=self.user_object.password)
+        self.c.login(username=self.user_object.username, password=self.user_object.password)
 
 
     def tearDown(self):
