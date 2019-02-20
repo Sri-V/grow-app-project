@@ -22,23 +22,66 @@
 </head>
 <body>
 {% include "inventory/header.html" %}
-<p>
-    You have {{ total_slot_count }} total slots.
-</p>
-<form id="form-set-slot-count" method="POST" action="/slot/set_qty">
-    {% csrf_token %}
-    <input id="form-set-slot-count-qty" type="number" min="0" name="quantity"/>
-    <input id="form-set-slot-count-submit" type="submit" />
-</form>
-<form id="form-add-variety" method="POST" action="/crop/add_variety">
-    {% csrf_token %}
-    Variety Name <input id="form-add-variety-name" type="text" name="variety-name"/>
-    Days Until Harvest <input id="form-add-variety-days-to-harvest" type="number" min="1" name="days-to-harvest"/>
-    <input id="form-add-variety-submit" value="Add Variety" type="submit" />
-</form>
-<a id="link-new-crop" href="{% url 'create_crop' %}">Add a new crop</a>
-<footer>
 
+<div class="main-container container-fluid d-flex flex-column justify-content-around">
+
+    <section id="primary-actions" class="row d-flex justify-content-around">
+        <div class="col-2">
+            <a id="link-new-crop" href="{% url 'create_crop' %}"><button class="btn btn-dark">New</button></a>
+        </div>
+        <div class="col-2">
+            <a id="link-water-crop" href=""><button class="btn btn-dark">Water</button></a>
+        </div>
+        <div class="col-2">
+            <a id="link-move-crop" href=""><button class="btn btn-dark">Move</button></a>
+        </div>
+        <div class="col-2">
+            <a id="link-harvest-crop" href=""><button class="btn btn-dark">Harvest</button></a>
+        </div>
+    </section>
+
+    <section id="setup-task-forms" class="row d-flex justify-content-center">
+        <div class="col-10 col-lg-4">
+            <h2>Set Capacity</h2>
+            <form id="form-set-slot-count" method="POST" action="/slot/set_qty">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="form-set-slot-count-qty">Current capacity: <b>{{ total_slot_count }} slots.</b></label>
+                <input id="form-set-slot-count-qty" type="number" class="form-control" min="{{ total_slot_count }}"
+                       name="quantity"
+                placeholder="Enter new capacity"/>
+                </div>
+
+                <input id="form-set-slot-count-submit" type="submit" class="btn btn-primary" value="Update Capacity"/>
+            </form>
+        </div>
+
+        <div class="col-10 col-lg-4">
+            <h2>New Variety</h2>
+            <form id="form-add-variety" method="POST" action="/crop/add_variety">
+                {% csrf_token %}
+
+                <div class="form-group">
+                <label for="form-add-variety-name">Name:</label>
+                <input id="form-add-variety-name" type="text" class="form-control" name="variety-name"
+                       placeholder="e.g. Basil"/>
+                </div>
+
+                <div class="form-group">
+                <label for="form-add-variety-days-to-harvest">Days Until Harvest:</label>
+                <input id="form-add-variety-days-to-harvest" type="number" class="form-control" min="1"
+                       name="days-to-harvest" placeholder="1"/>
+                </div>
+
+                <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety" />
+            </form>
+        </div>
+
+    </section>
+</div>
+
+<footer class="d-flex justify-content-center">
+    <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
 </footer>
 </body>
 </html>
