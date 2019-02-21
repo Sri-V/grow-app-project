@@ -179,7 +179,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # FIXME -- He scans the barcode of the radish tray he would like to move
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
+        self.assertEqual("Slot Details", self.browser.title)
         slot_id = self.browser.find_element_by_id("slot-id").text
         self.assertEqual(slot_id, f'Slot ID: {self.plant_origin_slot_id}')
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
@@ -245,7 +245,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
+        self.assertEqual("Slot Details", self.browser.title)
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He writes that mold is the reason for trashing the crop

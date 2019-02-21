@@ -218,5 +218,5 @@ def sign_up(request):
             return redirect('home')
     elif request.method == 'GET':
         form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form': form})
 
