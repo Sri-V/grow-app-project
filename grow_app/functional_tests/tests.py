@@ -10,8 +10,10 @@ from selenium import webdriver
 from time import sleep
 import datetime
 
-
 from inventory.models import Crop, Slot, Variety, CropRecord
+from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, login
+from django.test import Client
 
 SLEEPY_TIME = 1
 
@@ -105,6 +107,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
         # And record the SEED record
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
+
+
 
     def tearDown(self):
         self.browser.quit()
@@ -303,6 +307,57 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
 
+
+class UserAuthenticationAndPermissionsTest(LiveServerTestCase):
+    """
+    Tests that the user authentication and permissions system works properly
+    """
+
+    def setUp(self):
+        # Set the browser
+        self.browser = webdriver.Firefox()
+
+        # Make some slots and save their ids -- this is to avoid hard-coding primary keys in the test methods
+        self.plant_origin_slot_id = Slot.objects.create().id
+        self.plant_destination_slot_id = Slot.objects.create().id
+        self.free_slot_id = Slot.objects.create().id
+
+        # Add some plant varieties
+        Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        Variety.objects.create(name="Parsley", days_plant_to_harvest=15)
+        Variety.objects.create(name="Radish", days_plant_to_harvest=12)
+
+        # Add a single crop into the first slot
+        variety = Variety.objects.get(name="Radish")
+        self.first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True,
+                                              exp_num_germ_days=3, exp_num_grow_days=8)
+        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
+        # And record the SEED record
+        self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
+
+        # TODO - Set up the user accounts and permissions system
+        # Create permissions group
+        self.group = Group(name="My Test Group")
+        self.group.save()
+        self.c = Client()
+        # Create user
+        self.user_object = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user = authenticate(username=self.user_object.username, password=self.user_object.password)
+        self.c.login(username=self.user_object.username, password=self.user_object.password)
+
+
+    def tearDown(self):
+        self.user.delete()
+        self.group.delete()
+        self.browser.quit()
+
+    def test_staff_interaction(self):
+       pass
+
+    def test_employee_interaction(self):
+        pass
+
+
     # ###
     # # SPRINT 2
     # ###
@@ -326,11 +381,11 @@ class BasicUserInteractionsTest(LiveServerTestCase):
 
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
-    
+
     def test_base_css_returns_200(self):
         result = finders.find('inventory/base.css')
         self.assertIsNotNone(result)
-        
+
     def test_favicon_returns_200(self):
         result = finders.find('favicon.ico')
         self.assertIsNotNone(result)
