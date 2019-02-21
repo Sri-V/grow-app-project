@@ -35,9 +35,9 @@
         <input id="form-harvest-tray-submit" type="submit" value="Harvest"/>
     </form>
 
-    <form action="/slot/{{ slot_id }}/action/note/" id="form-record-note" method="post">
+    <form action="/slot/{{ slot_id }}/action/note" id="form-record-note" method="post">
         {% csrf_token %}
-        <textarea name="note" form="form-record-note"></textarea>
+        <textarea name="note" id="form-record-note-text" form="form-record-note"></textarea>
         <input type="submit" id="form-record-note-submit"/>
     </form>
 

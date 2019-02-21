@@ -100,15 +100,18 @@ class RecordDeadCropTest(TestCase):
         slot = Slot.objects.get(id=1)
         self.assertEqual(slot.current_crop.variety.name, "Basil")
         # And check that there is no TRASH record that has been recorded for this crop
-        trash = CropRecord.objects.filter(crop=basil).filter(record_type='TRASH')
-        self.assertEqual(trash, None)
+        num_trash_records = len(CropRecord.objects.filter(crop=basil).filter(record_type='TRASH'))
+        self.assertEqual(num_trash_records, 0)
         # Make a post to the record dead crop endpoint
-        response = self.client.post("slot/1/action/trash", data={"reason-for-trash-text": "Got frozen"})
+        response = self.client.post("/slot/1/action/trash", data={"reason-for-trash-text": "Got frozen"})
         # Check that there is no longer a crop in the slot
-        slot = Slot.objects.get(id=1)
-        self.assertEqual(slot.current_crop, None)
+        current_crop = Slot.objects.get(id=1).current_crop
+        self.assertIsNone(current_crop)
+        # Check that a single crop record has now been created
+        num_trash_records = len(CropRecord.objects.filter(crop=basil).filter(record_type='TRASH'))
+        self.assertEqual(num_trash_records, 1)
         # Check that the crop record was created and contains the reason for trashing
-        trash_record = CropRecord.objects.filter(crop=basil).filter(record_type='TRASH')
+        trash_record = CropRecord.objects.filter(crop=basil).filter(record_type='TRASH')[0]
         self.assertEqual(trash_record.crop.variety.name, "Basil")
         self.assertEqual(trash_record.note, "Got frozen")
 

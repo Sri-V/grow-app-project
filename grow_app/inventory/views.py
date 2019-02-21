@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 
+
 # Create your views here.
 def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and slots."""
@@ -61,9 +62,52 @@ def create_crop(request):
 
 
 def crop_detail(request, crop_id):
-    """GET: Display the crop's history, link to its tray."""
+    """GET: Display the crop's details and history. The details include the type of crop, tray size,
+    delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
-    return render(request, "inventory/crop_details.html", context={"crop": crop})
+
+    all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
+
+    # FIXME -- handle this selection client-side via template filtering and selection
+    try:
+        records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('-date')
+    except Exception:
+        records = None
+    try:
+        notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('-date')
+    except Exception:
+        notes = None
+    try:
+        seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('-date')[0]
+    except Exception:
+        seed = None
+    try:
+        grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('-date')[0]
+    except Exception:
+        grow = None
+    try:
+        water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('-date')[0]
+    except Exception:
+        water = None
+    try:
+        harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('-date')[0]
+    except Exception:
+        harvest = None
+    try:
+        delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('-date')[0]
+    except Exception:
+        delivered = None
+    try:
+        trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('-date')[0]
+    except Exception:
+        trash = None
+    try:
+        returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('-date')[0]
+    except Exception:
+        returned = None
+
+    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
 
 
 def record_crop_info():
@@ -97,7 +141,7 @@ def harvest_crop(request, slot_id):
     slot.current_crop = None
     slot.save()
     CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
-    return redirect(crop_history, crop_id=current_crop.id)
+    return redirect(crop_detail, crop_id=current_crop.id)
 
 def trash_crop(request, slot_id):
     """POST: Record that the crop has been trashed and redirect user to homepage."""
@@ -109,60 +153,12 @@ def trash_crop(request, slot_id):
     CropRecord.objects.create(crop=crop, record_type='TRASH', note=reason_for_trash)
     return redirect('/slot/' + str(slot_id) + '/')
 
-def crop_history(request, crop_id):
-    """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
-    Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
-     see as they're working all day, so it needs to feel like a control panel."""
-    crop = Crop.objects.get(id=crop_id)
-    try:
-        records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('date')
-    except Exception:
-        records = None
-    try:
-        notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('date')
-    except Exception:
-        notes = None
-    
-    try:
-        seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('date')[0]
-    except Exception:
-        seed = None
-    try:
-        grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('date')[0]
-    except Exception:
-        grow = None
-    try:
-        water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('date')[0]
-    except Exception:
-        water = None
-    try:
-        harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('date')[0]
-    except Exception:
-        harvest = None
-    try:
-        delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('date')[0]
-    except Exception:
-        delivered = None
-    try:
-        trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('date')[0]
-    except Exception:
-        trash = None
-    try:
-        returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('date')[0]
-    except Exception:
-        returned = None
-
-    return render(request, "inventory/crop_history.html",
-                    context={"crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
-
 def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
     return redirect(homepage)
-
 
 def move_tray(request, slot_id):
     """POST: Update the database with the tray that has been moved"""

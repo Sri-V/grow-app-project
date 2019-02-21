@@ -5,22 +5,97 @@
     <title>Crop Details</title>
 </head>
 <body>
-    <h1>Crop Details</h1>
-    <div id="crop-type">
-        Crop Type: {{ crop.variety.name }}
+    <div id="crop-details">
+        <h1>Crop Details</h1>
+        <div id="crop-type">
+            Crop Type: {{ crop.variety.name }}
+        </div>
+        <div id="tray-size">
+            Tray Size: {{ crop.get_tray_size_display }}
+        </div>
+        <div id="live-delivery">
+            Live Delivery: {{ crop.live_delivery }}
+        </div>
+        <div id="exp-num-germ-days">
+            Expected number of germination days: {{ crop.exp_num_germ_days }}
+        </div>
+        <div id="exp-num-grow-days">
+            Expected number of grow days: {{ crop.exp_num_grow_days }}
+        </div>
     </div>
-    <div id="tray-size">
-        Tray Size: {{ crop.get_tray_size_display }}
+    <div id="crop-history">
+        <h1>Crop History</h1>
+        <div id="current-details">
+            <h2>Current Details</h2>
+            {% if water %}
+            <div id="water-date">
+                Last watered: {{ water.date }}
+            </div>
+            {% endif %}
+            {% if seed %}
+            <div id="seed-date">
+                Seeded: {{ seed.date }}
+            </div>
+            {% endif %}
+            {% if grow %}
+            <div id="grow-date">
+                Began Grow Phase: {{ grow.date }}
+            </div>
+            {% endif %}
+            {% if harvest %}
+            <div id="harvest-date">
+                Harvested: {{ harvest.date }}
+            </div>
+            {% endif %}
+            {% if delivered %}
+            <div id="delivered-date">
+                Delivered: {{ delivered.date }}
+            </div>
+            {% endif %}
+            {% if trash %}
+            <div id="trash-date">
+                Trashed: {{ trash.date }}
+            </div>
+            {% endif %}
+            {% if returned %}
+            <div id="returned-date">
+                Returned: {{ returned.date }}
+            </div>
+            {% endif %}
+        </div>
+
+        <h2>Notes</h2>
+        <table id="notes">
+            <row>
+            {% for note in notes %}
+                <column id="note-date" width='30%'>
+                {{ note.date }}
+                </column>
+                <column id="note-text" width='70%'>
+                    {{ note.note }}
+                </column>
+            {% endfor %}
+            {% if not notes %}
+                Currently no notes
+            {% endif %}
+            </row>
+        </table>
+        <h2>All Records</h2>
+        <table id="records">
+            <tr>
+                <th>Time</th>
+                <th>Record Type</th>
+                <th>Note</th>
+            </tr>
+            {% for record in history %}
+            <tr>
+                <td width='20%'>{{ record.date }}</td>
+                <td width='30%'>{{ record.get_record_type_display }}</td>
+                <td width='50%'>{{ record.note }}</td>
+            {% endfor %}
+            </tr>
+        </table>
     </div>
-    <div id="live-delivery">
-        Live Delivery: {{ crop.live_delivery }}
-    </div>
-    <div id="exp-num-germ-days">
-        Expected number of germination days: {{ crop.exp_num_germ_days }}
-    </div>
-    <div id="exp-num-grow-days">
-        Expected number of grow days: {{ crop.exp_num_grow_days }}
-    </div>
-    Crop History: <a href="/crop/{{ crop.id }}/history/" id="link-crop-history"> {{ crop.variety.name }} - {{ crop.id }}</a>
 </body>
 </html>
+
