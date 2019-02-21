@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 
+
 # Create your views here.
 def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and slots."""
@@ -69,39 +70,39 @@ def crop_detail(request, crop_id):
 
     # FIXME -- handle this selection client-side via template filtering and selection
     try:
-        records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('date')
+        records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('-date')
     except Exception:
         records = None
     try:
-        notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('date')
+        notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('-date')
     except Exception:
         notes = None
     try:
-        seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('date')[0]
+        seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('-date')[0]
     except Exception:
         seed = None
     try:
-        grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('date')[0]
+        grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('-date')[0]
     except Exception:
         grow = None
     try:
-        water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('date')[0]
+        water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('-date')[0]
     except Exception:
         water = None
     try:
-        harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('date')[0]
+        harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('-date')[0]
     except Exception:
         harvest = None
     try:
-        delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('date')[0]
+        delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('-date')[0]
     except Exception:
         delivered = None
     try:
-        trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('date')[0]
+        trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('-date')[0]
     except Exception:
         trash = None
     try:
-        returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('date')[0]
+        returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('-date')[0]
     except Exception:
         returned = None
 

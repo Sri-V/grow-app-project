@@ -2,7 +2,10 @@
 This file contains functional tests, meant to test the behavior of the system from the outside.
 """
 
+from django.contrib.staticfiles import finders
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
+from django.utils import dateformat
 from selenium import webdriver
 from time import sleep
 import datetime
@@ -102,8 +105,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
         # And record the SEED record
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
-
-
 
     def tearDown(self):
         self.browser.quit()
@@ -212,7 +213,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         # Verify that a water action was recorded for this crop
         record = CropRecord.objects.filter(record_type='WATER')[0]
-        self.assertEqual(record.date, datetime.date.today())
+        # And the date and time are correct
+        self.assertEqual(record.date.today().replace(microsecond=0), datetime.datetime.today().replace(microsecond=0))
 
     def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
@@ -227,7 +229,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/')
         # And the history displays a crop record indicating it was harvested
         harvest_text = self.browser.find_element_by_id("harvest-date").text
-        self.assertEqual("Harvested: " + datetime.date.today().strftime('%b. %d, %Y'), harvest_text)
+        self.assertEqual("Harvested: " + dateformat.format(datetime.datetime.now(), 'm/d/Y P'), harvest_text)
         # Then he navigates back to the slot that the crop was in
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And sees that it is empty
@@ -243,18 +245,18 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He writes that mold is the reason for trashing the crop
-        self.browser.find_element_by_id("form-record-dead-crop-text").send_keys("mold on crop ")
+        self.browser.find_element_by_id("form-record-dead-crop-text").send_keys("mold on crop")
         # And clicks on the button to record a dead crop
         self.browser.find_element_by_id("form-record-dead-crop-submit").click()
         # The slot details page reloads and he sees that the crop has been removed from the slot
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "This slot is empty")
         # Oliver then navigates to the crop details page to look at the crop history
-        self.browser.get(self.live_server_url + "/crop/1/")
+        self.browser.get(self.live_server_url + f'/crop/{self.first_crop.id}/')
         self.assertEqual("Crop Details", self.browser.title)
         # Under the crop history section he sees that the trashed crop record has been recorded
         trashed_record = self.browser.find_element_by_id("trash-date").text
-        self.assertEqual(trashed_record, "Trashed: " + datetime.date.today().strftime('%b. %d, %Y'))
+        self.assertEqual(trashed_record, "Trashed: " + dateformat.format(datetime.datetime.today(), 'm/d/Y P'))
 
     def test_add_note_about_crop(self):
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
@@ -282,26 +284,24 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
-        water_crop_datetime = datetime.date.today()
+        water_crop_datetime = datetime.datetime.now()
         # And add some records that will show up in the crop history
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
-        harvest_crop_datetime = datetime.date.today()
+        harvest_crop_datetime = datetime.datetime.now()
         # After harvesting the crop Oliver gets redirected to the crop details page to check the crop history
         self.assertEqual('Crop Details', self.browser.title)
         # Check that current details of the crop are correct
         crop = Slot.objects.get(id=self.plant_origin_slot_id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
-        self.assertEqual(seed_date, "Seeded: " + self.first_crop_record.date.strftime('%b. %d, %Y'))
+        self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.today(), 'm/d/Y P'))
         last_watered_date = self.browser.find_element_by_id("water-date").text
-        self.assertEqual(last_watered_date, "Last watered: " + water_crop_datetime.strftime('%b. %d, %Y'))
+        self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime.today(), 'm/d/Y P'))
         harvested_date = self.browser.find_element_by_id("harvest-date").text
-        self.assertEqual(harvested_date, "Harvested: " + harvest_crop_datetime.strftime('%b. %d, %Y'))
+        self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y P'))
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
-
-
 
     # ###
     # # SPRINT 2
@@ -322,3 +322,15 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     # def test_bulk_plant_harvest(self):
     #     self.fail("Test incomplete")
     #     # Oliver wants to harvest an entire rack of trays all at once.
+
+
+class StaticURLTest(StaticLiveServerTestCase):
+    """Tests that the stylesheets and image assets are available from their proper links."""
+    
+    def test_base_css_returns_200(self):
+        result = finders.find('inventory/base.css')
+        self.assertIsNotNone(result)
+        
+    def test_favicon_returns_200(self):
+        result = finders.find('favicon.ico')
+        self.assertIsNotNone(result)

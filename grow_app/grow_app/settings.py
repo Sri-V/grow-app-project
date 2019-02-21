@@ -106,13 +106,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
+
+# Changed default DATETIME_FORMAT to be more concise
+DATETIME_FORMAT = 'm/d/Y P'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -123,3 +126,7 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/'
 
 LOGOUT_REDIRECT_URL = '/logout/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")
+]
