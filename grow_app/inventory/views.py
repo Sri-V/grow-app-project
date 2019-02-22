@@ -13,6 +13,12 @@ def homepage(request):
     total_slot_count = Slot.objects.count()
     return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
 
+@login_required
+def setup(request):
+    """GET: Shows the setup page which contains forms for the inital setup of the grow space including
+    allowing a user to set the original number of slots and adding varieties"""
+    total_slot_count = Slot.objects.count()
+    return render(request, "inventory/setup.html", context={"total_slot_count": total_slot_count})
 
 @login_required
 def set_total_slot_quantity(request):
