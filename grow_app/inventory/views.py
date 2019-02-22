@@ -66,6 +66,7 @@ def create_crop(request):
         # Redirect the user to the slot details page
         return redirect('/slot/' + str(designated_slot_id) + '/')
 
+
 @login_required
 def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
