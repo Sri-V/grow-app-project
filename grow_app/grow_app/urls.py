@@ -21,7 +21,7 @@ from inventory import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.homepage, name="home"),
-    path('setup/', views.setup, name="setup"),
+    path('growhouse_settings/', views.growhouse_settings, name="growhouse_settings"),
     path('crop/new/', views.create_crop, name="create_crop"),
     path('crop/add_variety', views.add_variety, name="add_variety"),
     path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
