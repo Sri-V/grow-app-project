@@ -7,13 +7,10 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
-from time import sleep
 import datetime
 
 from inventory.models import Crop, Slot, Variety, CropRecord
-from django.contrib.auth.models import User, Group
-from django.contrib.auth import authenticate, login
-from django.test import Client
+from django.contrib.auth.models import User
 
 SLEEPY_TIME = 1
 
