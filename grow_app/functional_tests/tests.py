@@ -36,7 +36,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.assertEqual('Home -- BMG', self.browser.title)  # TODO -- cooler name
         # He sees that he currently has no trays set up.
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 0 total slots.", body)
+        self.assertIn("Current capacity: 0 slots.", body)
         # He sees that he can put in the number of total slots he has.
         slot_qty = self.browser.find_element_by_id("form-set-slot-count-qty")
         # He types in that he has 400 total slots and hits submit
@@ -48,7 +48,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.assertRegex(self.browser.current_url, r"/")
         # He also sees that the number of total slots has updated to 400
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 400 total slots.", body)
+        self.assertIn("Current capacity: 400 slots.", body)
 
     def test_add_varieties(self):
         # Oliver wants to input some different crop varieties
@@ -118,7 +118,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He goes to the website and sees that his slots are there
         self.browser.get(self.live_server_url)
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("You have 3 total slots.", body)  # FIXME -- more useful as "n free slots out of 3 total."
+        self.assertIn("Current capacity: 3 slots.", body)
 
         # Then he clicks a link to add a new crop
         self.browser.find_element_by_id("link-new-crop").click()
