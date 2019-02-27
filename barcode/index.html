@@ -37,23 +37,6 @@
 	</form>
 
 	<p id="scan"></p>
-
-	<script>
-
-        // FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
-		var data = ""; // The raw data read from the form field  
-
-        /**
-         * On keypress in the input tag, get characters from input and store it in a variable.
-         */
-		document.getElementById('input').onkeypress = function(event) {
-  			if (event.key != "Enter"){
-            data += event.key;
-            return true;
-            }
-		};
-		
-	</script>
 		
 	<script>
 
@@ -70,12 +53,14 @@
             }
 			// If keycode 13 (enter key) is detected, any input tag is focused 
 			// and scanner was detected, show the data and where it came from 
-			if (event.keyCode === 13 && (document.activeElement.tagName != "INPUT") && (dataScan.charCodeAt(0) == 17 || dataScan.charCodeAt(0) == 88)) {
-				document.getElementById("scan").innerHTML = dataScan.slice(1) + " Scanner detected no form";
+			if (event.keyCode === 13 && document.activeElement.tagName != "INPUT" && dataScan.startsWith("{BAR}")) {
+				document.getElementById("scan").innerHTML = dataScan.slice(5) + " Scanner detected no form";
 				dataScan = "";
 			// Otherwise clear the dataSacan variable 
 			}else if(event.keyCode === 13){
 				dataScan = "";
+				event.preventDefault();
+                return false;
 			}
 
 			return true; 
@@ -85,12 +70,12 @@
          * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
          */
 		document.getElementById("submit").onclick = function(event){
-			if (data.charCodeAt(0) == 17 || data.charCodeAt(0) == 88) {  // FIXME -- this is a fragile way to check where the data came from
+			data = document.getElementById("input").value;
+			if (data.startsWith("{BAR}")) {  // FIXME -- this is a fragile way to check where the data came from
                                                // Is there a way to do better?
-				document.getElementById("scan").innerHTML = data.slice(1) + " Scanner detected from form";
+				document.getElementById("scan").innerHTML = data.slice(5) + " Scanner detected from form";
         
 			} else {
-				data = document.getElementById("input").value;
 				document.getElementById("scan").innerHTML = data + " Came from user ";
 			}
 
