@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Barcode Input Speed Test</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body {
+			font-size: 1.6em;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.show {
+			display: inline !important;
+		}
+
+		button {
+			border: 2px solid black;
+			background: #E5E4E2;
+			font-size: .5em;
+			font-weight: bold;
+			color: black;
+			padding: .8em 2em;
+			margin-top: .4em;
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body>
+	<form action = "#" id="forms">
+		Input: <br />
+		<input type="text" id="input" ><br />
+		<input type="submit" value="Submit" id="submit"><br/>	
+	</form>
+
+	<p id="scan"></p>
+		
+	<script>
+
+        // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
+		var dataScan = "";// The raw data read from the scanner
+        var start = 0;//Start time of the input 
+        var inputSpeed = 0;//Speed of the input 
+        /**
+         * When the document registers a keypress, get the data from the scanner if the form field is not focused.
+         */
+		$(document).keypress(function(event){
+            // If dataScan is empty start the timer
+            if (dataScan == ""){
+                start = performance.now();
+            }
+            // If a keypress other than enter is received store the data in the variable 
+			if (event.key != "Enter"){
+			 	dataScan += event.key;
+            // If the keypress event is enter, stop the timer  
+            }else{
+                inputSpeed = (performance.now() - start)/(dataScan.length); 
+                console.log(inputSpeed);
+                //If the input Speed is 20 to 33 ms and there is no form field focused show the data from no form field 
+                if (inputSpeed >= 20 && inputSpeed <= 33 && document.activeElement.tagName !== "INPUT") {
+			        	document.getElementById("scan").innerHTML = dataScan + " Scanner detected no form";
+				        dataScan = "";
+                        inputSpeed = 0;
+                }
+
+                // Empty variable and prevent enter to submit the form 
+                dataScan = "";
+                event.preventDefault();
+                return false;
+            }
+            
+			return true; 
+		});
+
+        /**
+         * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
+         */
+		document.getElementById("submit").onclick = function(event){
+            dataScan = document.getElementById("input").value;
+            // if there is data in the vvariable determine if the input came from user or scanner 
+            if (dataScan !== ""){
+		    	if (inputSpeed >= 20 && inputSpeed <= 33) {
+		    		document.getElementById("scan").innerHTML = dataScan + " Scanner detected from form";
+		    	} else {
+	    			document.getElementById("scan").innerHTML = dataScan + " Came from user ";
+	    		}
+            // if there is data in the // If submit was clicked with the form field empty inform the user
+            //FIXME -- change it to throw an error 
+            }else{document.getElementById("scan").innerHTML = "The form field is empty"}
+
+
+			// Finally reset the data variable and the contents of the form field
+            // FIXME -- this should be a separate event handler, eventually in the controller
+			dataScan = "";
+			let inputElements = document.getElementsByTagName('input');
+  			for (let i = 0; i < inputElements.length; i++) {
+ 				if (inputElements[i].type == "text") {
+  					  inputElements[i].value = "";
+			  	}
+ 			}
+		};
+
+	</script>
+
+</body >
+</html >
