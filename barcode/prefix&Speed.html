@@ -59,7 +59,7 @@
             }else{
                 inputSpeed = (performance.now() - start)/(dataScan.length); 
                 console.log(inputSpeed);
-                //If the input Speed is 20 to 33 ms and there is no form field focused show the data from no form field 
+                //If the input Speed is 20 to 33 ms, the input has the barcode prefix and there is no form field focused show the data from no form field 
                 if (inputSpeed >= 20 && inputSpeed <= 33 && document.activeElement.tagName !== "INPUT" && dataScan.startsWith("{BAR}")) {
 			        	document.getElementById("scan").innerHTML = dataScan.slice(5) + " Scanner detected no form";
 				        dataScan = "";
@@ -79,8 +79,9 @@
          */
 		document.getElementById("submit").onclick = function(event){
             dataScan = document.getElementById("input").value;
-            // if there is data in the vvariable determine if the input came from user or scanner 
+            // if there is data in the variable, determine if the input came from user or scanner 
             if (dataScan !== ""){
+				//If the input Speed is 20 to 33 ms and the input has the barcode prefix
 		    	if (inputSpeed >= 20 && inputSpeed <= 33 && dataScan.startsWith("{BAR}")) {
 		    		document.getElementById("scan").innerHTML = dataScan.slice(5) + " Scanner detected from form";
 		    	} else {
