@@ -37,7 +37,7 @@
 	</form>
 
 	<p id="scan"></p>
-		
+
 	<script>
 
         // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
@@ -54,19 +54,17 @@
             if (!keyPressedWasEnter) {
                 barcodeScannerData += event.key;
                 console.log(event.key.charCodeAt(0));
-            }
-
-            let inputIsActive = document.activeElement.tagName !== "INPUT";
-            let detectedScannerPrefix = false;
-
-            // If the ENTER key is detected
-            if (keyPressedWasEnter){
+            } else {
+                let inputIsActive = document.activeElement.tagName !== "INPUT";
+                let detectedScannerPrefix = false;
                 if (!inputIsActive && detectedScannerPrefix) {
                     document.getElementById("scan").innerHTML = barcodeScannerData.slice(1) + " Scanner detected no form";
                     barcodeScannerData = "";
                     // Otherwise clear the dataScan variable
                 } else {
                     barcodeScannerData = "";
+                    event.preventDefault();
+                    return false;
                 }
             }
             return true;
@@ -76,9 +74,11 @@
          * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
          */
 		document.getElementById("submit").onclick = function(event){
-		    let formInputData = document.getElementById("input").value;
-			if (formInputData.startsWith('{BAR}')) {  // FIXME -- fragile
+			let formInputData = document.getElementById("input").value;
+			if (formInputData.startsWith("{BAR}")) {  // FIXME -- this is a fragile way to check where the data came from
+                                               // Is there a way to do better?
 				document.getElementById("scan").innerHTML = formInputData.slice(5) + " Scanner detected from form";
+        
 			} else {
 				document.getElementById("scan").innerHTML = formInputData + " Came from user ";
 			}
@@ -89,7 +89,7 @@
 			formInputData = "";
 			let inputElements = document.getElementsByTagName('input');
   			for (let i = 0; i < inputElements.length; i++) {
- 				if (inputElements[i].type == "text") {
+ 				if (inputElements[i].type === "text") {
   					  inputElements[i].value = "";
 			  	}
  			}
