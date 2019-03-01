@@ -42,23 +42,23 @@
 
         // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
 		var barcodeScannerData = "";// The raw data read from the scanner
+		 const scannerPrefix = "{BAR}";
 
         /**
          * When the document registers a keypress, determine if the keys pressed are coming from the barcode scanner.
          */
 		$(document).keypress(function(event) {
 
-		    const scannerPrefix = "{BAR}";
+		   
             let keyPressedWasEnter = event.key === "Enter";
 
             if (!keyPressedWasEnter) {
                 barcodeScannerData += event.key;
-                console.log(event.key.charCodeAt(0));
             } else {
                 let inputIsActive = document.activeElement.tagName !== "INPUT";
-                let detectedScannerPrefix = false;
-                if (!inputIsActive && detectedScannerPrefix) {
-                    document.getElementById("scan").innerHTML = barcodeScannerData.slice(1) + " Scanner detected no form";
+                let detectedScannerPrefix = barcodeScannerData.startsWith(scannerPrefix);
+                if (inputIsActive && detectedScannerPrefix) {
+                    document.getElementById("scan").innerHTML = barcodeScannerData.slice(5) + " Scanner detected no form";
                     barcodeScannerData = "";
                     // Otherwise clear the dataScan variable
                 } else {
@@ -75,7 +75,7 @@
          */
 		document.getElementById("submit").onclick = function(event){
 			let formInputData = document.getElementById("input").value;
-			if (formInputData.startsWith("{BAR}")) {  // FIXME -- this is a fragile way to check where the data came from
+			if (formInputData.startsWith(scannerPrefix)) {  // FIXME -- this is a fragile way to check where the data came from
                                                // Is there a way to do better?
 				document.getElementById("scan").innerHTML = formInputData.slice(5) + " Scanner detected from form";
         
