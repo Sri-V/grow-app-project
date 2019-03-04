@@ -20,15 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'xw^k0+6mi+5gh=6g7_(6=*#bafeq669&tqzr^=uargd8$)82)+'
-
-# Read SECRET_KEY from an environment variable
 import os
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'xw^k0+6mi+5gh=6g7_(6=*#bafeq669&tqzr^=uargd8$)82)+')
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 ALLOWED_HOSTS = []
@@ -142,6 +137,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # The URL to use when referring to static files (where they will be served from)
 STATIC_URL = '/static/'
+
+# Secure Cookies
+CSRF_COOKIE_SECURE = True
 
 # Heroku: Update database configuration from $DATABASE_URL.
 import dj_database_url
