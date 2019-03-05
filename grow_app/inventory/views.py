@@ -13,6 +13,12 @@ def homepage(request):
     total_slot_count = Slot.objects.count()
     return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
 
+@login_required
+def growhouse_settings(request):
+    """GET: Shows the setup page which contains forms for the inital setup of the grow space including
+    allowing a user to set the original number of slots and adding varieties"""
+    total_slot_count = Slot.objects.count()
+    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count})
 
 @login_required
 def set_total_slot_quantity(request):
@@ -27,7 +33,7 @@ def set_total_slot_quantity(request):
         # Reducing the number of trays is currently not a supported operation.
         return HttpResponseBadRequest()
             
-    return redirect(homepage)
+    return redirect(growhouse_settings)
 
 
 @login_required
@@ -36,7 +42,7 @@ def add_variety(request):
     variety_name = request.POST["variety-name"]
     days_to_harvest = request.POST["days-to-harvest"]
     Variety.objects.create(name=variety_name, days_plant_to_harvest=days_to_harvest)
-    return redirect(homepage)
+    return redirect(growhouse_settings)
 
 
 @login_required
