@@ -37,6 +37,7 @@
 
     <form action="/slot/{{ slot_id }}/action/note" id="form-record-note" method="post">
         {% csrf_token %}
+        <label for="form-record-note-text">Make Note</label>
         <textarea name="note" id="form-record-note-text" form="form-record-note"></textarea>
         <input type="submit" id="form-record-note-submit"/>
     </form>
