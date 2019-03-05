@@ -1,10 +1,21 @@
 from django.test import TestCase
 from inventory.models import Crop, Slot, Variety, CropRecord
-
+from django.contrib.auth.models import User
+from django.test import Client
 
 class HomePageTest(TestCase):
     """Tests that the homepage works as expected internally."""
-    
+
+    # Logs in the user before the test starts
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user.save()
+        self.client.login(username="test", password="test")
+
+    def tearDown(self):
+        self.user.delete()
+
     def test_uses_correct_template(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "inventory/index.html")
@@ -28,6 +39,15 @@ class HomePageTest(TestCase):
 
 class NewCropTest(TestCase):
     """Tests that the new crop page works as expected internally."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user.save()
+        self.client.login(username="test", password="test")
+
+    def tearDown(self):
+        self.user.delete()
 
     def test_uses_correct_template(self):
         response = self.client.get("/crop/new/")
@@ -62,6 +82,15 @@ class NewCropTest(TestCase):
 class MoveTrayTest(TestCase):
     """Tests that move tray action modifies the model correctly."""
 
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user.save()
+        self.client.login(username="test", password="test")
+
+    def tearDown(self):
+        self.user.delete()
+
     def test_move_crop(self):
         # There are five total slots in the database
         slot = [Slot.objects.create() for i in range(5)]
@@ -87,6 +116,16 @@ class MoveTrayTest(TestCase):
 
 class RecordDeadCropTest(TestCase):
     """Tests that the record dead crop action modifies the model correctly."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user.save()
+        self.client.login(username="test", password="test")
+
+    def tearDown(self):
+        self.user.delete()
+
 
     def test_record_dead_crop(self):
         # We create a single slot in the database
@@ -135,6 +174,15 @@ class AddNoteTest(TestCase):
                                     exp_num_grow_days=12)
         # The crop is added to the slot
         Slot.objects.filter(id=self.id_of_plant_slot).update(current_crop=self.basil)
+
+        # Login the user
+        self.client = Client()
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+        self.user.save()
+        self.client.login(username="test", password="test")
+
+    def tearDown(self):
+        self.user.delete()
 
     def testMakeNote(self):
         # Make a note about how the basil lamp died

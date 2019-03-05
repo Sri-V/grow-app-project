@@ -1,5 +1,14 @@
-<nav class="row" class="d-flex justify-content-start">
-    <div>
-        <h1 class="big-header"><a href="{% url 'home' %}">Microgreens</a></h1>
-    </div>
-</nav>
+<div class="navbar">
+    <ul>
+        {% if user.is_authenticated %}
+        <li>Hi {{ user.username }} | </li>
+        <li><a href="{% url 'home' %}">Home</a> | </li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% endif %}
+    </ul>
+    <style>
+        li {
+          display: inline;
+        }
+   </style>
+</div>

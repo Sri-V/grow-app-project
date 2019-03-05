@@ -7,11 +7,10 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
-from time import sleep
 import datetime
 
-
 from inventory.models import Crop, Slot, Variety, CropRecord
+from django.contrib.auth.models import User
 
 SLEEPY_TIME = 1
 
@@ -20,9 +19,17 @@ class GreenhouseSetupTest(LiveServerTestCase):
     """
     Tests that the application can support first-time setup tasks for a greenhouse or growing operation.
     """
+
     def setUp(self):
         # Set the browser
         self.browser = webdriver.Firefox()
+
+        # Create and login a user
+        user = User.objects.create_user(username='test_user', password='password')
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_name('username').send_keys(user.username)
+        self.browser.find_element_by_name('password').send_keys('password')
+        self.browser.find_element_by_tag_name('button').click()
 
     def tearDown(self):
         self.browser.quit()
@@ -40,7 +47,6 @@ class GreenhouseSetupTest(LiveServerTestCase):
         # He types in that he has 400 total slots and hits submit
         slot_qty.send_keys("400")
         self.browser.find_element_by_id("form-set-slot-count-submit").click()
-        sleep(SLEEPY_TIME)
 
         # He sees that he is redirected to the home page
         self.assertRegex(self.browser.current_url, r"/")
@@ -67,7 +73,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-add-variety-submit").click()
         # To check if the varieties have been added he navigates to the add crop page
         self.browser.find_element_by_id("link-new-crop").click()
-        sleep(SLEEPY_TIME)
+
         # He is now on the new crop page
         self.assertEqual(self.browser.title, "New Crop -- BMG")
         # After looking at the form options he sees that both varieties are now there
@@ -105,6 +111,13 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
         # And record the SEED record
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
+
+        # Create and login a user
+        user = User.objects.create_user(username='test_user', password='password')
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_name('username').send_keys(user.username)
+        self.browser.find_element_by_name('password').send_keys('password')
+        self.browser.find_element_by_tag_name('button').click()
 
     def tearDown(self):
         self.browser.quit()
@@ -175,7 +188,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # FIXME -- He scans the barcode of the radish tray he would like to move
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
+        self.assertEqual("Slot Details", self.browser.title)
         slot_id = self.browser.find_element_by_id("slot-id").text
         self.assertEqual(slot_id, f'Slot ID: {self.plant_origin_slot_id}')
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
@@ -241,7 +254,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
         # And is redirected to the slot details page
-        self.assertEqual(self.browser.title, "Slot Details")
+        self.assertEqual("Slot Details", self.browser.title)
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He writes that mold is the reason for trashing the crop
@@ -303,6 +316,14 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
 
+
+    def test_staff_interaction(self):
+       pass
+
+    def test_employee_interaction(self):
+        pass
+
+
     # ###
     # # SPRINT 2
     # ###
@@ -326,11 +347,11 @@ class BasicUserInteractionsTest(LiveServerTestCase):
 
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
-    
+
     def test_base_css_returns_200(self):
         result = finders.find('inventory/base.css')
         self.assertIsNotNone(result)
-        
+
     def test_favicon_returns_200(self):
         result = finders.find('favicon.ico')
         self.assertIsNotNone(result)

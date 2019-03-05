@@ -3,14 +3,18 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
+@login_required
 def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and slots."""
     total_slot_count = Slot.objects.count()
     return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
 
 
+@login_required
 def set_total_slot_quantity(request):
     """POST: Update the number of total Slot objects, redirect to homepage."""
     desired_slot_count = int(request.POST["quantity"])
@@ -26,6 +30,7 @@ def set_total_slot_quantity(request):
     return redirect(homepage)
 
 
+@login_required
 def add_variety(request):
     """POST: Adds Variety Objects"""
     variety_name = request.POST["variety-name"]
@@ -34,6 +39,7 @@ def add_variety(request):
     return redirect(homepage)
 
 
+@login_required
 def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
@@ -61,6 +67,7 @@ def create_crop(request):
         return redirect('/slot/' + str(designated_slot_id) + '/')
 
 
+@login_required
 def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
     delivered live, ect. Page also provides a link to the crop's slot."""
@@ -110,16 +117,19 @@ def crop_detail(request, crop_id):
                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
 
 
+@login_required
 def record_crop_info():
     """POST: Record a timestampped event into the history of this crop's life."""
     return None
 
 
+@login_required
 def update_crop_lifecycle():
     """POST: Advance the crop from one lifecycle moment to another."""
     return None
 
 
+@login_required
 def slot_detail(request, slot_id):
     """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
     Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
@@ -129,11 +139,15 @@ def slot_detail(request, slot_id):
 
     return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots})
 
+
+@login_required
 def slot_action():
     """GET: Display a form for a user to record an action on a tray.
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
     return None
 
+
+@login_required
 def harvest_crop(request, slot_id):
     """POST: Remove the crop from its tray, record crop history as harvest, and redirect to crop detail page."""
     slot = Slot.objects.get(id=slot_id)
@@ -143,6 +157,8 @@ def harvest_crop(request, slot_id):
     CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
     return redirect(crop_detail, crop_id=current_crop.id)
 
+
+@login_required
 def trash_crop(request, slot_id):
     """POST: Record that the crop has been trashed and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
@@ -153,6 +169,8 @@ def trash_crop(request, slot_id):
     CropRecord.objects.create(crop=crop, record_type='TRASH', note=reason_for_trash)
     return redirect('/slot/' + str(slot_id) + '/')
 
+
+@login_required
 def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
@@ -160,6 +178,8 @@ def water_crop(request, slot_id):
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
     return redirect(homepage)
 
+
+@login_required
 def move_tray(request, slot_id):
     """POST: Update the database with the tray that has been moved"""
     leaving_slot = Slot.objects.get(id=slot_id)
@@ -171,6 +191,8 @@ def move_tray(request, slot_id):
     arriving_slot.save()
     return redirect('/slot/' + str(arriving_slot_id) + '/')
 
+
+@login_required
 def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
     crop = Slot.objects.get(id=slot_id).current_crop
@@ -178,3 +200,6 @@ def record_note(request, slot_id):
     date = datetime.now()
     CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
+
+
+
