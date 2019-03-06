@@ -1,31 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Growhouse Settings -- BMG</title>
+{% extends 'base.html' %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% block title %}Greenhouse Config{% endblock %}
 
-    {% load static %}
-    <link rel="apple-touch-icon" sizes="76x76" href="{% static "apple-touch-icon.png" %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon-32x32.png" %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon-16x16.png" %}">
-    <link rel="manifest" href="{% static "site.webmanifest" %}">
-    <link rel="mask-icon" href="{% static "safari-pinned-tab.svg" %}" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css"
-          integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
-     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
-    <link rel="stylesheet" href="{% static "inventory/../../../static/base.css" %}">
-</head>
-<body>
-<div class="main-container container-fluid d-flex flex-column justify-content-between">
-
-    {% include "inventory/header.html" %}
-
-    <section id="setup-task-forms" class="row d-flex justify-content-center">
+{% block content %}
+    <div class="col-12 row d-flex justify-content-center">
         <div class="col-10 col-lg-4">
             <h2>Set Capacity</h2>
             <form id="form-set-slot-count" method="POST" action="/slot/set_qty">
@@ -61,13 +39,6 @@
                 <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety" />
             </form>
         </div>
+    </div>
 
-    </section>
-
-    <footer class="row d-flex justify-content-center">
-        <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
-    </footer>
-
-</div>
-</body>
-</html>
+{% endblock %}
