@@ -84,7 +84,8 @@
                 </form>
 
             {% else %}
-                <p>Would you like to <a id="link-new-crop" href="{% url 'create_crop' %}">place a new crop</a> here?</p>
+                <p id="empty-slot">Would you like to
+                    <a id="link-new-crop" href="{% url 'create_crop' %}">place a new crop</a> here?</p>
             {% endif %}
         </div>
     </div>

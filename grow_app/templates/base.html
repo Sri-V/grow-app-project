@@ -31,7 +31,7 @@
     <nav class="navbar row d-flex">
         {% block navbar %}
             <h1 class="big-header">
-                <a href="{% url "home" %}">Microgreens</a>
+                <a id="link-to-home" href="{% url "home" %}">Microgreens</a>
             </h1>
             <ul>
                 {% if user.is_authenticated %}
