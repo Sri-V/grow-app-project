@@ -4,11 +4,11 @@
 
 {% block content %}
     <div class="col-10 col-lg-8">
-        <div class="row d-flex justify-content-start jumbotron">
-            <div class="col-12 col-md-6">
+        <div class="row d-flex justify-content-between jumbotron">
+            <div class="col-12 col-md-4">
                 <h1 id="slot-id">Slot #{{ slot_id }}</h1>
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-8 col-lg-7 col-xl-6">
                 <div id="current-crop-type">
                     <h2>Current Crop:
                     {% if current_crop %}
@@ -71,7 +71,7 @@
                            class="btn btn-primary btn-lg"/>
                 </form>
 
-                <h3>Kill the Crop</h3>
+                <h3>Trash the Crop</h3>
                 <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
                     {% csrf_token %}
 
