@@ -29,7 +29,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_name('username').send_keys(user.username)
         self.browser.find_element_by_name('password').send_keys('password')
-        self.browser.find_element_by_tag_name('button').click()
+        self.browser.find_element_by_id('form-login-submit').click()
 
     def tearDown(self):
         self.browser.quit()
@@ -117,7 +117,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_name('username').send_keys(user.username)
         self.browser.find_element_by_name('password').send_keys('password')
-        self.browser.find_element_by_tag_name('button').click()
+        self.browser.find_element_by_id('form-login-submit').click()
 
     def tearDown(self):
         self.browser.quit()
