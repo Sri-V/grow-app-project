@@ -33,7 +33,7 @@ def set_total_slot_quantity(request):
         # Reducing the number of trays is currently not a supported operation.
         return HttpResponseBadRequest()
             
-    return redirect(homepage)
+    return redirect(growhouse_settings)
 
 
 @login_required
@@ -42,7 +42,7 @@ def add_variety(request):
     variety_name = request.POST["variety-name"]
     days_to_harvest = request.POST["days-to-harvest"]
     Variety.objects.create(name=variety_name, days_plant_to_harvest=days_to_harvest)
-    return redirect(homepage)
+    return redirect(growhouse_settings)
 
 
 @login_required
@@ -207,23 +207,5 @@ def record_note(request, slot_id):
     CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
 
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
 
-def sign_up(request):
-    """GET: Render the sign up page for the user
-    POST: Create a new "employee" user based on the inputs provided"""
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('home')
-    elif request.method == 'GET':
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
 

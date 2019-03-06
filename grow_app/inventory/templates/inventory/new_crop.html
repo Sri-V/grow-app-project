@@ -23,8 +23,11 @@
         <li><input type="radio" name="delivered-live" value="True" checked>Delivered live</li>
         <li><input type="radio" name="delivered-live" value="False">Harvested on-site</li>
     </ol>
-    <input id="form-new-crop-germination-length" name="germination-length" type="number" min="1">
-    <input id="form-new-crop-grow-length" name="grow-length" type="number" min="1">
+    <label for="form-new-crop-germination-length">Germination Length</label>
+        <input id="form-new-crop-germination-length" name="germination-length" type="number" min="1">
+    <label for="form-new-crop-grow-length">Grow Length</label>
+        <input id="form-new-crop-grow-length" name="grow-length" type="number" min="1">
+    <label for="form-new-crop-slot">Slot ID</label>
     <select id="form-new-crop-slot" name="designated-slot-id">
         {% for slot in slot_list %}
             <option>{{ slot.id }}</option>
