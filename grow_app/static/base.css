@@ -7,10 +7,24 @@ body {
 
 .main-container {
     height: 100%;
+    padding: 0;
 }
 
 nav {
     background-color: black;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav * {
+    color: rgb(152, 251, 152);
+}
+
+#link-to-logout, #link-to-login {
+    text-decoration: none;
+    color: rgb(152, 251, 152);
 }
 
 .big-header a {
