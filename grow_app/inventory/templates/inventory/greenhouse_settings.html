@@ -10,9 +10,9 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="form-set-slot-count-qty">Current capacity: <b>{{ total_slot_count }} slots.</b></label>
-                <input id="form-set-slot-count-qty" type="number" class="form-control" min="{{ total_slot_count }}"
-                       name="quantity"
-                placeholder="Enter new capacity"/>
+                    <input id="form-set-slot-count-qty" type="number" class="form-control" min="{{ total_slot_count }}"
+                           name="quantity"
+                           placeholder="Enter new capacity"/>
                 </div>
 
                 <input id="form-set-slot-count-submit" type="submit" class="btn btn-primary" value="Update Capacity"/>
@@ -25,18 +25,18 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                <label for="form-add-variety-name">Name:</label>
-                <input id="form-add-variety-name" type="text" class="form-control" name="variety-name"
-                       placeholder="e.g. Basil"/>
+                    <label for="form-add-variety-name">Name:</label>
+                    <input id="form-add-variety-name" type="text" class="form-control" name="variety-name"
+                           placeholder="e.g. Basil"/>
                 </div>
 
                 <div class="form-group">
-                <label for="form-add-variety-days-to-harvest">Days Until Harvest:</label>
-                <input id="form-add-variety-days-to-harvest" type="number" class="form-control" min="1"
-                       name="days-to-harvest" placeholder="1"/>
+                    <label for="form-add-variety-days-to-harvest">Days Until Harvest:</label>
+                    <input id="form-add-variety-days-to-harvest" type="number" class="form-control" min="1"
+                           name="days-to-harvest" placeholder="1"/>
                 </div>
 
-                <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety" />
+                <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety"/>
             </form>
         </div>
     </div>

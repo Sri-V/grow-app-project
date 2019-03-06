@@ -5,7 +5,7 @@ body {
     font-size: 16px;
 }
 
-.main-container {
+.top-level-container {
     height: 100%;
     padding: 0;
 }
@@ -22,11 +22,6 @@ nav * {
     color: rgb(152, 251, 152);
 }
 
-#link-to-logout, #link-to-login {
-    text-decoration: none;
-    color: rgb(152, 251, 152);
-}
-
 .big-header a {
     font-family: 'Libre Barcode 39 Text', sans-serif;
     text-decoration: none;
@@ -35,8 +30,13 @@ nav * {
     margin-left: 1.5vw;
 }
 
-section > div {
-    padding: 4% 0;
+#link-to-logout, #link-to-login {
+    text-decoration: none;
+    color: rgb(152, 251, 152);
+}
+
+main {
+    padding: 3% 0;
 }
 
 footer {

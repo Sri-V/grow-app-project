@@ -20,15 +20,15 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css"
           integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
-     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
     <link rel="stylesheet" href="{% static "base.css" %}">
 
 </head>
 
 <body>
-    <div class="main-container container-fluid d-flex flex-column justify-content-between">
+<div class="top-level-container container-fluid d-flex flex-column justify-content-between">
 
-        <nav class="navbar">
+    <nav class="navbar">
         {% block navbar %}
             <h1 class="big-header">
                 <a href="{% url "home" %}">Microgreens</a>
@@ -42,19 +42,19 @@
                 {% endif %}
             </ul>
         {% endblock %}
-        </nav>
+    </nav>
 
-        <main class="row d-flex flex-column align-items-center justify-content-center">
+    <main class="row d-flex flex-column align-items-center justify-content-center">
         {% block content %}
         {% endblock %}
-        </main>
+    </main>
 
-        <footer class="row d-flex justify-content-center">
+    <footer class="row d-flex justify-content-center">
         {% block footer %}
             <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
         {% endblock %}
-        </footer>
+    </footer>
 
-    </div>
+</div>
 </body>
 </html>
