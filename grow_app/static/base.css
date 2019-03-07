@@ -1,12 +1,12 @@
 body {
-    height: 100vh;
+    min-height: 100vh;
     background-color: rgb(233, 251, 241);
     font-family: Comfortaa, Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
 
 .top-level-container {
-    height: 100%;
+    min-height: 100vh;
     padding: 0;
 }
 
