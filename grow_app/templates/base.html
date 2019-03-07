@@ -28,12 +28,12 @@
 <body>
 <div class="top-level-container container-fluid d-flex flex-column justify-content-between">
 
-    <nav class="navbar row d-flex">
+    <nav class="navbar row d-flex justify-content-between">
         {% block navbar %}
-            <h1 class="big-header">
+            <h1 class="big-header col-10 col-md-3">
                 <a id="link-to-home" href="{% url "home" %}">Microgreens</a>
             </h1>
-            <ul>
+            <ul class="col-2 col-md-1">
                 {% if user.is_authenticated %}
                     <li>hi {{ user.username }}</li>
                     <li><a href="{% url 'logout' %}" id="link-to-logout">Logout</a></li>
