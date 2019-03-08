@@ -22,6 +22,7 @@ nav {
 
 nav ul {
     list-style-type: none;
+    font-size: calc(12px + 0.5vw)
 }
 
 nav * {
