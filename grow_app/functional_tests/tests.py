@@ -164,7 +164,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(current_crop_type, "Current Crop: Basil")
         # He navigates to the crop detail/history page
         self.browser.find_element_by_id("link-crop-details").click()
-        self.assertEqual(self.browser.title, "Crop Details")
+        self.assertEqual(self.browser.title, "Crop Details – BMG")
         # And he sees the crop's history and any other info that wasn't included on the slot detail page
         crop_type = self.browser.find_element_by_id("crop-type").text
         self.assertEqual(crop_type, "Crop Type: Basil")
@@ -278,10 +278,10 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He then clicks the crop details link to see the crop details
         self.browser.find_element_by_id("link-crop-details").click()
         # He is directed to the crop details page
-        self.assertEqual('Crop Details', self.browser.title)
+        self.assertEqual('Crop Details – BMG', self.browser.title)
         # He reviews the notes about the crop, and sees that the crop lamp bulb has died
-        notes = self.browser.find_element_by_id("note-text").text
-        self.assertEqual("The crop lamp bulb died", notes)
+        notes = self.browser.find_element_by_id("records").text
+        self.assertIn("The crop lamp bulb died", notes)
 
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
@@ -296,7 +296,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         harvest_crop_datetime = datetime.datetime.now()
         # After harvesting the crop Oliver gets redirected to the crop details page to check the crop history
-        self.assertEqual('Crop Details', self.browser.title)
+        self.assertEqual('Crop Details – BMG', self.browser.title)
         # Check that current details of the crop are correct
         crop = Slot.objects.get(id=self.plant_origin_slot_id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
