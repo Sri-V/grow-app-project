@@ -4,9 +4,10 @@
  */
 
 // FIXME -- eliminate global variables if possible (apply a namespace?)
+var keypressBuffer = [];
 var barcodeScannerData = ""; // The raw data read from the scanner
-var inputStartTime = 0; // Start time of the input
-var inputEndTime = 0; // End time of the input
+var inputStartTime = null; // Start time of the input
+var inputEndTime = null; // End time of the input
 var observedInputSpeed = 0; //Speed of the observed input, measured in milliseconds per keypress
 const speedThreshold = 35; // Threshold against which we measure human vs barcode input, also milliseconds per keypress
 const scannerPrefix = "{BAR}";
@@ -17,36 +18,44 @@ const scannerPrefix = "{BAR}";
 $(document).keypress(function (event) {
 
     console.log("Browser detected the following key:", event.key);
+    appendKeypressBuffer(event.key);
 
-    // Start the timer when the first keypress is detected
-    if (barcodeScannerData === "") {
-        inputStartTime = performance.now();
-        console.log("Recorded start time:", inputStartTime);
+    // If we're currently reading in a barcode stream
+    if (barcodeDetectionIsActive()) {
+        barcodeScannerData += event.key;
+    } else if (barcodePrefixDetected()) { // Otherwise if we've detected the beginning of a barcode stream
+        activateBarcodeDetection();
     }
 
-    if (event.key === "Enter") {
+
+    // When we reach the end of the barcode stream
+    if (barcodeDetectionIsActive() && event.key === "Enter") {
+
+        // Check the stream came in fast enough for a barcode scan
         inputEndTime = performance.now();
-        console.log("Enter hit. Stopping time at:", inputEndTime);
+        console.log("Stopping time at:", inputEndTime);
         observedInputSpeed = (inputEndTime - inputStartTime) / (barcodeScannerData.length);
-        console.log("Observed input speed is:", observedInputSpeed);
-        console.log("Barcode Scanner Data variable is:", barcodeScannerData);
-        let detectedScannerPrefix = barcodeScannerData.startsWith(scannerPrefix);
-        if (observedInputSpeed <= speedThreshold && detectedScannerPrefix) {
-            let parsedBarcodeText = barcodeScannerData.slice(5);
-            let barcodeEvent = new CustomEvent("barcode-scanned", { detail: parsedBarcodeText });
+        console.log("Input speed:", observedInputSpeed);
+
+
+
+        // If the barcode stream meets all required criteria for speed and contents then emit the event
+        if (observedInputSpeed <= speedThreshold) {
+            let parsedBarcodeContents = barcodeScannerData.slice(0, -5);
+            console.log("Barcode content is:", parsedBarcodeContents);
+            let barcodeEvent = new CustomEvent("barcode-scanned", { detail: parsedBarcodeContents });
             document.dispatchEvent(barcodeEvent);
         }
 
+        // And cleanup afterwards
         resetBarcodeData();
         event.preventDefault();
 
-    } else {
-        barcodeScannerData += event.key;
     }
 });
 
-document.addEventListener("barcode-scanned", function(e) {
-   console.log("Barcode Scan event:", e.detail);
+document.addEventListener("barcode-scanned", function (e) {
+    document.getElementById("scan").innerText = "Barcode Scan Detected: " + e.detail;
 });
 
 /**
@@ -55,6 +64,43 @@ document.addEventListener("barcode-scanned", function(e) {
 function resetBarcodeData() {
     barcodeScannerData = "";
     observedInputSpeed = 0;
-    inputStartTime = 0;
-    inputEndTime = 0;
+    inputStartTime = null;
+    inputEndTime = null;
 }
+
+/**
+ * Checks the contents of the keypress buffer to determine if we've registered a barcode scan.
+ */
+function barcodePrefixDetected() {
+    return keypressBuffer.join("") === scannerPrefix;
+}
+
+/**
+ * Insert a new character into the buffer, keeping no more characters than the length of the scanner's prefix.
+ */
+function appendKeypressBuffer(key) {
+    // Add the character to the end of the keypress buffer
+    keypressBuffer.push(key);
+
+    // And if the buffer is now greater than the length of the prefix
+    if (keypressBuffer.length > scannerPrefix.length) {
+        keypressBuffer.shift();  // Get rid of the oldest character in the buffer
+    }
+}
+
+/**
+ * Sets the global variables necessary to detect an incoming barcode.
+ */
+function activateBarcodeDetection() {
+    resetBarcodeData();
+    inputStartTime = performance.now();
+    console.log("Barcode prefix detected:", inputStartTime);
+}
+
+/**
+ * Checks that the keys we're currently processing are possibly part of a barcode.
+ */
+function barcodeDetectionIsActive() {
+    return inputStartTime !== null;
+}
+
