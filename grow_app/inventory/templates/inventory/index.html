@@ -1,39 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Home -- BMG</title>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% block title %}Home{% endblock %}
 
-    {% load static %}
-    <link rel="apple-touch-icon" sizes="76x76" href="{% static "apple-touch-icon.png" %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon-32x32.png" %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon-16x16.png" %}">
-    <link rel="manifest" href="{% static "site.webmanifest" %}">
-    <link rel="mask-icon" href="{% static "safari-pinned-tab.svg" %}" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css"
-          integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
-     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
-    <link rel="stylesheet" href="{% static "inventory/base.css" %}">
-</head>
-<body>
-<div class="main-container container-fluid d-flex flex-column justify-content-between">
-
-    {% include "inventory/header.html" %}
-
+{% block content %}
     <section id="primary-actions" class="row d-flex flex-column align-items-center justify-content-center">
         <h1>Scan a crop to begin,</h1>
         <h2>or <a id="link-new-crop" href="{% url "create_crop" %}">add a new crop</a>.</h2>
     </section>
-
-    <footer class="row d-flex justify-content-center">
-        <a href="https://github.com/boston-microgreens"><p>Made with love by the squad.</p></a>
-    </footer>
-
-</div>
-</body>
-</html>
+{% endblock %}
