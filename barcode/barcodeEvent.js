@@ -4,12 +4,12 @@
  */
 
 // FIXME -- eliminate global variables if possible (apply a namespace?)
-var keypressBuffer = [];
-var barcodeScannerData = ""; // The raw data read from the scanner
-var inputStartTime = null; // Start time of the input
-var inputEndTime = null; // End time of the input
-var observedInputSpeed = 0; //Speed of the observed input, measured in milliseconds per keypress
-const speedThreshold = 35; // Threshold against which we measure human vs barcode input, also milliseconds per keypress
+var keypressBuffer = []; //
+var rawScannerData = "";
+var inputStartTime = null;
+var inputEndTime = null;
+var observedInputSpeed = 0; // Measured in milliseconds per keypress
+const speedThreshold = 35; // Also milliseconds per keypress
 const scannerPrefix = "{BAR}";
 
 /**
@@ -22,7 +22,7 @@ $(document).keypress(function (event) {
 
     // If we're currently reading in a barcode stream
     if (barcodeDetectionIsActive()) {
-        barcodeScannerData += event.key;
+        rawScannerData += event.key;
     } else if (barcodePrefixDetected()) { // Otherwise if we've detected the beginning of a barcode stream
         activateBarcodeDetection();
     }
@@ -34,14 +34,14 @@ $(document).keypress(function (event) {
         // Check the stream came in fast enough for a barcode scan
         inputEndTime = performance.now();
         console.log("Stopping time at:", inputEndTime);
-        observedInputSpeed = (inputEndTime - inputStartTime) / (barcodeScannerData.length);
+        observedInputSpeed = (inputEndTime - inputStartTime) / (rawScannerData.length);
         console.log("Input speed:", observedInputSpeed);
 
 
 
         // If the barcode stream meets all required criteria for speed and contents then emit the event
         if (observedInputSpeed <= speedThreshold) {
-            let parsedBarcodeContents = barcodeScannerData.slice(0, -5);
+            let parsedBarcodeContents = rawScannerData.slice(0, -5);
             console.log("Barcode content is:", parsedBarcodeContents);
             let barcodeEvent = new CustomEvent("barcode-scanned", { detail: parsedBarcodeContents });
             document.dispatchEvent(barcodeEvent);
@@ -54,15 +54,11 @@ $(document).keypress(function (event) {
     }
 });
 
-document.addEventListener("barcode-scanned", function (e) {
-    document.getElementById("scan").innerText = "Barcode Scan Detected: " + e.detail;
-});
-
 /**
  * Reset the global variables used for detection of barcode scans.
  */
 function resetBarcodeData() {
-    barcodeScannerData = "";
+    rawScannerData = "";
     observedInputSpeed = 0;
     inputStartTime = null;
     inputEndTime = null;

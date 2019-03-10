@@ -8,6 +8,10 @@
             font-size: 1.6em;
         }
 
+        h1 {
+            font-size: 1em;
+        }
+
         .hidden {
             display: none;
         }
@@ -29,9 +33,12 @@
 
 </head>
 <body>
-<form action="#" id="forms">
-    Input: <br/>
-    <input type="text" id="input"><br/>
+<h1>Barcode Demo</h1>
+<form action="#" id="forms" autocomplete="off">
+    <input type="text" id="barcode-input-1" placeholder="Barcode Input #1">
+    <button class="select-scan" id="select-scan-1">Scan Barcode</button><br />
+    <input type="text" id="barcode-input-2" placeholder="Barcode Input #2">
+    <button class="select-scan" id="select-scan-2">Scan Barcode</button><br />
     <input type="submit" value="Submit" id="submit"><br/>
 </form>
 
@@ -39,5 +46,6 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="barcodeEvent.js"></script>
+<script src="demoController.js"></script>
 </body>
 </html>
