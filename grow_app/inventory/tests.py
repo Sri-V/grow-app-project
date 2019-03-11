@@ -19,7 +19,7 @@ class HomePageTest(TestCase):
     def test_uses_correct_template(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "inventory/index.html")
-    
+
     def test_increase_number_of_trays(self):
         # There are zero total slots before we set slot quantity
         self.assertEqual(0, Slot.objects.count())
