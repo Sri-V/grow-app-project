@@ -107,3 +107,4 @@ venv.bak/
 .idea/
 
 collected_static/
+staticfiles/
