@@ -108,3 +108,4 @@ venv.bak/
 
 collected_static/
 staticfiles/
+environment.env
