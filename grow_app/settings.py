@@ -128,7 +128,7 @@ LOGIN_REDIRECT_URL = '/'
 
 LOGOUT_REDIRECT_URL = '/logout/'
 
-# # The absolute path to the directory where collectstatic will collect static files for deployment.
+# The absolute path to the directory where collectstatic will collect static files for deployment.
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 STATICFILES_DIRS = [
@@ -141,4 +141,4 @@ db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
 # Activate Django-Heroku.
-django_heroku.settings(locals())
+django_heroku.settings(locals(), staticfiles=False)
