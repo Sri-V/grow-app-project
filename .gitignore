@@ -105,3 +105,5 @@ venv.bak/
 .mypy_cache/
 
 .idea/
+
+collected_static/
