@@ -316,6 +316,18 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         records = self.browser.find_element_by_id("records").text
 
 
+
+    def test_scan_from_homepage(self):
+        # Oliver wants to make sure the that barcode scanning is working correctly
+        # when he makes a scan from the homepage
+        self.browser.get(self.live_server_url)
+        # The barcode of the origin slot is scanned
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # And he sees that he has be redirected to the slot details page for that slot
+        self.assertRegex(self.browser.current_url, r"/slot/1/")
+        self.assertEqual(self.browser.title, "Slot Details – BMG")
+
+
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
 
