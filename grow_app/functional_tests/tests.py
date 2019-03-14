@@ -158,7 +158,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.find_element_by_id("form-new-crop-germination-length").send_keys("5")
         self.browser.find_element_by_id("form-new-crop-grow-length").send_keys("10")
         # He hits the button to scan a barcode, and then scans the barcode of the slot he wants
-        self.browser.find_element_by_id("form-new-crop-slot-select-scan").click()
+        self.browser.find_element_by_id("new-crop-form-barcode-input").click()
         simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-new-crop-submit").click()
