@@ -109,4 +109,4 @@ venv.bak/
 collected_static/
 staticfiles/
 environment.env
-ect/
+secret_key.txt
