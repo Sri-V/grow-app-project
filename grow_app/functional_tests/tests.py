@@ -195,16 +195,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He hits the button to scan a barcode
-        self.browser.find_element_by_id("new-crop-form-barcode-input").click()
+        self.browser.find_element_by_id("move-slot-form-barcode-input").click()
         # And scans the barcode of the crop's destination slot
         simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
-        select_slot_destination = self.browser.find_element_by_id("form-move-tray-destination-id")
-        for option in select_slot_destination.find_elements_by_tag_name("option"):
-            if option.text == str(self.plant_destination_slot.id):
-                option.click()
-                break
-        else:
-            self.fail(f'Unable to find destination tray #{self.plant_destination_slot.id} in the dropdown menu!')
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
 
