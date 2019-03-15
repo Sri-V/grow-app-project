@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 try:  # Reading file which is on our local machines
-    with open('/secret_key.txt') as f:
+    with open('secret_key.txt') as f:
         SECRET_KEY = f.read().strip()
 except:  # Get secret key from config variable set on heroku server
     SECRET_KEY = os.environ['SECRET_KEY']
