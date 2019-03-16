@@ -310,8 +310,6 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
 
-
-
     def test_scan_from_homepage(self):
         # Oliver wants to make sure the that barcode scanning is working correctly
         # when he makes a scan from the homepage
