@@ -205,5 +205,7 @@ class BarcodeRedirectTest(TestCase):
         login_the_test_user(self)
     
     def testBarcodeRedirect(self):
-        self.client.get(f'/barcode/{self.barcode_text}/')
-        self.fail("Finish the test!")
+        self.assertRedirects(self.client.get(f'/barcode/{self.barcode_text}/'), f'/slot/{self.slot.id}/')
+        
+    def test404UnknownBarcode(self):
+        self.assertEqual(self.client.get('/barcode/NOT_A_BARCODE/').status_code, 404)

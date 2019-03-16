@@ -4,6 +4,7 @@ from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
 
 # Create your views here.
@@ -221,6 +222,7 @@ def record_note(request, slot_id):
 
 
 @login_required
-def parse_barcode(request):
-    return None
+def parse_barcode(request, barcode_text):
+    slot = get_object_or_404(Slot, barcode=barcode_text)
+    return redirect(slot_detail, slot_id=slot.id)
 
