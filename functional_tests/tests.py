@@ -7,6 +7,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
+from time import sleep
 import datetime
 
 from inventory.models import Crop, Slot, Variety, CropRecord
@@ -97,7 +98,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.assertTrue("Cilantro" in varieties)
 
 
-class BasicUserInteractionsTest(LiveServerTestCase):
+class BasicUserInteractionsTest(StaticLiveServerTestCase):
     """
     Tests that the application can support basic crop management tasks post-setup.
     """
@@ -316,8 +317,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
         # The barcode of the origin slot is scanned
         simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        sleep(SLEEPY_TIME)
         # And he sees that he has be redirected to the slot details page for that slot
-        self.assertRegex(self.browser.current_url, r"/slot/1/")
+        self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
 
 

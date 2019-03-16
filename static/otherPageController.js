@@ -10,16 +10,16 @@ const buttonToInputMapping = {
 };
 
 document.addEventListener("barcode-scanned", function (e) {
+    let barcode_text = e.detail;
     if (inputReceivingBarcodeScan === null) {
-        var barcode_text = e.detail;
-        // TODO -- submit a form with the barcode
+        window.location.href = "http://example.com/barcode/" + barcode_text + "/"
     } else {
         let targetInput = document.getElementById(inputReceivingBarcodeScan);
         if (target.tagName == "SELECT") {
-            targetInput.selectedIndex = parseBarcode(e.detail)
+            targetInput.selectedIndex = barcode_text
         }
         else if (target.tagName == "INPUT") {
-            targetInput.value = parseBarcode(e.detail);
+            targetInput.value = barcode_text;
         }
         inputReceivingBarcodeScan = null;
     }
