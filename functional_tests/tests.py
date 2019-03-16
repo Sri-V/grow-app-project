@@ -26,6 +26,7 @@ def simulate_barcode_scan(driver, barcode_text):
     barcode_event_script = "let barcodeEvent = new CustomEvent('barcode-scanned', { detail: arguments[0] });" \
                            "document.dispatchEvent(barcodeEvent);"
     driver.execute_script(barcode_event_script, barcode_text)
+    sleep(SLEEPY_TIME)
 
 
 class GreenhouseSetupTest(LiveServerTestCase):
@@ -317,7 +318,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         # The barcode of the origin slot is scanned
         simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
-        sleep(SLEEPY_TIME)
         # And he sees that he has be redirected to the slot details page for that slot
         self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
