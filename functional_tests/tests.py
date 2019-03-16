@@ -217,6 +217,8 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         # Oliver wants to water a crop of microgreens.
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
+        # Oliver is redirected to the slot detail page of the watered crop
+        self.assertEquals(self.browser.title, "Slot Details – BMG")
         # Verify that a water action was recorded for this crop
         record = CropRecord.objects.filter(record_type='WATER')[0]
         # And the date and time are correct

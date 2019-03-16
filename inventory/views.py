@@ -190,7 +190,7 @@ def water_crop(request, slot_id):
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
-    return redirect(homepage)
+    return redirect(slot_detail, slot_id=slot_id)
 
 
 @login_required
