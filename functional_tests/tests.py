@@ -187,9 +187,8 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertEqual(exp_num_grow_days, "Expected number of grow days: 10")
 
     def test_move_crop_from_one_slot_to_another(self):
-        # Oliver wants to move his crop from one spot in the greenhouse to another
-        # FIXME -- He scans the barcode of the radish tray he would like to move
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
+        # Oliver scans the barcode of the radish tray he would like to move
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
         # And is redirected to the slot details page
         self.assertEqual("Slot Details – BMG", self.browser.title)
         slot_id = self.browser.find_element_by_id("slot-id").text
@@ -197,12 +196,12 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He hits the button to scan a barcode
-        self.browser.find_element_by_id("move-slot-form-barcode-input").click()
+        self.browser.find_element_by_id("form-move-tray-barcode-btn").click()
         # And scans the barcode of the crop's destination slot
         simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-
+        
         # And he gets redirected to the page belonging to the new slot
         self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot.id}/')
         self.assertEqual(self.browser.title, "Slot Details – BMG")
