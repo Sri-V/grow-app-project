@@ -20,12 +20,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
+ALLOWED_HOSTS = ['bostonmicrogreens.herokuapp.com', '127.0.0.1']
 
-try:  # Reading file which is on our local machines
-    with open('secret_key.txt') as f:
+try:
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']  # Prod
+except KeyError:
+    with open(os.path.join(BASE_DIR, 'secret_key.txt')) as f:  # Dev
         SECRET_KEY = f.read().strip()
-except:  # Get secret key from config variable set on heroku server
-    SECRET_KEY = os.environ['SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -146,5 +147,7 @@ import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
+STATICFILES = os.getenv('DJANGO_STATICFILES', False)
+
 # Activate Django-Heroku.
-django_heroku.settings(locals(), staticfiles=False)
+django_heroku.settings(locals(), staticfiles=STATICFILES)
