@@ -54,6 +54,14 @@
                                 <option>{{ slot.id }}</option>
                             {% endfor %}
                         </select>
+                        <label for="form-move-tray-destination-phase">New Grow Phase?</label>
+                        <select id="form-move-tray-destination-phase" name="slot-destination-phase" class="form-control">
+                            <option>-- none --</option>
+                            <option>GROW</option>
+                            <option>GERM</option>
+                            <option>SEED</option>
+                            <option>TRASH</option>
+                        </select>
                     </div>
 
                     <input id="form-move-tray-submit" value="Move The Tray" type="submit"
