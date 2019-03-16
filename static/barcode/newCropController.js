@@ -5,7 +5,7 @@
 // TODO -- these global variables should be replaced with a Custom Element (see issue #32)
 var inputReceivingBarcodeScan = null;
 const buttonToInputMapping = {
-    // Example: "move-slot-form-barcode": "form-move-tray-destination-id",
+    "form-new-crop-barcode-btn": "form-new-crop-barcode-input",
 };
 
 document.addEventListener("barcode-scanned", function (e) {
