@@ -105,3 +105,8 @@ venv.bak/
 .mypy_cache/
 
 .idea/
+
+collected_static/
+staticfiles/
+environment.env
+secret_key.txt
