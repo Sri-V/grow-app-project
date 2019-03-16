@@ -19,7 +19,7 @@ class HomePageTest(TestCase):
     def test_uses_correct_template(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "inventory/index.html")
-    
+
     def test_increase_number_of_trays(self):
         # There are zero total slots before we set slot quantity
         self.assertEqual(0, Slot.objects.count())
@@ -78,6 +78,33 @@ class NewCropTest(TestCase):
         self.assertEqual(slot.current_crop.exp_num_germ_days, 4)
         self.assertEqual(slot.current_crop.exp_num_grow_days, 16)
 
+    def test_new_crop_form_does_not_replace_original(self):
+        # Set up form options
+        slot = Slot.objects.create()
+        Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        Variety.objects.create(name="Radish", days_plant_to_harvest=12)
+        # Make a post request to the new crop endpoint
+        response = self.client.post("/crop/new/", data={"variety": "Radish",
+                                                        "tray-size": "1020",
+                                                        "delivered-live": "False",
+                                                        "germination-length": 4,
+                                                        "grow-length": 16,
+                                                        "designated-slot-id": 1})
+        # Check that the slot now has a crop in it
+        slot = Slot.objects.get(id=1)
+        self.assertNotEqual(slot.current_crop, None)
+        self.assertEqual(slot.current_crop.variety.name, "Radish")
+        # Make another submission to try to add a new crop in the same slot
+        response = self.client.post("/crop/new/", data={"variety": "Basil",
+                                                        "tray-size": "1010",
+                                                        "delivered-live": "True",
+                                                        "germination-length": 8,
+                                                        "grow-length": 10,
+                                                        "designated-slot-id": 1})
+        # Check that we get a 400 error since our post request should not go through
+        self.assertEqual(response.status_code, 400)
+        # And we see that the original crop remains in the slot
+        self.assertEqual(slot.current_crop.variety.name, "Radish")
 
 class MoveTrayTest(TestCase):
     """Tests that move tray action modifies the model correctly."""
