@@ -21,11 +21,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 
-try:  # Reading file which is on our local machines
-    with open('secret_key.txt') as f:
+try:
+    SECRET_KEY = os.environ['SECRET_KEY']  # Prod
+except KeyError:
+    with open(os.path.join(BASE_DIR, 'secret_key.txt')) as f:  # Dev
         SECRET_KEY = f.read().strip()
-except:  # Get secret key from config variable set on heroku server
-    SECRET_KEY = os.environ['SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
