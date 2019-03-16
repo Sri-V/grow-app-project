@@ -220,4 +220,7 @@ def record_note(request, slot_id):
     return redirect(slot_detail, slot_id=slot_id)
 
 
+@login_required
+def parse_barcode(request):
+    return None
 

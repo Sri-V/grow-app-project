@@ -34,6 +34,7 @@ urlpatterns = [
     path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
     path('slot/<int:slot_id>/action/move_tray', views.move_tray, name="move_tray"),
     path('slot/<int:slot_id>/action/note', views.record_note, name="record_note"),
+    path('barcode/<str: barcode_text>/', views.parse_barcode, name="parse_barcode")
 ]
 
 urlpatterns += [
