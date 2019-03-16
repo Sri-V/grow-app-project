@@ -198,9 +198,13 @@ def move_tray(request, slot_id):
     """POST: Update the database with the tray that has been moved"""
     leaving_slot = Slot.objects.get(id=slot_id)
     arriving_slot_id = int(request.POST["slot-destination-id"])
+    arriving_slot_phase = str(request.POST["slot-destination-phase"])
     arriving_slot = Slot.objects.get(id=arriving_slot_id)
     arriving_slot.current_crop = leaving_slot.current_crop
     leaving_slot.current_crop = None
+    if arriving_slot_phase is not '-- none --':
+        date = datetime.now()
+        CropRecord.objects.create(record_type=arriving_slot_phase, date=date, note="Tray Moved", crop=arriving_slot.current_crop)
     leaving_slot.save()
     arriving_slot.save()
     return redirect('/slot/' + str(arriving_slot_id) + '/')
