@@ -2,11 +2,6 @@
  * Controller for the webpages that need barcode scanning.
  */
 
-// TODO -- Create a more robust barcode parsing function that maps barcodes to slot id's
-function parseBarcode(barcode) {
-   return barcode.replace(/^0+/, '')  // This removes any leading zeros that the barcode string might have
-}
-
 // TODO -- these global variables should be replaced with a Custom Element (see issue #32)
 var inputReceivingBarcodeScan = null;
 const buttonToInputMapping = {
@@ -16,8 +11,8 @@ const buttonToInputMapping = {
 
 document.addEventListener("barcode-scanned", function (e) {
     if (inputReceivingBarcodeScan === null) {
-        var parsed_barcode = parseBarcode(e.detail)
-        window.location = "/slot/" + parsed_barcode + "/"
+        var barcode_text = e.detail;
+        // TODO -- submit a form with the barcode
     } else {
         let targetInput = document.getElementById(inputReceivingBarcodeScan);
         if (target.tagName == "SELECT") {
