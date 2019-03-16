@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 try:
-    SECRET_KEY = os.environ['SECRET_KEY']  # Prod
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']  # Prod
 except KeyError:
     with open(os.path.join(BASE_DIR, 'secret_key.txt')) as f:  # Dev
         SECRET_KEY = f.read().strip()
