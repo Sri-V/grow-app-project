@@ -43,6 +43,7 @@ class NewCropTest(TestCase):
     """Tests that the new crop page works as expected internally."""
 
     def setUp(self):
+        self.slot = Slot.objects.create()
         self.client = Client()
         login_the_test_user(self)
 
@@ -51,33 +52,32 @@ class NewCropTest(TestCase):
         self.assertTemplateUsed(response, "inventory/new_crop.html")
 
     def test_model_is_updated_correctly(self):
-        # Create a single slot
-        slot = Slot.objects.create()
         # And two different plant varieties
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
         Variety.objects.create(name="Radish", days_plant_to_harvest=12)
         # Check that the slot starts out as empty
-        self.assertEqual(slot.current_crop, None)
+        self.assertEqual(self.slot.current_crop, None)
         # Make a post request to the endpoint
         response = self.client.post("/crop/new/", data={"variety": "Radish",
                                                         "tray-size": "1020",
                                                         "delivered-live": "False",
                                                         "germination-length": 4,
                                                         "grow-length": 16,
-                                                        "designated-slot-id": 1})
+                                                        "slot-barcode": self.slot.barcode})
+
+        self.slot.refresh_from_db()
         # Check that the slot now has a crop in it
-        slot = Slot.objects.get(id=1)
-        self.assertNotEqual(slot.current_crop, None)
+        self.assertNotEqual(response.status_code, 404)
+        self.assertNotEqual(self.slot.current_crop, None)
         # Check that the crop attributes are all correct
-        self.assertEqual(slot.current_crop.variety.name, "Radish")
-        self.assertEqual(slot.current_crop.tray_size, "1020")
-        self.assertEqual(slot.current_crop.live_delivery, False)
-        self.assertEqual(slot.current_crop.exp_num_germ_days, 4)
-        self.assertEqual(slot.current_crop.exp_num_grow_days, 16)
+        self.assertEqual(self.slot.current_crop.variety.name, "Radish")
+        self.assertEqual(self.slot.current_crop.tray_size, "1020")
+        self.assertEqual(self.slot.current_crop.live_delivery, False)
+        self.assertEqual(self.slot.current_crop.exp_num_germ_days, 4)
+        self.assertEqual(self.slot.current_crop.exp_num_grow_days, 16)
 
     def test_new_crop_form_does_not_replace_original(self):
         # Set up form options
-        slot = Slot.objects.create()
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
         Variety.objects.create(name="Radish", days_plant_to_harvest=12)
         # Make a post request to the new crop endpoint
@@ -86,55 +86,93 @@ class NewCropTest(TestCase):
                                                         "delivered-live": "False",
                                                         "germination-length": 4,
                                                         "grow-length": 16,
-                                                        "designated-slot-id": 1})
+                                                        "slot-barcode": self.slot.barcode})
         # Check that the slot now has a crop in it
-        slot = Slot.objects.get(id=1)
-        self.assertNotEqual(slot.current_crop, None)
-        self.assertEqual(slot.current_crop.variety.name, "Radish")
+        self.slot.refresh_from_db()
+        self.assertNotEqual(self.slot.current_crop, None)
+        self.assertEqual(self.slot.current_crop.variety.name, "Radish")
         # Make another submission to try to add a new crop in the same slot
         response = self.client.post("/crop/new/", data={"variety": "Basil",
                                                         "tray-size": "1010",
                                                         "delivered-live": "True",
                                                         "germination-length": 8,
                                                         "grow-length": 10,
-                                                        "designated-slot-id": 1})
+                                                        "slot-barcode": self.slot.barcode})
         # Check that we get a 400 error since our post request should not go through
         self.assertEqual(response.status_code, 400)
         # And we see that the original crop remains in the slot
-        self.assertEqual(slot.current_crop.variety.name, "Radish")
+        self.slot.refresh_from_db()
+        self.assertEqual(self.slot.current_crop.variety.name, "Radish")
 
 
 class MoveTrayTest(TestCase):
     """Tests that move tray action modifies the model correctly."""
 
     def setUp(self):
+        self.origin_slot = Slot.objects.create(barcode="TEST0001")
+        self.destination_slot = Slot.objects.create(barcode="TEST0002")
         self.client = Client()
         login_the_test_user(self)
 
     def test_move_crop(self):
-        # There are five total slots in the database
-        slot = [Slot.objects.create() for i in range(5)]
-        # A single crop exists
         variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
-        basil = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8, exp_num_grow_days=12)
-        # The crop is added to slot 2
-        Slot.objects.filter(id=2).update(current_crop=basil)
-        # Check that the crop exists in slot 2
-        slot = Slot.objects.get(id=2)
-        self.assertEqual(slot.current_crop.variety.name, "Basil")
-        # And that slot 4 is empty
-        slot = Slot.objects.get(id=4)
-        self.assertEqual(slot.current_crop, None)
+        basil = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                    exp_num_grow_days=12)
+        # The crop is added to origin
+        self.origin_slot.current_crop = basil
+        self.origin_slot.save()
+        
+        basil.refresh_from_db()
+        self.origin_slot.refresh_from_db()
+        self.destination_slot.refresh_from_db()
+        
+        self.assertEqual(self.origin_slot.current_crop.variety.name, "Basil")
+        self.assertEqual(self.destination_slot.current_crop, None)
+        
         # Make a post to the move tray endpoint
-        response = self.client.post("/slot/2/action/move_tray", data={"slot-destination-id": 4,
-                                                                      "slot-destination-phase": "-- none --"})
-        # Check that the crop now lives in slot 4
-        slot = Slot.objects.get(id=4)
-        self.assertEqual(slot.current_crop.variety.name, "Basil")
-        # And that slot 2 is now empty
-        slot = Slot.objects.get(id=2)
-        self.assertEqual(slot.current_crop, None)
-
+        self.client.post(f'/slot/{self.origin_slot.id}/action/move_tray',
+                         data={"slot-destination-barcode": self.destination_slot.barcode,
+                               "new-lifecycle-moment": "-- none--"})
+        
+        # Check that the crop now lives in destination slot
+        basil.refresh_from_db()
+        self.origin_slot.refresh_from_db()
+        self.destination_slot.refresh_from_db()
+        self.assertEqual(self.destination_slot.current_crop.variety.name, "Basil")
+        self.assertEqual(self.origin_slot.current_crop, None)
+        
+    def test_cannot_move_into_non_empty_slot(self):
+        variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        basil_1 = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                      exp_num_grow_days=12)
+        basil_2 = Crop.objects.create(variety=variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                      exp_num_grow_days=20)
+        # The crops are added to each slot
+        self.origin_slot.current_crop = basil_1
+        self.origin_slot.save()
+        self.destination_slot.current_crop = basil_2
+        self.destination_slot.save()
+    
+        basil_1.refresh_from_db()
+        basil_2.refresh_from_db()
+        self.origin_slot.refresh_from_db()
+        self.destination_slot.refresh_from_db()
+    
+        self.assertEqual(self.origin_slot.current_crop.exp_num_grow_days, 12)
+        self.assertEqual(self.destination_slot.current_crop.exp_num_grow_days, 20)
+    
+        # Make a post to the move tray endpoint
+        response = self.client.post(f'/slot/{self.origin_slot.id}/action/move_tray',
+                         data={"slot-destination-barcode": self.destination_slot.barcode,
+                               "new-lifecycle-moment": "-- none--"})
+        
+        self.assertEqual(response.status_code, 400)
+        basil_1.refresh_from_db()
+        basil_2.refresh_from_db()
+        self.origin_slot.refresh_from_db()
+        self.destination_slot.refresh_from_db()
+        self.assertEqual(self.origin_slot.current_crop.exp_num_grow_days, 12)
+        self.assertEqual(self.destination_slot.current_crop.exp_num_grow_days, 20)
 
 class RecordDeadCropTest(TestCase):
     """Tests that the record dead crop action modifies the model correctly."""

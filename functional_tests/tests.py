@@ -109,9 +109,9 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser = webdriver.Firefox()
 
         # Make some slots and save their ids -- this is to avoid hard-coding primary keys in the test methods
-        self.plant_origin_slot = Slot.objects.create(barcode="00001")
-        self.plant_destination_slot = Slot.objects.create(barcode="00002")
-        self.free_slot = Slot.objects.create(barcode="00003")
+        self.plant_origin_slot = Slot.objects.create(barcode="TEST00001")
+        self.plant_destination_slot = Slot.objects.create(barcode="TEST00002")
+        self.free_slot = Slot.objects.create(barcode="TEST00003")
 
         # Add some plant varieties
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
@@ -160,8 +160,8 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id("form-new-crop-germination-length").send_keys("5")
         self.browser.find_element_by_id("form-new-crop-grow-length").send_keys("10")
         # He hits the button to scan a barcode, and then scans the barcode of the slot he wants
-        self.browser.find_element_by_id("new-crop-form-barcode-input").click()
-        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        self.browser.find_element_by_id("form-new-crop-barcode-btn").click()
+        simulate_barcode_scan(self.browser, self.free_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-new-crop-submit").click()
 
@@ -187,8 +187,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertEqual(exp_num_grow_days, "Expected number of grow days: 10")
 
     def test_move_crop_from_one_slot_to_another(self):
-        # Oliver scans the barcode of the radish tray he would like to move
-        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And is redirected to the slot details page
         self.assertEqual("Slot Details – BMG", self.browser.title)
         slot_id = self.browser.find_element_by_id("slot-id").text
@@ -216,7 +215,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id("empty-slot")
 
     def test_water_the_crop(self):
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         # Oliver wants to water a crop of microgreens.
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
@@ -229,8 +228,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
 
     def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
-        # He navigates to the slot details page of the slot he'd like to harvest
-        # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # Then he finds the form for harvesting a crop
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
@@ -249,7 +246,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
 
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
-        # FIXME -- he scans the slot of interest with the barcode scanner
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And is redirected to the slot details page
         self.assertEqual("Slot Details – BMG", self.browser.title)
@@ -270,8 +266,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
 
     def test_add_note_about_crop(self):
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
-        # FIXME -- he scans the slot of interest with the barcode scanner
-        self.browser.get(self.live_server_url + "/slot/1/")
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # He gets directed be on the page associated with that slot
         self.assertEqual('Slot Details – BMG', self.browser.title)
         # Oliver types a note about the crop in the notes field
@@ -291,7 +286,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
         # We start by planting a new crop in the empty slot
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         water_crop_datetime = datetime.datetime.now()

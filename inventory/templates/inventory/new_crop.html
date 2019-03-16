@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}New Crop{% endblock %}
 
@@ -66,16 +67,19 @@
             </div>
 
             <div class="form-group">
-                <label for="form-new-crop-slot">Slot ID</label>
-                <select id="form-new-crop-slot" name="designated-slot-id" class="form-control">
-                    {% for slot in slot_list %}
-                        <option>{{ slot.id }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" class="select-scan" id="new-crop-form-barcode-input">Scan New Slot</button>
+                <label for="form-new-crop-barcode-input">Location</label>
+                <button type="button" class="select-scan btn btn-primary"
+                                    id="form-new-crop-barcode-btn">Scan Slot</button>
+                <input type="text" id="form-new-crop-barcode-input" name="slot-barcode"
+                               placeholder="Or type the barcode here">
             </div>
 
             <input id="form-new-crop-submit" type="submit" class="btn btn-primary" value="Create New Crop">
         </form>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static "barcode/barcodeEvent.js" %}"></script>
+    <script src="{% static "barcode/newCropController.js" %}"></script>
 {% endblock %}

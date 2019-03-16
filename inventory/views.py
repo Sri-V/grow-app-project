@@ -53,33 +53,31 @@ def create_crop(request):
     if request.method == 'GET':
         variety_list = Variety.objects.all()
         slot_list = Slot.objects.filter(current_crop=None)
-        return render(request, "inventory/new_crop.html", context={"variety_list": variety_list, "slot_list": slot_list})
+        return render(request, "inventory/new_crop.html",
+                      context={"variety_list": variety_list, "slot_list": slot_list})
 
     if request.method == 'POST':
-        # TODO -- add input verification check
         variety_name = request.POST["variety"]
         tray_size = str(request.POST["tray-size"])
         delivered_live = (request.POST["delivered-live"] == 'True')
         germination_length = int(request.POST["germination-length"])
         grow_length = int(request.POST["grow-length"])
-        designated_slot_id = int(request.POST["designated-slot-id"])
+        slot_barcode = request.POST["slot-barcode"]
         variety = Variety.objects.get(name=variety_name)
-        # Check that the destination slot exists and it is empty
-        try:
-            designated_slot = Slot.objects.get(id=designated_slot_id)
-        except Slot.DoesNotExist:
-            return HttpResponseBadRequest()
-        if designated_slot.current_crop is not None:
-            return HttpResponseBadRequest()
-        # Create the crop object
-        new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live, exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
-        # Update the corresponding slot with that crop
-        designated_slot.current_crop = new_crop
-        designated_slot.save()
+        
+        slot = get_object_or_404(Slot, barcode=slot_barcode)
+        if slot.current_crop is not None:
+            return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+        
+        new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live,
+                                       exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
+        slot.current_crop = new_crop
+        slot.save()
+        
         # Create crop record for this event
         CropRecord.objects.create(crop=new_crop, record_type='SEED')
         # Redirect the user to the slot details page
-        return redirect('/slot/' + str(designated_slot_id) + '/')
+        return redirect(slot_detail, slot_id=slot.id)
 
 
 @login_required
@@ -182,7 +180,7 @@ def trash_crop(request, slot_id):
     slot.save()
     reason_for_trash = request.POST["reason-for-trash-text"]
     CropRecord.objects.create(crop=crop, record_type='TRASH', note=reason_for_trash)
-    return redirect('/slot/' + str(slot_id) + '/')
+    return redirect(slot_detail, slot_id=slot_id)
 
 
 @login_required
@@ -198,17 +196,22 @@ def water_crop(request, slot_id):
 def move_tray(request, slot_id):
     """POST: Update the database with the tray that has been moved"""
     leaving_slot = Slot.objects.get(id=slot_id)
-    arriving_slot_id = int(request.POST["slot-destination-id"])
-    arriving_slot_phase = str(request.POST["slot-destination-phase"])
-    arriving_slot = Slot.objects.get(id=arriving_slot_id)
+    slot_barcode = request.POST["slot-destination-barcode"]
+    new_lifecycle = str(request.POST["new-lifecycle-moment"])
+
+    arriving_slot = get_object_or_404(Slot, barcode=slot_barcode)
+    if arriving_slot.current_crop is not None:
+        return HttpResponseBadRequest(f'Slot {arriving_slot.id} already contains a crop!')
+    
     arriving_slot.current_crop = leaving_slot.current_crop
     leaving_slot.current_crop = None
-    if arriving_slot_phase is not '-- none --':
+    if new_lifecycle is not '-- none --':
         date = datetime.now()
-        CropRecord.objects.create(record_type=arriving_slot_phase, date=date, note="Tray Moved", crop=arriving_slot.current_crop)
+        CropRecord.objects.create(record_type=new_lifecycle, date=date, note="Tray Moved",
+                                  crop=arriving_slot.current_crop)
     leaving_slot.save()
     arriving_slot.save()
-    return redirect('/slot/' + str(arriving_slot_id) + '/')
+    return redirect(slot_detail, slot_id=arriving_slot.id)
 
 
 @login_required
