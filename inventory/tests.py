@@ -3,18 +3,20 @@ from inventory.models import Crop, Slot, Variety, CropRecord
 from django.contrib.auth.models import User
 from django.test import Client
 
+
+def login_the_test_user(test_case):
+    test_case.user = User.objects.create_user(username="test", email="test@test.com", password="test")
+    test_case.user.save()
+    test_case.client.login(username="test", password="test")
+
+
 class HomePageTest(TestCase):
     """Tests that the homepage works as expected internally."""
 
     # Logs in the user before the test starts
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
-        self.user.save()
-        self.client.login(username="test", password="test")
-
-    def tearDown(self):
-        self.user.delete()
+        login_the_test_user(self)
 
     def test_uses_correct_template(self):
         response = self.client.get("/")
@@ -42,12 +44,7 @@ class NewCropTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
-        self.user.save()
-        self.client.login(username="test", password="test")
-
-    def tearDown(self):
-        self.user.delete()
+        login_the_test_user(self)
 
     def test_uses_correct_template(self):
         response = self.client.get("/crop/new/")
@@ -106,17 +103,13 @@ class NewCropTest(TestCase):
         # And we see that the original crop remains in the slot
         self.assertEqual(slot.current_crop.variety.name, "Radish")
 
+
 class MoveTrayTest(TestCase):
     """Tests that move tray action modifies the model correctly."""
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
-        self.user.save()
-        self.client.login(username="test", password="test")
-
-    def tearDown(self):
-        self.user.delete()
+        login_the_test_user(self)
 
     def test_move_crop(self):
         # There are five total slots in the database
@@ -133,7 +126,8 @@ class MoveTrayTest(TestCase):
         slot = Slot.objects.get(id=4)
         self.assertEqual(slot.current_crop, None)
         # Make a post to the move tray endpoint
-        response = self.client.post("/slot/2/action/move_tray", data={"slot-destination-id": 4})
+        response = self.client.post("/slot/2/action/move_tray", data={"slot-destination-id": 4,
+                                                                      "slot-destination-phase": "-- none --"})
         # Check that the crop now lives in slot 4
         slot = Slot.objects.get(id=4)
         self.assertEqual(slot.current_crop.variety.name, "Basil")
@@ -141,18 +135,13 @@ class MoveTrayTest(TestCase):
         slot = Slot.objects.get(id=2)
         self.assertEqual(slot.current_crop, None)
 
+
 class RecordDeadCropTest(TestCase):
     """Tests that the record dead crop action modifies the model correctly."""
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
-        self.user.save()
-        self.client.login(username="test", password="test")
-
-    def tearDown(self):
-        self.user.delete()
-
+        login_the_test_user(self)
 
     def test_record_dead_crop(self):
         # We create a single slot in the database
@@ -181,15 +170,6 @@ class RecordDeadCropTest(TestCase):
         self.assertEqual(trash_record.crop.variety.name, "Basil")
         self.assertEqual(trash_record.note, "Got frozen")
 
-class CropModelTest(TestCase):
-    """Unit tests for Crop data structure."""
-    pass
-    
-
-class SlotModelTest(TestCase):
-    """Unit tests for Slot data structure."""
-    pass
-
 
 class AddNoteTest(TestCase):
     """Unit test that we can add a note to a crop and have it appear in the crop history."""
@@ -201,15 +181,9 @@ class AddNoteTest(TestCase):
                                     exp_num_grow_days=12)
         # The crop is added to the slot
         Slot.objects.filter(id=self.id_of_plant_slot).update(current_crop=self.basil)
-
-        # Login the user
+        
         self.client = Client()
-        self.user = User.objects.create_user(username="test", email="test@test.com", password="test")
-        self.user.save()
-        self.client.login(username="test", password="test")
-
-    def tearDown(self):
-        self.user.delete()
+        login_the_test_user(self)
 
     def testMakeNote(self):
         # Make a note about how the basil lamp died
@@ -219,3 +193,19 @@ class AddNoteTest(TestCase):
         record_list = CropRecord.objects.filter(crop=self.basil)
         self.assertEqual(1, len(record_list))
         self.assertEqual("Basil lamp died", record_list[0].note)
+
+
+class BarcodeRedirectTest(TestCase):
+    """Unit test that we can use the barcode URI to redirect to a slot page."""
+    
+    def setUp(self):
+        self.client = Client()
+        self.barcode_text = "G0010101"
+        self.slot = Slot.objects.create(barcode=self.barcode_text)
+        login_the_test_user(self)
+    
+    def testBarcodeRedirect(self):
+        self.assertRedirects(self.client.get(f'/barcode/{self.barcode_text}/'), f'/slot/{self.slot.id}/')
+        
+    def test404UnknownBarcode(self):
+        self.assertEqual(self.client.get('/barcode/NOT_A_BARCODE/').status_code, 404)

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Slot Details{% endblock %}
 
@@ -47,21 +48,22 @@
                 <form action="/slot/{{ slot_id }}/action/move_tray" method="post" id="form-move-tray">
                     {% csrf_token %}
 
+                    <div class="form-group d-flex row">
+                        <button type="button" class="select-scan btn btn-primary"
+                                    id="form-move-tray-barcode-btn">Scan Slot Destination</button>
+                        <input type="text" id="form-move-tray-barcode-input" name="slot-destination-id"
+                               placeholder="Or type it here">
+                    </div>
+
                     <div class="form-group">
-                        <label for="form-move-tray-destination-id">Destination</label>
-                        <select id="form-move-tray-destination-id" name="slot-destination-id" class="form-control">
-                            {% for slot in open_slots %}
-                                <option>{{ slot.id }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="form-move-tray-destination-phase">New Grow Phase?</label>
-                        <select id="form-move-tray-destination-phase" name="slot-destination-phase" class="form-control">
+                    <label for="form-move-tray-destination-phase">New Grow Phase?</label>
+                    <select id="form-move-tray-destination-phase" name="slot-destination-phase" class="form-control">
                             <option>-- none --</option>
                             <option>GROW</option>
                             <option>GERM</option>
                             <option>SEED</option>
                             <option>TRASH</option>
-                        </select>
+                    </select>
                     </div>
 
                     <input id="form-move-tray-submit" value="Move The Tray" type="submit"
@@ -97,4 +99,9 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static "barcode/barcodeEvent.js" %}"></script>
+    <script src="{% static "barcode/slotDetailController.js" %}"></script>
 {% endblock %}

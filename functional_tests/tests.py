@@ -7,12 +7,26 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
+from time import sleep
 import datetime
 
 from inventory.models import Crop, Slot, Variety, CropRecord
 from django.contrib.auth.models import User
 
 SLEEPY_TIME = 1
+
+
+def simulate_barcode_scan(driver, barcode_text):
+    """
+    Simulates a barcode scan by executing JavaScript through Selenium that emits our custom barcode-scan event.
+    :param driver: a Selenuim WebDriver
+    :param barcode_text: String
+    :return: None, modifies state of FT.
+    """
+    barcode_event_script = "let barcodeEvent = new CustomEvent('barcode-scanned', { detail: arguments[0] });" \
+                           "document.dispatchEvent(barcodeEvent);"
+    driver.execute_script(barcode_event_script, barcode_text)
+    sleep(SLEEPY_TIME)
 
 
 class GreenhouseSetupTest(LiveServerTestCase):
@@ -85,7 +99,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.assertTrue("Cilantro" in varieties)
 
 
-class BasicUserInteractionsTest(LiveServerTestCase):
+class BasicUserInteractionsTest(StaticLiveServerTestCase):
     """
     Tests that the application can support basic crop management tasks post-setup.
     """
@@ -95,9 +109,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.browser = webdriver.Firefox()
 
         # Make some slots and save their ids -- this is to avoid hard-coding primary keys in the test methods
-        self.plant_origin_slot_id = Slot.objects.create().id
-        self.plant_destination_slot_id = Slot.objects.create().id
-        self.free_slot_id = Slot.objects.create().id
+        self.plant_origin_slot = Slot.objects.create(barcode="00001")
+        self.plant_destination_slot = Slot.objects.create(barcode="00002")
+        self.free_slot = Slot.objects.create(barcode="00003")
 
         # Add some plant varieties
         Variety.objects.create(name="Basil", days_plant_to_harvest=20)
@@ -108,7 +122,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         variety = Variety.objects.get(name="Radish")
         self.first_crop = Crop.objects.create(variety=variety, tray_size="1020", live_delivery=True,
                                               exp_num_germ_days=3, exp_num_grow_days=8)
-        Slot.objects.filter(id=self.plant_origin_slot_id).update(current_crop=self.first_crop)
+        Slot.objects.filter(id=self.plant_origin_slot.id).update(current_crop=self.first_crop)
         # And record the SEED record
         self.first_crop_record = CropRecord.objects.create(crop=self.first_crop, record_type='SEED')
 
@@ -145,14 +159,9 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # He enters that the crop should germinate for 5 days and grow for another 10
         self.browser.find_element_by_id("form-new-crop-germination-length").send_keys("5")
         self.browser.find_element_by_id("form-new-crop-grow-length").send_keys("10")
-        # FIXME -- he scans the barcode of the slot in which the crop will live
-        select_slot = self.browser.find_element_by_id("form-new-crop-slot")
-        for option in select_slot.find_elements_by_tag_name("option"):
-            if option.text == str(self.free_slot_id):
-                option.click()
-                break
-        else:
-            self.fail(f'Unable to find Tray #{self.free_slot_id} in the new crop form!')
+        # He hits the button to scan a barcode, and then scans the barcode of the slot he wants
+        self.browser.find_element_by_id("new-crop-form-barcode-input").click()
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-new-crop-submit").click()
 
@@ -178,42 +187,36 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(exp_num_grow_days, "Expected number of grow days: 10")
 
     def test_move_crop_from_one_slot_to_another(self):
-        # Oliver wants to move his crop from one spot in the greenhouse to another
-        # FIXME -- He scans the barcode of the radish tray he would like to move
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        # Oliver scans the barcode of the radish tray he would like to move
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
         # And is redirected to the slot details page
         self.assertEqual("Slot Details – BMG", self.browser.title)
         slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, f'Slot #{self.plant_origin_slot_id}')
+        self.assertEqual(slot_id, f'Slot #{self.plant_origin_slot.id}')
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
-
-        # FIXME -- He scans the barcode of the crop's destination slot
-        select_slot_destination = self.browser.find_element_by_id("form-move-tray-destination-id")
-        for option in select_slot_destination.find_elements_by_tag_name("option"):
-            if option.text == str(self.plant_destination_slot_id):
-                option.click()
-                break
-        else:
-            self.fail(f'Unable to find destination tray #{self.plant_destination_slot_id} in the dropdown menu!')
+        # He hits the button to scan a barcode
+        self.browser.find_element_by_id("form-move-tray-barcode-btn").click()
+        # And scans the barcode of the crop's destination slot
+        simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-
+        
         # And he gets redirected to the page belonging to the new slot
-        self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot_id}/')
+        self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot.id}/')
         self.assertEqual(self.browser.title, "Slot Details – BMG")
         slot_id = self.browser.find_element_by_id("slot-id").text
-        self.assertEqual(slot_id, f'Slot #{self.plant_destination_slot_id}')
+        self.assertEqual(slot_id, f'Slot #{self.plant_destination_slot.id}')
         # And the crop is listed below
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
         self.assertEqual(current_crop_type, "Current Crop: Radish")
         # He then goes back to the old slot's page
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And sees that slot is listed as empty
         self.browser.find_element_by_id("empty-slot")
 
     def test_water_the_crop(self):
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         # Oliver wants to water a crop of microgreens.
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
@@ -228,7 +231,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         # Oliver would like to harvest a crop of microgreens.
         # He navigates to the slot details page of the slot he'd like to harvest
         # FIXME -- he scans the slot of interest with the barcode scanner
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # Then he finds the form for harvesting a crop
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
         # He clicks the submit button to harvest the crop
@@ -239,7 +242,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         harvest_text = self.browser.find_element_by_id("harvest-date").text
         self.assertEqual("Harvested: " + dateformat.format(datetime.datetime.now(), 'm/d/Y P'), harvest_text)
         # Then he navigates back to the slot that the crop was in
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And sees that it is empty
         empty_slot = self.browser.find_element_by_id("empty-slot").text
         self.assertEqual(empty_slot, "Would you like to place a new crop here?")
@@ -247,7 +250,7 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     def test_record_dead_crop(self):
         # Oliver notices mold on a crop, and decides to dispose of it.
         # FIXME -- he scans the slot of interest with the barcode scanner
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}/')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And is redirected to the slot details page
         self.assertEqual("Slot Details – BMG", self.browser.title)
         current_crop_type = self.browser.find_element_by_id("current-crop-type").text
@@ -288,19 +291,19 @@ class BasicUserInteractionsTest(LiveServerTestCase):
     def test_lookup_crop_history(self):
         # Oliver wants to look back at the crop's life to understand how it grew.
         # We start by planting a new crop in the empty slot
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}')
         water_crop_form = self.browser.find_element_by_id("form-water-crop")
         water_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         water_crop_datetime = datetime.datetime.now()
         # And add some records that will show up in the crop history
-        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot_id}')
+        self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}')
         harvest_crop_form = self.browser.find_element_by_id("form-harvest-crop")
         harvest_crop_form.find_element_by_css_selector('input[type="submit"]').click()
         harvest_crop_datetime = datetime.datetime.now()
         # After harvesting the crop Oliver gets redirected to the crop details page to check the crop history
         self.assertEqual('Crop Details – BMG', self.browser.title)
         # Check that current details of the crop are correct
-        crop = Slot.objects.get(id=self.plant_origin_slot_id).current_crop
+        crop = Slot.objects.get(id=self.plant_origin_slot.id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
         self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.today(), 'm/d/Y P'))
         last_watered_date = self.browser.find_element_by_id("water-date").text
@@ -309,6 +312,16 @@ class BasicUserInteractionsTest(LiveServerTestCase):
         self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y P'))
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
+
+    def test_scan_from_homepage(self):
+        # Oliver wants to make sure the that barcode scanning is working correctly
+        # when he makes a scan from the homepage
+        self.browser.get(self.live_server_url)
+        # The barcode of the origin slot is scanned
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # And he sees that he has be redirected to the slot details page for that slot
+        self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
+        self.assertEqual(self.browser.title, "Slot Details – BMG")
 
 
 class StaticURLTest(StaticLiveServerTestCase):
