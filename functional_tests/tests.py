@@ -318,6 +318,30 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
 
+    def test_add_lifecycle_moment(self):
+        # Natalie would like to be able to set the current lifecycle stage of a crop with an additional form
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # Under the add a record section she selects the growth milestone from the drop down
+        select_variety = self.browser.find_element_by_id("form-new-crop-record")
+        for option in select_variety.find_elements_by_tag_name("option"):
+            if option.text == "Growth Milestone":
+                option.click()
+                break
+        else:
+            self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
+        # Next she adds the date for the growth milestone
+
+        # Finally she adds a quick note about the record
+
+        # And hits submit
+
+        # When the page refreshes she can see that her crop record has been successfully recorded
+
+
+
 
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
