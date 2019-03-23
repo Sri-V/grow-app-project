@@ -75,5 +75,23 @@
             </tr>
         </table>
     </div>
+    <div id="add-crop-record">
+        <h1>Add Crop Record</h1>
+        <form id="form-add-crop-record" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="form-new-crop-record-type">Variety</label>
+                <select id="form-new-crop-record-type" name="record-type" class="form-control">
+                    {% for record_type in record_type_list %}
+                        <option>{{ record_type }}</option>
+                    {% endfor %}
+                </select>
+                <input id="form-add-crop-record-date" type="datetime-local" class="form-control" name="date"/>
+                <textarea name="note" id="form-add-crop-record-note" form="form-add-crop-record"
+                                  placeholder="Add Note about crop record here"></textarea>
+            </div>
+            <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>
+        </form>
+    </div>
 {% endblock %}
 

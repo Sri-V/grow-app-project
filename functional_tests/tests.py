@@ -200,7 +200,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-        
+
         # And he gets redirected to the page belonging to the new slot
         self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot.id}/')
         self.assertEqual(self.browser.title, "Slot Details – BMG")
@@ -325,7 +325,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # Next she then navigates to the crop details page
         self.browser.find_element_by_id("link-crop-details").click()
         # Under the add a record section she selects the growth milestone from the drop down
-        select_variety = self.browser.find_element_by_id("form-new-crop-record")
+        select_variety = self.browser.find_element_by_id("form-new-crop-record-type")
         for option in select_variety.find_elements_by_tag_name("option"):
             if option.text == "Growth Milestone":
                 option.click()
