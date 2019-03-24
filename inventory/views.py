@@ -126,8 +126,10 @@ def crop_detail(request, crop_id):
     except Exception:
         returned = None
 
+    record_types = [record[1] for record in CropRecord.RECORD_TYPES]
+
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types })
 
 
 @login_required
@@ -149,8 +151,7 @@ def slot_detail(request, slot_id):
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
     open_slots = Slot.objects.filter(current_crop=None)
-
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots})
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots })
 
 
 @login_required

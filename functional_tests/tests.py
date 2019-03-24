@@ -333,11 +333,11 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         else:
             self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
         # Next she adds the date for the growth milestone
-
+        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019, 12:34 PM")
         # Finally she adds a quick note about the record
-
+        self.browser.find_element_by_id("form-add-crop-record-note").send_keys("This one's looking nice!")
         # And hits submit
-
+        self.browser.find_element_by_id("form-add-crop-record-submit").click()
         # When the page refreshes she can see that her crop record has been successfully recorded
 
 
