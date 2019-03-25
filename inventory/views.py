@@ -2,6 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
+from dateutil import parser
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -133,10 +134,15 @@ def crop_detail(request, crop_id):
 
 
 @login_required
-def record_crop_info():
-    """POST: Record a timestampped event into the history of this crop's life."""
-    return None
-
+def record_crop_info(request, crop_id):
+    """POST: Record a timestampped CropRecord event into the history of this crop's life."""
+    current_crop = Crop.objects.get(id=crop_id)
+    record_type = request.POST["record-type"]
+    record_date = request.POST["date"]
+    datetime_object = parser.parse(record_date)
+    record_note = request.POST["note"]
+    CropRecord.objects.create(crop=current_crop, date=datetime_object, record_type=record_type, note=record_note)
+    return HttpResponseRedirect(request.path_info)
 
 @login_required
 def update_crop_lifecycle():

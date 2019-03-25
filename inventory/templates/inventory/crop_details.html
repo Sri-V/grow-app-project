@@ -77,7 +77,7 @@
     </div>
     <div id="add-crop-record" class="col-8">
         <h1>Add Crop Record</h1>
-        <form id="form-add-crop-record" method="POST">
+        <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">
             {% csrf_token %}
             <div class="form-group">
                 <label for="form-new-crop-record-type">Record Type</label>
