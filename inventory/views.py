@@ -55,7 +55,7 @@ def create_crop(request):
         variety_list = Variety.objects.all()
         slot_list = Slot.objects.filter(current_crop=None)
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "current_datetime": datetime.datetime.strftime("yyyy-MM-ddThh:mm")})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
