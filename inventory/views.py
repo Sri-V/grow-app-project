@@ -3,6 +3,8 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 from dateutil import parser
+from dateutil import tz
+import pytz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -139,10 +141,12 @@ def record_crop_info(request, crop_id):
     current_crop = Crop.objects.get(id=crop_id)
     record_type = request.POST["record-type"]
     record_date = request.POST["date"]
-    datetime_object = parser.parse(record_date)
+    datetime_object = parser.parse(record_date).replace(tzinfo=tz.tzlocal())
     record_note = request.POST["note"]
-    CropRecord.objects.create(crop=current_crop, date=datetime_object, record_type=record_type, note=record_note)
-    return HttpResponseRedirect(request.path_info)
+    new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
+    new_crop_record.date = datetime_object
+    new_crop_record.save()
+    return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def update_crop_lifecycle():
