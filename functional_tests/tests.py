@@ -339,8 +339,10 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # And hits submit
         self.browser.find_element_by_id("form-add-crop-record-submit").click()
         # When the page refreshes she can see that her crop record has been successfully recorded
-
-
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("03/24/2019 12:34 p.m.", records_list)
+        self.assertIn("Growth Milestone", records_list)
+        self.assertIn("This one's looking nice!", records_list)
 
 
 class StaticURLTest(StaticLiveServerTestCase):

@@ -247,3 +247,29 @@ class BarcodeRedirectTest(TestCase):
         
     def test404UnknownBarcode(self):
         self.assertEqual(self.client.get('/barcode/NOT_A_BARCODE/').status_code, 404)
+
+class AddCropRecordTest(TestCase):
+    """Unit test that we can manually add a crop record and it will be correctly saved to the database."""
+
+    def setUp(self):
+        self.id_of_plant_slot = Slot.objects.create().id
+        self.variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        self.basil = Crop.objects.create(variety=self.variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                         exp_num_grow_days=12)
+        # The crop is added to the slot
+        Slot.objects.filter(id=self.id_of_plant_slot).update(current_crop=self.basil)
+
+        self.client = Client()
+        login_the_test_user(self)
+
+    def testAddCropRecord(self):
+        # Make a post request for a new crop record
+        crop_record = self.client.post(f'/crop/{self.basil.id}/record',
+                                data={"record-type": "Growth Milestone",
+                                      "date": "3/24/2019, 12:34 PM",
+                                      "note": "This one's looking nice!"})
+        # Check that note is stored in crop record
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        self.assertEqual(1, len(record_list))
+        self.assertEqual(record_list[0].crop, self.basil)
+        self.assertEqual(record_list[0].record_type, "Growth Milestone")

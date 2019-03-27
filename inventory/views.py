@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
 from dateutil import parser
+from dateutil import tz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -54,8 +55,9 @@ def create_crop(request):
     if request.method == 'GET':
         variety_list = Variety.objects.all()
         slot_list = Slot.objects.filter(current_crop=None)
+        current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "current_datetime": datetime.datetime.strftime("yyyy-MM-ddThh:mm")})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "current_datetime": current_datetime})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
@@ -127,7 +129,7 @@ def crop_detail(request, crop_id):
     except Exception:
         returned = None
 
-    record_types = [record[1] for record in CropRecord.RECORD_TYPES]
+    record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types })
@@ -139,10 +141,12 @@ def record_crop_info(request, crop_id):
     current_crop = Crop.objects.get(id=crop_id)
     record_type = request.POST["record-type"]
     record_date = request.POST["date"]
-    datetime_object = parser.parse(record_date)
+    datetime_object = parser.parse(record_date).replace(tzinfo=tz.tzlocal())
     record_note = request.POST["note"]
-    CropRecord.objects.create(crop=current_crop, date=datetime_object, record_type=record_type, note=record_note)
-    return HttpResponseRedirect(request.path_info)
+    new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
+    new_crop_record.date = datetime_object
+    new_crop_record.save()
+    return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def update_crop_lifecycle():
