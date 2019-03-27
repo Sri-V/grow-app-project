@@ -65,6 +65,21 @@ LOGGING = {
     }
 }
 
+# Email Error Reporting
+
+ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', '???')]
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+SERVER_EMAIL = '(email@gmail.com)'
+# these should be equal
+EMAIL_HOST_USER = '(email@gmail.com)'
+
+EMAIL_HOST_PASSWORD = '(gmail password)'
+
+EMAIL_POST = 587  # 465 (SSL required) or 587 (TLS required)
+
+
 
 # Application definition
 
