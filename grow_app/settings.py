@@ -67,7 +67,9 @@ LOGGING = {
 
 # Email Error Reporting
 
-ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', '???')]
+ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', 'wheeler.m@husky.neu.edu'),
+          ('Petros Papadopoulos', 'Papadopoulos.p@husky.neu.edu'), ('Erin Burba', 'burba.e@husky.neu.edu'),
+          ('Jack Gelinas', 'gelinas.j@husky.neu.edu')]
 
 EMAIL_HOST = 'smtp.gmail.com'
 
@@ -78,6 +80,8 @@ EMAIL_HOST_USER = '(email@gmail.com)'
 EMAIL_HOST_PASSWORD = '(gmail password)'
 
 EMAIL_POST = 587  # 465 (SSL required) or 587 (TLS required)
+
+EMAIL_USE_TLS = True
 
 
 
