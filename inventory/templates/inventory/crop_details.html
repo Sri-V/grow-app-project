@@ -71,8 +71,8 @@
                 <td width='20%'>{{ record.date }}</td>
                 <td width='30%'>{{ record.get_record_type_display }}</td>
                 <td width='40%'>{{ record.note|default:"None" }}</td>
-                <td width='5%'><a href="/record/{{ record.id }}/edit">Edit</a></td>
-                <td width='5%'><a href="/record/{{ record.id }}/delete">Delete</a></td>
+                <td width='5%' id="edit_record_{{ record.id }}"><a href="/record/{{ record.id }}/edit">Edit</a></td>
+                <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
             {% endfor %}
             </tr>
         </table>

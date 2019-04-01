@@ -346,7 +346,18 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
 
     def test_delete_crop_record(self):
         # Natalie wants to delete a crop record of one that was mistakenly created
-
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # She sees the first "seed" crop record is not correct
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded", records_list)
+        # She clicks the delete button for the given record
+        self.browser.find_element_by_id("delete_record_1").find_element_by_tag_name("a").click()
+        # Once the page reloads the record is no longer there
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertNotIn("Seeded", records_list)
 
 
 class StaticURLTest(StaticLiveServerTestCase):
