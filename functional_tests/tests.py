@@ -344,6 +344,10 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("Growth Milestone", records_list)
         self.assertIn("This one's looking nice!", records_list)
 
+    def test_delete_crop_record(self):
+        # Natalie wants to delete a crop record of one that was mistakenly created
+
+
 
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""

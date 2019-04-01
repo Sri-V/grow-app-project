@@ -236,6 +236,15 @@ def record_note(request, slot_id):
 
 
 @login_required
+def delete_record(request, record_id):
+    """GET: Deletes the crop record with the specified record id"""
+    crop_record = CropRecord.objects.get(id=record_id)
+    crop = crop_record.crop
+    crop_record.delete()
+    return redirect(crop_detail, crop_id=crop.id)
+
+
+@login_required
 def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
