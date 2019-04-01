@@ -273,3 +273,12 @@ class AddCropRecordTest(TestCase):
         self.assertEqual(1, len(record_list))
         self.assertEqual(record_list[0].crop, self.basil)
         self.assertEqual(record_list[0].record_type, "Growth Milestone")
+
+
+from django.core.mail import mail_admins
+class TestSendErrorEmail(TestCase):
+    """This tests that the email error sending will work when we get a 500 error"""
+
+
+    def testSendSimpleMail(self):
+        mail_admins("Test Subject", "Hi", fail_silently=False)
