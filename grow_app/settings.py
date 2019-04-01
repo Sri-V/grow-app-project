@@ -51,10 +51,14 @@ LOGGING = {
             'filename': 'mysite.log',
             'formatter': 'verbose'
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
     },
     'loggers': {
         'django': {
-            'handlers':['file'],
+            'handlers':['file','mail_admins'],
             'propagate': True,
             'level':'DEBUG',
         },
