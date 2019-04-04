@@ -6,7 +6,9 @@ from django.db import models
 class Variety(models.Model):
     """Represents the types of plants that can be grown. Has a name and number of days between plant and harvest."""
     name = models.CharField(max_length=50)
-    days_plant_to_harvest = models.IntegerField()
+    days_germ = models.IntegerField()
+    days_grow = models.IntegerField()
+
 
 
 class Crop(models.Model):
