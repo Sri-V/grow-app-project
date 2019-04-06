@@ -305,8 +305,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime.today(), 'm/d/Y P'))
         harvested_date = self.browser.find_element_by_id("harvest-date").text
         self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y P'))
-        # Check that the newest crop record shows up first and the oldest is last
-        records = self.browser.find_element_by_id("records").text
 
     def test_scan_from_homepage(self):
         # Oliver wants to make sure the that barcode scanning is working correctly
@@ -343,6 +341,26 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("03/24/2019 12:34 p.m.", records_list)
         self.assertIn("Growth Milestone", records_list)
         self.assertIn("This one's looking nice!", records_list)
+
+    def test_update_crop_record(self):
+        # Natalie wants to update a note for a specific crop record
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # She wants to add a note the first "seed" crop record
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded", records_list)
+        # She clicks the edit button for the given record
+        self.browser.find_element_by_id("edit_record_1").find_element_by_tag_name("a").click()
+        # Once the page reloads she navigates to the update record form and adds the note
+        self.browser.find_element_by_id("form-edit-crop-record-note").send_keys("Seeded in the morning")
+        # She then hits submit
+        self.browser.find_element_by_id("form-edit-crop-record-submit").click()
+        # After the page refreshes she sees that the updated crop record has been recorded
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded in the morning", records_list)
+
 
     def test_delete_crop_record(self):
         # Natalie wants to delete a crop record of one that was mistakenly created
