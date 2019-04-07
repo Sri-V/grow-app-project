@@ -352,7 +352,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         records_list = self.browser.find_element_by_id("records").text
         self.assertIn("Seeded", records_list)
         # She clicks the edit button for the given record
-        self.browser.find_element_by_id("edit_record_1").find_element_by_tag_name("a").click()
+        self.browser.find_element_by_xpath('//*[contains(@id,"edit_record")]').find_element_by_tag_name("a").click()
         # Once the page reloads she navigates to the update record form and adds the note
         self.browser.find_element_by_id("form-edit-crop-record-note").send_keys("Seeded in the morning")
         # She then hits submit
@@ -372,7 +372,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         records_list = self.browser.find_element_by_id("records").text
         self.assertIn("Seeded", records_list)
         # She clicks the delete button for the given record
-        self.browser.find_element_by_id("delete_record_1").find_element_by_tag_name("a").click()
+        self.browser.find_element_by_xpath('//*[contains(@id,"delete_record")]').find_element_by_tag_name("a").click()
         # Once the page reloads the record is no longer there
         records_list = self.browser.find_element_by_id("records").text
         self.assertNotIn("Seeded", records_list)
