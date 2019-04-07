@@ -74,8 +74,7 @@
 
                             <td width='20%'><input id="form-edit-crop-record-date" type="datetime-local" value="{{ record.date }}" name="date"/></td>
                             <td width='30%'>{{ record.get_record_type_display }}</td>
-                            <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record"
-                                                      value="{{ record.note|default:"None" }}"></textarea></td>
+                            <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record">{{ record.note }}</textarea></td>
                             <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Submit"/></td>
                             <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
                         </tr>
