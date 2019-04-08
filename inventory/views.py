@@ -1,6 +1,7 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety
+from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
+from inventory.forms import SanitationRecordForm
 from datetime import datetime
 from dateutil import parser
 from dateutil import tz
@@ -240,3 +241,14 @@ def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
 
+@login_required
+def sanitation_record(request):
+    """GET: Displays the page with the current sanitation records
+    POST: Records the new sanitation record"""
+    if request.method == 'GET':
+        sanitation_record_list = SanitationRecord.objects.all()
+        return render(request, "inventory/sanitation_records.html",
+                      context={"record_list": sanitation_record_list, "form": SanitationRecordForm })
+
+    if request.method == 'POST':
+        pass

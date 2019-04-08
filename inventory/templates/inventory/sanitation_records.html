@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Sanitation Records{% endblock %}
+
+{% block content %}
+
+    <div id="sanitation-records" class="col-10 col-lg-8">
+        <h1>Sanitation Records</h1>
+        <table id="records" class="table">
+            <tr>
+                <th>Time</th>
+                <th>Name</th>
+                <th>Equipment Cleaned</th>
+                <th>Chemicals Used</th>
+                <th>Note</th>
+            </tr>
+            {% for record in record_list %}
+                <tr>
+                <td width='20%'>{{ record.date }}</td>
+                <td width='15%'>{{ record.employee_name }}</td>
+                <td width='20%'>{{ record.equipment_sanitized }}</td>
+                <td width='20%'>{{ record.chemicals_used }}</td>
+                <td width='25%'>{{ record.note }}</td>
+            {% endfor %}
+            </tr>
+        </table>
+    </div>
+    <div id="add-sanitation-record" class="col-8">
+        <h1>Add Sanitation Record</h1>
+        {{ form.as_p }}
+{#        <form id="form-add-sanitation-record" method="POST">#}
+{#            {% csrf_token %}#}
+{#            <div class="form-group">#}
+{#                <label for="form-new-crop-record-type">Record Type</label>#}
+{#                <select id="form-new-crop-record-type" name="record-type" class="form-control">#}
+{#                    {% for record_type in record_types %}#}
+{#                        <option>{{ record_type }}</option>#}
+{#                    {% endfor %}#}
+{#                </select>#}
+{#                <label for="form-new-crop-record-date">Record Date</label>#}
+{#                <input id="form-add-crop-record-date" type="datetime-local" class="form-control" name="date"/>#}
+{#                <label for="form-new-crop-record-Note">Record Note</label>#}
+{#                <br>#}
+{#                <textarea name="note" id="form-add-crop-record-note" form="form-add-crop-record"#}
+{#                                  placeholder="Add Note about crop record here"></textarea>#}
+{#            </div>#}
+{#            <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>#}
+{#        </form>#}
+    </div>
+{% endblock %}
+
