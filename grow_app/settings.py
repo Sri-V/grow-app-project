@@ -16,7 +16,6 @@ import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ except KeyError:
     with open(os.path.join(BASE_DIR, 'secret_key.txt')) as f:  # Dev
         SECRET_KEY = f.read().strip()
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
@@ -37,8 +35,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -53,14 +51,20 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
         }
     },
     'loggers': {
         'django': {
-            'handlers':['file','mail_admins'],
+            'handlers': ['file'],
             'propagate': True,
-            'level':'DEBUG',
+            'level': 'DEBUG',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
         },
         'MYAPP': {
             'handlers': ['file'],
@@ -71,23 +75,21 @@ LOGGING = {
 
 # Email Error Reporting
 
-ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', 'wheeler.m@husky.neu.edu'),
-          ('Petros Papadopoulos', 'Papadopoulos.p@husky.neu.edu'), ('Erin Burba', 'burba.e@husky.neu.edu'),
-          ('Jack Gelinas', 'gelinas.j@husky.neu.edu')]
+ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', 'wheeler.m@husky.neu.edu')]
+    # , ('Petros Papadopoulos', 'Papadopoulos.p@husky.neu.edu'),
+    #       ('Erin Burba', 'burba.e@husky.neu.edu'), ('Jack Gelinas', 'gelinas.j@husky.neu.edu')]
 
 EMAIL_HOST = 'smtp.gmail.com'
 
-SERVER_EMAIL = '(email@gmail.com)'
+SERVER_EMAIL = 'bmg.growapp@gmail.com'
 # these should be equal
-EMAIL_HOST_USER = '(email@gmail.com)'
+EMAIL_HOST_USER = 'bmg.growapp@gmail.com'
 
-EMAIL_HOST_PASSWORD = '(gmail password)'
+EMAIL_HOST_PASSWORD = 'devsquad00'
 
 EMAIL_POST = 587  # 465 (SSL required) or 587 (TLS required)
 
 EMAIL_USE_TLS = True
-
-
 
 # Application definition
 
@@ -132,7 +134,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'grow_app.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
@@ -142,7 +143,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -162,7 +162,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -178,7 +177,6 @@ USE_TZ = True
 
 # Changed default DATETIME_FORMAT to be more concise
 DATETIME_FORMAT = 'm/d/Y P'
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -198,6 +196,7 @@ STATICFILES_DIRS = [
 
 # Heroku: Update database configuration from $DATABASE_URL.
 import dj_database_url
+
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
