@@ -342,8 +342,8 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("Growth Milestone", records_list)
         self.assertIn("This one's looking nice!", records_list)
 
-    def test_update_crop_record(self):
-        # Natalie wants to update a note for a specific crop record
+    def test_edit_crop_record(self):
+        # Natalie wants to edit a note for a specific crop record
         # First she scans the desired slot
         simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
         # Next she then navigates to the crop details page
