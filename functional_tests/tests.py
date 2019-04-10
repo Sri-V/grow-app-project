@@ -345,6 +345,26 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("This one's looking nice!", records_list)
 
 
+    def test_add_sanitation_record(self):
+        # Natalie would like to create a sanitation record after she has sanitized some equipment
+        # She first clicks the link in the navbar to get to the sanitation records page
+        self.browser.find_element_by_id("link-sanitation-records").click()
+        # She is then redirected to the sanitation records page
+        # And begins to fill out the form
+        self.browser.find_element_by_id("id_date").send_keys("4/10/2019, 9:22 AM")
+        self.browser.find_element_by_id("id_employee_name").send_keys("Natalie Wannamaker")
+        self.browser.find_element_by_id("id_equipment_sanitized").send_keys("Sink")
+        self.browser.find_element_by_id("id_chemicals_used").send_keys("Bleach")
+        self.browser.find_element_by_id("id_note").send_keys("Not too dirty")
+        # After filling out the form she hit the submit button
+        self.browser.find_element_by_id("")
+
+
+
+
+
+
+
 class StaticURLTest(StaticLiveServerTestCase):
     """Tests that the stylesheets and image assets are available from their proper links."""
 

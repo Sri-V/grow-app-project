@@ -25,27 +25,16 @@
             </tr>
         </table>
     </div>
-    <div id="add-sanitation-record" class="col-8">
+    <div id="add-sanitation-record" class="col-10 col-lg-8">
         <h1>Add Sanitation Record</h1>
-        {{ form.as_p }}
-{#        <form id="form-add-sanitation-record" method="POST">#}
-{#            {% csrf_token %}#}
-{#            <div class="form-group">#}
-{#                <label for="form-new-crop-record-type">Record Type</label>#}
-{#                <select id="form-new-crop-record-type" name="record-type" class="form-control">#}
-{#                    {% for record_type in record_types %}#}
-{#                        <option>{{ record_type }}</option>#}
-{#                    {% endfor %}#}
-{#                </select>#}
-{#                <label for="form-new-crop-record-date">Record Date</label>#}
-{#                <input id="form-add-crop-record-date" type="datetime-local" class="form-control" name="date"/>#}
-{#                <label for="form-new-crop-record-Note">Record Note</label>#}
-{#                <br>#}
-{#                <textarea name="note" id="form-add-crop-record-note" form="form-add-crop-record"#}
-{#                                  placeholder="Add Note about crop record here"></textarea>#}
-{#            </div>#}
-{#            <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>#}
-{#        </form>#}
+        <form action="POST">
+            <div class="form-group">
+                {% csrf_token %}
+                {{ form }}
+                <br>
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
     </div>
 {% endblock %}
 
