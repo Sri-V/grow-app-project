@@ -252,4 +252,17 @@ def sanitation_record(request):
                       context={"record_list": sanitation_record_list, "form": form })
 
     if request.method == 'POST':
-        pass
+        form = SanitationRecordForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            employee_name = form.cleaned_data['employee_name']
+            equipment_sanitized = form.cleaned_data['equipment_sanitized']
+            chemicals_used = form.cleaned_data['chemicals_used']
+            note = form.cleaned_data['note']
+
+            SanitationRecord.objects.create(date=date, employee_name=employee_name, equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used, note=note)
+
+            return redirect(sanitation_record)
+        else:
+            print('FORM WAS INVALID')
+            print(form.errors)

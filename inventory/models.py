@@ -64,7 +64,7 @@ class SanitationRecord(models.Model):
     employee_name = models.CharField(max_length=25)
     equipment_sanitized = models.CharField(max_length=100)
     chemicals_used = models.CharField(max_length=100)
-    note = models.CharField(max_length=200)
+    note = models.CharField(max_length=200, blank=True)
 
 
 # class Location(models.Model):

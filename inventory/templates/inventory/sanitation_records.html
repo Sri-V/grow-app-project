@@ -25,13 +25,13 @@
             </tr>
         </table>
     </div>
+    <br>
     <div id="add-sanitation-record" class="col-10 col-lg-8">
         <h1>Add Sanitation Record</h1>
-        <form action="POST">
+        <form action="" method="POST">
+            {% csrf_token %}
             <div class="form-group">
-                {% csrf_token %}
-                {{ form }}
-                <br>
+                {{ form.as_p }}
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>

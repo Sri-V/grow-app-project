@@ -1,12 +1,13 @@
 from inventory.models import SanitationRecord
-from django.forms import ModelForm, Textarea, TextInput
+from django.forms import ModelForm, DateTimeField, DateTimeInput, Textarea, TextInput, widgets
 
 class SanitationRecordForm(ModelForm):
+    date = DateTimeField(input_formats=['%Y-%m-%d, %H:%M:%S'])
     class Meta:
         model = SanitationRecord
-        fields = ['date', 'employee_name', 'equipment_sanitized', 'chemicals_used', 'note']
+        fields = '__all__'
         widgets = {
-            'date': TextInput(attrs={'class': 'form-control'}),
+            'date': DateTimeInput(attrs={'class': 'form-control'}),
             'employee_name': TextInput(attrs={'class': 'form-control'}),
             'equipment_sanitized': TextInput(attrs={'class': 'form-control'}),
             'chemicals_used': TextInput(attrs={'class': 'form-control'}),
