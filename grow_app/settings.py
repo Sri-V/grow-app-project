@@ -75,7 +75,7 @@ LOGGING = {
 
 # Email Error Reporting
 
-ADMINS = [('Boston Microgreens', 'bostonmicrogreens@gmail.com')]
+ADMINS = [('Boston Microgreens', 'bostonmicrogreens@gmail.com'), ('BMG Slack', 'https://slack.com/apps/A0F81496D-email')]
 
 EMAIL_HOST = 'smtp.gmail.com'
 
