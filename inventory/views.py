@@ -242,11 +242,11 @@ def parse_barcode(request, barcode_text):
     return redirect(slot_detail, slot_id=slot.id)
 
 @login_required
-def sanitation_record(request):
+def sanitation_records(request):
     """GET: Displays the page with the current sanitation records
     POST: Records the new sanitation record"""
     if request.method == 'GET':
-        sanitation_record_list = SanitationRecord.objects.all()
+        sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
         form = SanitationRecordForm(initial={'date': datetime.now().strftime("%Y-%m-%d, %H:%M:%S") })
         return render(request, "inventory/sanitation_records.html",
                       context={"record_list": sanitation_record_list, "form": form })

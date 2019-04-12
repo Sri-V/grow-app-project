@@ -3,7 +3,17 @@
 {% block title %}Sanitation Records{% endblock %}
 
 {% block content %}
-
+    <div id="add-sanitation-record" class="col-10 col-lg-8">
+        <h1>Add Sanitation Record</h1>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+                <input id="sanitation-form-submit" class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
+    </div>
+    <br>
     <div id="sanitation-records" class="col-10 col-lg-8">
         <h1>Sanitation Records</h1>
         <table id="records" class="table">
@@ -24,17 +34,6 @@
             {% endfor %}
             </tr>
         </table>
-    </div>
-    <br>
-    <div id="add-sanitation-record" class="col-10 col-lg-8">
-        <h1>Add Sanitation Record</h1>
-        <form action="" method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                {{ form.as_p }}
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </div>
-        </form>
     </div>
 {% endblock %}
 

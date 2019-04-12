@@ -348,16 +348,24 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
     def test_add_sanitation_record(self):
         # Natalie would like to create a sanitation record after she has sanitized some equipment
         # She first clicks the link in the navbar to get to the sanitation records page
-        self.browser.find_element_by_id("link-sanitation-records").click()
+        self.browser.find_element_by_id("link-to-sanitation-records").click()
         # She is then redirected to the sanitation records page
         # And begins to fill out the form
-        self.browser.find_element_by_id("id_date").send_keys("4/10/2019, 9:22 AM")
+        self.browser.find_element_by_id("id_date").clear()
+        self.browser.find_element_by_id("id_date").send_keys("2019-04-10, 9:22:00")
         self.browser.find_element_by_id("id_employee_name").send_keys("Natalie Wannamaker")
         self.browser.find_element_by_id("id_equipment_sanitized").send_keys("Sink")
         self.browser.find_element_by_id("id_chemicals_used").send_keys("Bleach")
         self.browser.find_element_by_id("id_note").send_keys("Not too dirty")
         # After filling out the form she hit the submit button
-        self.browser.find_element_by_id("")
+        self.browser.find_element_by_id("sanitation-form-submit").click()
+        # When the page refreshes she can see that the sanitation record has been successfully recorded
+        sanitation_records = self.browser.find_element_by_id("records").text
+        self.assertIn("4/10/2019 9:22 a.m.", sanitation_records)
+        self.assertIn("Natalie Wannamaker", sanitation_records)
+        self.assertIn("Sink", sanitation_records)
+        self.assertIn("Bleach", sanitation_records)
+        self.assertIn("Not too dirty", sanitation_records)
 
 
 
