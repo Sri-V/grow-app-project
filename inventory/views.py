@@ -1,4 +1,4 @@
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
 from inventory.forms import SanitationRecordForm
@@ -262,7 +262,5 @@ def sanitation_records(request):
 
             SanitationRecord.objects.create(date=date, employee_name=employee_name, equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used, note=note)
 
-            return redirect(sanitation_record)
-        else:
-            print('FORM WAS INVALID')
-            print(form.errors)
+            return redirect(sanitation_records)
+

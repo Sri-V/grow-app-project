@@ -344,7 +344,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("Growth Milestone", records_list)
         self.assertIn("This one's looking nice!", records_list)
 
-
     def test_add_sanitation_record(self):
         # Natalie would like to create a sanitation record after she has sanitized some equipment
         # She first clicks the link in the navbar to get to the sanitation records page
@@ -366,10 +365,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertIn("Sink", sanitation_records)
         self.assertIn("Bleach", sanitation_records)
         self.assertIn("Not too dirty", sanitation_records)
-
-
-
-
 
 
 
