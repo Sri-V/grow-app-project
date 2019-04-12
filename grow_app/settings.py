@@ -75,9 +75,7 @@ LOGGING = {
 
 # Email Error Reporting
 
-ADMINS = [('Will Stenzel', 'stenzel.will@gmail.com'), ('Mike Wheeler', 'wheeler.m@husky.neu.edu')]
-    # , ('Petros Papadopoulos', 'Papadopoulos.p@husky.neu.edu'),
-    #       ('Erin Burba', 'burba.e@husky.neu.edu'), ('Jack Gelinas', 'gelinas.j@husky.neu.edu')]
+ADMINS = [('Boston Microgreens', 'bostonmicrogreens@gmail.com')]
 
 EMAIL_HOST = 'smtp.gmail.com'
 
