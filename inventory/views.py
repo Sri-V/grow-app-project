@@ -1,4 +1,4 @@
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
@@ -246,6 +246,10 @@ def parse_barcode(request, barcode_text):
     return redirect(slot_detail, slot_id=slot.id)
 
 @login_required
-def variety_autofill(variety):
-    print ('ok!')
-    return
+def variety_autofill(request):
+    variety = request.GET.get('variety', None)
+    data = {
+        'days_germ': Variety.objects.get(name=variety).days_germ,
+        'days_grow': Variety.objects.get(name=variety).days_grow
+    }
+    return JsonResponse(data)   
