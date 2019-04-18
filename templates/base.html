@@ -22,8 +22,14 @@
     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
     <link rel="stylesheet" href="{% static "base.css" %}">
 
-    <!-- jQuery -->
+    <!-- jQuery, Popper, Bootstrap JS (in that order) -->
     <script src="{% static "jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "popper.min.js" %}"></script>
+    <script src="{% static "bootstrap.min.js" %}"></script>
+
+
+    {% block extrahead %}
+    {% endblock %}
 
 </head>
 
@@ -35,7 +41,8 @@
             <h1 class="big-header col-9 col-md-3">
                 <a id="link-to-home" href="{% url "home" %}">Microgreens</a>
             </h1>
-            <a id="link-to-sanitation-records" class="col-6" href="{% url "sanitation_records" %}">Sanitation Records</a></li>
+            <a id="link-to-sanitation-records" class="col-6" href="{% url "sanitation_records" %}">Sanitation
+                Records</a></li>
             <ul class="col-3 col-sm-2 col-lg-1">
                 {% if user.is_authenticated %}
                     <li>{{ user.username }}</li>

@@ -1,6 +1,6 @@
 from inventory.models import SanitationRecord
 from django.forms import ModelForm, DateTimeField, DateTimeInput, Textarea, TextInput
-from bootstrap_datepicker_plus import DatePickerInput
+from bootstrap_datepicker_plus import DateTimePickerInput
 
 
 class SanitationRecordForm(ModelForm):
@@ -9,7 +9,7 @@ class SanitationRecordForm(ModelForm):
         model = SanitationRecord
         fields = '__all__'
         widgets = {
-            'date': DatePickerInput(),
+            'date': DateTimePickerInput(),
             'employee_name': TextInput(attrs={'class': 'form-control'}),
             'equipment_sanitized': TextInput(attrs={'class': 'form-control'}),
             'chemicals_used': TextInput(attrs={'class': 'form-control'}),

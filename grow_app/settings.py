@@ -205,3 +205,5 @@ STATICFILES = os.getenv('DJANGO_STATICFILES', False)
 
 # Activate Django-Heroku.
 django_heroku.settings(locals(), staticfiles=STATICFILES)
+
+

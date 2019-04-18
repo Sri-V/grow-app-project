@@ -2,6 +2,10 @@
 
 {% block title %}Sanitation Records{% endblock %}
 
+{% block extrahead %}
+{{ form.media }}
+{% endblock %}
+
 
 {% block content %}
     <div id="add-sanitation-record" class="col-10 col-lg-8">
@@ -10,7 +14,6 @@
             {% csrf_token %}
             <div class="form-group">
                 {{ form.as_p }}
-                {{ form.media }}
                 <input id="sanitation-form-submit" class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
