@@ -247,7 +247,7 @@ def sanitation_records(request):
     POST: Records the new sanitation record"""
     if request.method == 'GET':
         sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
-        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%Y-%m-%d, %H:%M:%S") })
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y %H:%M") })
         return render(request, "inventory/sanitation_records.html",
                       context={"record_list": sanitation_record_list, "form": form })
 

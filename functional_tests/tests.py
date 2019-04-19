@@ -7,6 +7,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
 from django.utils import dateformat
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from time import sleep
 import datetime
 
@@ -350,8 +351,8 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id("link-to-sanitation-records").click()
         # She is then redirected to the sanitation records page
         # And begins to fill out the form
-        self.browser.find_element_by_id("id_date").clear()
-        self.browser.find_element_by_id("id_date").send_keys("2019-04-10, 9:22:00")
+        self.browser.find_element_by_tag_name('body').send_keys(Keys.TAB)
+        self.browser.find_element_by_id("id_date").send_keys("04/10/2019 9:22")
         self.browser.find_element_by_id("id_employee_name").send_keys("Natalie Wannamaker")
         self.browser.find_element_by_id("id_equipment_sanitized").send_keys("Sink")
         self.browser.find_element_by_id("id_chemicals_used").send_keys("Bleach")
@@ -360,7 +361,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id("sanitation-form-submit").click()
         # When the page refreshes she can see that the sanitation record has been successfully recorded
         sanitation_records = self.browser.find_element_by_id("records").text
-        self.assertIn("4/10/2019 9:22 a.m.", sanitation_records)
+        self.assertIn("04/10/2019 9:22 a.m.", sanitation_records)
         self.assertIn("Natalie Wannamaker", sanitation_records)
         self.assertIn("Sink", sanitation_records)
         self.assertIn("Bleach", sanitation_records)
