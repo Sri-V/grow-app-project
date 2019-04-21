@@ -57,7 +57,6 @@ def add_variety(request):
     """POST: Adds Variety Objects"""
     form = AddVarietyForm(request.POST)
     if form.is_valid():
-        print("GO")
         variety_name = form.cleaned_data["name"]
         days_germ = form.cleaned_data["days_germ"]
         days_grow = form.cleaned_data["days_grow"]
