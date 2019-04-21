@@ -8,9 +8,11 @@ class AddVarietyForm(ModelForm):
         model = Variety
         fields = '__all__'
         labels = {
-            'days_plant_to_harvest':'Days Until Harvest:'
+            'days_germ':'Days in Germination:',
+            'days_grow':'Days in Grow:'
         }
         widgets = {
             'name': TextInput(attrs={'class': 'form-control', 'id':'form-add-variety-name', 'placeholder': 'e.g. Basil'}),
-            'days_plant_to_harvest': NumberInput(attrs={'class': 'form-control', 'id':'form-add-variety-days-to-harvest', 'min': '1'}),
+            'days_germ': NumberInput(attrs={'class': 'form-control', 'id':'form-add-variety-days-germ', 'min': '1'}),
+            'days_grow': NumberInput(attrs={'class': 'form-control', 'id':'form-add-variety-days-grow', 'min': '1'}),
         }

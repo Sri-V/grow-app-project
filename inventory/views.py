@@ -22,7 +22,8 @@ def growhouse_settings(request):
     """GET: Shows the setup page which contains forms for the inital setup of the grow space including
     allowing a user to set the original number of slots and adding varieties"""
     total_slot_count = Slot.objects.count()
-    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": AddVarietyForm()})
+    add_variety_form = AddVarietyForm()
+    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": add_variety_form})
 
 @login_required
 def set_total_slot_quantity(request):
