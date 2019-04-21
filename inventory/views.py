@@ -55,11 +55,14 @@ def set_total_slot_quantity(request):
 @login_required
 def add_variety(request):
     """POST: Adds Variety Objects"""
-    variety_name = request.POST["variety-name"]
-    days_germ = request.POST["days-germ"]
-    days_grow = request.POST["days-grow"]
-    Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
-    return redirect(growhouse_settings)
+    form = AddVarietyForm(request.POST)
+    if form.is_valid():
+        print("GO")
+        variety_name = form.cleaned_data["name"]
+        days_germ = form.cleaned_data["days_germ"]
+        days_grow = form.cleaned_data["days_grow"]
+        Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
+        return redirect(growhouse_settings)
 
 
 @login_required
