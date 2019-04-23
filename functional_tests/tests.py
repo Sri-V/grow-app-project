@@ -200,7 +200,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-        
+
         # And he gets redirected to the page belonging to the new slot
         self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot.id}/')
         self.assertEqual(self.browser.title, "Slot Details – BMG")
@@ -317,6 +317,32 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # And he sees that he has be redirected to the slot details page for that slot
         self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
+
+    def test_add_lifecycle_moment(self):
+        # Natalie would like to be able to set the current lifecycle stage of a crop with an additional form
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # Under the add a record section she selects the growth milestone from the drop down
+        select_variety = self.browser.find_element_by_id("form-new-crop-record-type")
+        for option in select_variety.find_elements_by_tag_name("option"):
+            if option.text == "Growth Milestone":
+                option.click()
+                break
+        else:
+            self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
+        # Next she adds the date for the growth milestone
+        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019, 12:34 PM")
+        # Finally she adds a quick note about the record
+        self.browser.find_element_by_id("form-add-crop-record-note").send_keys("This one's looking nice!")
+        # And hits submit
+        self.browser.find_element_by_id("form-add-crop-record-submit").click()
+        # When the page refreshes she can see that her crop record has been successfully recorded
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("03/24/2019 12:34 p.m.", records_list)
+        self.assertIn("Growth Milestone", records_list)
+        self.assertIn("This one's looking nice!", records_list)
 
 
 class StaticURLTest(StaticLiveServerTestCase):

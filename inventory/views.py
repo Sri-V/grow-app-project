@@ -2,6 +2,8 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety
 from datetime import datetime
+from dateutil import parser
+from dateutil import tz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -37,7 +39,7 @@ def set_total_slot_quantity(request):
             next_index = 1
     else:
         next_index = 1
-    
+
     for ra in range(next_index, next_index + racks):
         print("Adding rack ", ra)
         for ro in range(1, rows):
@@ -64,7 +66,7 @@ def create_crop(request):
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
     if request.method == 'GET':
         variety_list = Variety.objects.all()
-        
+
         slot_list = Slot.objects.filter(current_crop=None)
         #variety = Variety.objects.get(name=variety_name)
         #variety_list = forms.ModelChoiceField(queryset=Variety.objects.all(), widget=forms.Select(attrs={"onChange":'refresh()'}))
@@ -142,15 +144,24 @@ def crop_detail(request, crop_id):
     except Exception:
         returned = None
 
+    record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
+
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned})
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types })
 
 
 @login_required
-def record_crop_info():
-    """POST: Record a timestampped event into the history of this crop's life."""
-    return None
-
+def record_crop_info(request, crop_id):
+    """POST: Record a timestampped CropRecord event into the history of this crop's life."""
+    current_crop = Crop.objects.get(id=crop_id)
+    record_type = request.POST["record-type"]
+    record_date = request.POST["date"]
+    datetime_object = parser.parse(record_date).replace(tzinfo=tz.tzlocal())
+    record_note = request.POST["note"]
+    new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
+    new_crop_record.date = datetime_object
+    new_crop_record.save()
+    return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def update_crop_lifecycle():
@@ -165,8 +176,7 @@ def slot_detail(request, slot_id):
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
     open_slots = Slot.objects.filter(current_crop=None)
-
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots})
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots })
 
 
 @login_required
@@ -252,4 +262,4 @@ def variety_autofill(request):
         'days_germ': Variety.objects.get(name=variety).days_germ,
         'days_grow': Variety.objects.get(name=variety).days_grow
     }
-    return JsonResponse(data)   
+    return JsonResponse(data)
