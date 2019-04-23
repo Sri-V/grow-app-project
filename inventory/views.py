@@ -1,4 +1,4 @@
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
 from inventory.forms import SanitationRecordForm
@@ -27,16 +27,27 @@ def growhouse_settings(request):
 @login_required
 def set_total_slot_quantity(request):
     """POST: Update the number of total Slot objects, redirect to homepage."""
-    desired_slot_count = int(request.POST["quantity"])
-    current_slot_count = Slot.objects.count()
-    
-    if desired_slot_count >= current_slot_count:
-        for slot in range(desired_slot_count - Slot.objects.count()):
-            Slot.objects.create()
+    phase = str(request.POST["phase"])
+    racks = int(request.POST["racks"])
+    rows = int(request.POST["rows"])
+    slots = int(request.POST["slots"])
+    #current_slot_count = Slot.objects.count()
+    if Slot.objects.count() > 0:
+        try:
+            last_slot = Slot.objects.filter(barcode__startswith=phase).order_by("-barcode")[0]
+            next_index = int(str(last_slot.barcode)[1:4]) + 1
+        except IndexError:
+            next_index = 1
     else:
-        # Reducing the number of trays is currently not a supported operation.
-        return HttpResponseBadRequest()
-            
+        next_index = 1
+
+    for ra in range(next_index, next_index + racks):
+        print("Adding rack ", ra)
+        for ro in range(1, rows):
+            for sl in range(1,slots):
+                barcode = phase + str(ra).zfill(3) + str(ro).zfill(2) + str(sl).zfill(2)
+                Slot.objects.create(barcode=barcode)
+
     return redirect(growhouse_settings)
 
 
@@ -44,8 +55,9 @@ def set_total_slot_quantity(request):
 def add_variety(request):
     """POST: Adds Variety Objects"""
     variety_name = request.POST["variety-name"]
-    days_to_harvest = request.POST["days-to-harvest"]
-    Variety.objects.create(name=variety_name, days_plant_to_harvest=days_to_harvest)
+    days_germ = request.POST["days-germ"]
+    days_grow = request.POST["days-grow"]
+    Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
     return redirect(growhouse_settings)
 
 
@@ -55,10 +67,13 @@ def create_crop(request):
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
     if request.method == 'GET':
         variety_list = Variety.objects.all()
+
         slot_list = Slot.objects.filter(current_crop=None)
-        current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
+        #variety = Variety.objects.get(name=variety_name)
+        #variety_list = forms.ModelChoiceField(queryset=Variety.objects.all(), widget=forms.Select(attrs={"onChange":'refresh()'}))
+        variety = variety_list[0]
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "current_datetime": current_datetime})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
@@ -264,3 +279,12 @@ def sanitation_records(request):
 
             return redirect(sanitation_records)
 
+
+@login_required
+def variety_autofill(request):
+    variety = request.GET.get('variety', None)
+    data = {
+        'days_germ': Variety.objects.get(name=variety).days_germ,
+        'days_grow': Variety.objects.get(name=variety).days_grow
+    }
+    return JsonResponse(data)
