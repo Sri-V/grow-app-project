@@ -61,7 +61,11 @@ def add_variety(request):
         days_germ = form.cleaned_data["days_germ"]
         days_grow = form.cleaned_data["days_grow"]
         Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
+
         return redirect(growhouse_settings)
+
+    total_slot_count = Slot.objects.count()
+    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": form})
 
 
 @login_required
