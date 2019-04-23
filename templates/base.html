@@ -24,6 +24,29 @@
 
     <!-- jQuery -->
     <script src="{% static "jquery-3.3.1.min.js" %}"></script>
+    <script type='text/javascript'>
+        
+        function autofill_variety(variety) {
+            var form = $("#form-new-crop");
+            $.ajax({
+                url: form.attr("data-variety-autofill-url"),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                if (data.days_germ) {
+                    $("#form-new-crop-germination-length").val(data.days_germ);
+                }
+                if (data.days_grow) {
+                    $("#form-new-crop-grow-length").val(data.days_grow);
+                }
+                },
+                fail: function (data) {
+                console.log("Ajax request of variety info failed.");
+                console.log(data);
+                }
+            });
+        }
+    </script>
 
 </head>
 
