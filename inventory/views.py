@@ -80,8 +80,10 @@ def create_crop(request):
         #variety = Variety.objects.get(name=variety_name)
         #variety_list = forms.ModelChoiceField(queryset=Variety.objects.all(), widget=forms.Select(attrs={"onChange":'refresh()'}))
         variety = variety_list[0]
+
+        new_crop_form = NewCropForm()
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
