@@ -6,9 +6,8 @@ from django.db import models
 class Variety(models.Model):
     """Represents the types of plants that can be grown. Has a name and number of days between plant and harvest."""
     name = models.CharField(max_length=50)
-    days_germ = models.IntegerField()
-    days_grow = models.IntegerField()
-
+    days_germ = models.IntegerField(null=True)
+    days_grow = models.IntegerField(null=True)
 
 
 class Crop(models.Model):
@@ -54,7 +53,7 @@ class CropRecord(models.Model):
 class Slot(models.Model):
     """Represents an address on a grow rack for a single Crop. Has a barcode, links to a Crop object, and is part
     of one or more Locations in the greenhouse hierarchy (e.g.: a rack or a shelf on a rack)."""
-    barcode = models.CharField(max_length=50, blank=True, unique=True)  # TODO -- check with JP that the max_length is
+    barcode = models.CharField(max_length=50, blank=True, unique=True)
     # accurate
     current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
     # location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
@@ -68,26 +67,3 @@ class SanitationRecord(models.Model):
     chemicals_used = models.CharField(max_length=100)
     note = models.CharField(max_length=200, blank=True)
 
-
-# class Location(models.Model):
-#     """Represents the physical location of one or more Trays. Can be a Slot in-house, or Customer upon delivery."""
-#     # TODO -- convert me to a hierarchical description of the greenhouse! (ref: call with Erin, Will, Mike 01-21)
-#     LOCATION_TYPES = (
-#         ('CUST', 'Customer'),
-#         ('SLOT', 'Slot')
-#     )
-#     name = models.CharField(max_length=60)
-#     location_type = models.CharField(max_length=4, choices=LOCATION_TYPES)
-
-###
-# Sprint 2
-###
-
-# class Order(models.Model):
-#     """Represents a Customer's order, with details necessary for generating Crops and tasks. Implement later."""
-#     pass
-#
-#
-# class Customer(models.Model):
-#     """Represents a Customer, who places an Order. Implement later."""
-#     pass

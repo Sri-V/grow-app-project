@@ -25,15 +25,15 @@
         <div class="col-12 col-md-6">
             <div id="current-details">
                 <h2>Recent Activity</h2>
-                    <div id="water-date">
-                        Last watered: {{ water.date|default:"Never" }}
-                    </div>
-                    <div id="seed-date">
-                        Seeded: {{ seed.date|default:"Never" }}
-                    </div>
-                    <div id="grow-date">
-                        Sprouted: {{ grow.date|default:"Never" }}
-                    </div>
+                <div id="water-date">
+                    Last watered: {{ water.date|default:"Never" }}
+                </div>
+                <div id="seed-date">
+                    Seeded: {{ seed.date|default:"Never" }}
+                </div>
+                <div id="grow-date">
+                    Sprouted: {{ grow.date|default:"Never" }}
+                </div>
                 {% if harvest %}
                     <div id="harvest-date">
                         Harvested: {{ harvest.date }}
@@ -67,12 +67,30 @@
                 <th>Note</th>
             </tr>
             {% for record in history %}
-                <tr>
-                <td width='20%'>{{ record.date }}</td>
-                <td width='30%'>{{ record.get_record_type_display }}</td>
-                <td width='50%'>{{ record.note|default:"None" }}</td>
-            {% endfor %}
+                {% if edit and record_id == record.id %}
+                    <form id="form-edit-crop-record" action="/record/{{ record.id }}/edit" method="POST">
+                        {% csrf_token %}
+                        <tr>
+
+                            <td width='20%'><input id="form-edit-crop-record-date" type="datetime-local" value="{{ record.date }}" name="date"/></td>
+                            <td width='30%'>{{ record.get_record_type_display }}</td>
+                            <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record">{{ record.note }}</textarea></td>
+                            <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Submit"/></td>
+                            <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
+                        </tr>
+                    </form>
+                {% else %}
+                    <tr>
+                    <td width='20%'>{{ record.date }}</td>
+                    <td width='30%'>{{ record.get_record_type_display }}</td>
+                    <td width='40%'>{{ record.note|default:"None" }}</td>
+                {% endif %}
+            {% if not edit %}
+                <td width='5%' id="edit_record_{{ record.id }}"><a href="/crop/{{ crop.id }}/?edit=True&id={{ record.id }}">Edit</a></td>
+                <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
+            {% endif %}
             </tr>
+            {% endfor %}
         </table>
     </div>
     <div id="add-crop-record" class="col-8">
@@ -91,7 +109,7 @@
                 <label for="form-new-crop-record-Note">Record Note</label>
                 <br>
                 <textarea name="note" id="form-add-crop-record-note" form="form-add-crop-record"
-                                  placeholder="Add Note about crop record here"></textarea>
+                          placeholder="Add Note about crop record here"></textarea>
             </div>
             <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>
         </form>

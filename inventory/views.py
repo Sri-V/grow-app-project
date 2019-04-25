@@ -105,6 +105,10 @@ def crop_detail(request, crop_id):
     delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
 
+    edit = request.GET.get('edit', False)
+
+    record_id = int(request.GET.get('id', -1))
+
     all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
 
     # FIXME -- handle this selection client-side via template filtering and selection
@@ -148,7 +152,7 @@ def crop_detail(request, crop_id):
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types })
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id })
 
 
 @login_required
@@ -250,6 +254,27 @@ def record_note(request, slot_id):
     CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
 
+
+@login_required
+def delete_record(request, record_id):
+    """GET: Deletes the crop record with the specified record id"""
+    crop_record = CropRecord.objects.get(id=record_id)
+    crop_record.delete()
+    crop = crop_record.crop
+    return redirect(crop_detail, crop_id=crop.id)
+
+@login_required
+def update_crop_record(request, record_id):
+    """POST: Updates the specified record"""
+    crop_record = CropRecord.objects.get(id=record_id)
+    updated_date = request.POST["date"]
+    datetime_object = parser.parse(updated_date).replace(tzinfo=tz.tzlocal())
+    updated_note = request.POST["note"]
+    crop_record.date = datetime_object
+    crop_record.note = updated_note
+    crop_record.save()
+    crop = crop_record.crop
+    return redirect(crop_detail, crop_id=crop.id)
 
 @login_required
 def parse_barcode(request, barcode_text):
