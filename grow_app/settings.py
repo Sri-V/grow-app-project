@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap_datepicker_plus',
     'inventory',
 ]
 
@@ -202,3 +203,5 @@ STATICFILES = os.getenv('DJANGO_STATICFILES', False)
 
 # Activate Django-Heroku.
 django_heroku.settings(locals(), staticfiles=STATICFILES)
+
+

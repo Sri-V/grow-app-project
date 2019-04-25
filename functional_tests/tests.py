@@ -48,25 +48,29 @@ class GreenhouseSetupTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_set_number_of_slots(self):
+    def test_growhouse_settings(self):
         # Oliver just learned about this cool new growing app.
         self.browser.get(self.live_server_url + '/growhouse_settings/')
         # He goes to the homepage and reads the title.
         self.assertEqual('Greenhouse Config – BMG', self.browser.title)
         # He sees that he currently has no trays set up.
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("Current capacity: 0 slots.", body)
+        self.assertIn("Current capacity: 0 slots", body)
         # He sees that he can put in the number of total slots he has.
-        slot_qty = self.browser.find_element_by_id("form-set-slot-count-qty")
-        # He types in that he has 400 total slots and hits submit
-        slot_qty.send_keys("400")
+        # He adds that he has 6 racks
+        self.browser.find_element_by_id("form-set-rack-count").send_keys("6")
+        # And that each rack has 4 rows
+        self.browser.find_element_by_id("form-set-row-count").send_keys("4")
+        # Each row has 5 slots
+        self.browser.find_element_by_id("form-set-slots-per-row").send_keys("5")
+        # Then he hits submit
         self.browser.find_element_by_id("form-set-slot-count-submit").click()
 
         # He sees that he is redirected to the home page
         self.assertRegex(self.browser.current_url, r"/")
-        # He also sees that the number of total slots has updated to 400
+        # He also sees that the number of total slots has updated to 120
         body = self.browser.find_element_by_tag_name("body").text
-        self.assertIn("Current capacity: 400 slots.", body)
+        self.assertIn("Current capacity: 120 slots", body)
 
     def test_add_varieties(self):
         # Oliver wants to input some different crop varieties
@@ -114,9 +118,9 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.free_slot = Slot.objects.create(barcode="TEST00003")
 
         # Add some plant varieties
-        Variety.objects.create(name="Basil", days_plant_to_harvest=20)
-        Variety.objects.create(name="Parsley", days_plant_to_harvest=15)
-        Variety.objects.create(name="Radish", days_plant_to_harvest=12)
+        Variety.objects.create(name="Basil", days_germ=12, days_grow=14)
+        Variety.objects.create(name="Parsley", days_germ=10, days_grow=5)
+        Variety.objects.create(name="Radish", days_germ=6, days_grow=6)
 
         # Add a single crop into the first slot
         variety = Variety.objects.get(name="Radish")
@@ -157,7 +161,9 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # He opts to have the tray harvested on-site
         self.browser.find_element_by_id("form-new-crop-delivered-live-false").click()
         # He enters that the crop should germinate for 5 days and grow for another 10
+        self.browser.find_element_by_id("form-new-crop-germination-length").clear()
         self.browser.find_element_by_id("form-new-crop-germination-length").send_keys("5")
+        self.browser.find_element_by_id("form-new-crop-grow-length").clear()
         self.browser.find_element_by_id("form-new-crop-grow-length").send_keys("10")
         # He hits the button to scan a barcode, and then scans the barcode of the slot he wants
         self.browser.find_element_by_id("form-new-crop-barcode-btn").click()
@@ -317,32 +323,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # And he sees that he has be redirected to the slot details page for that slot
         self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
-
-    def test_add_lifecycle_moment(self):
-        # Natalie would like to be able to set the current lifecycle stage of a crop with an additional form
-        # First she scans the desired slot
-        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
-        # Next she then navigates to the crop details page
-        self.browser.find_element_by_id("link-crop-details").click()
-        # Under the add a record section she selects the growth milestone from the drop down
-        select_variety = self.browser.find_element_by_id("form-new-crop-record-type")
-        for option in select_variety.find_elements_by_tag_name("option"):
-            if option.text == "Growth Milestone":
-                option.click()
-                break
-        else:
-            self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
-        # Next she adds the date for the growth milestone
-        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019, 12:34 PM")
-        # Finally she adds a quick note about the record
-        self.browser.find_element_by_id("form-add-crop-record-note").send_keys("This one's looking nice!")
-        # And hits submit
-        self.browser.find_element_by_id("form-add-crop-record-submit").click()
-        # When the page refreshes she can see that her crop record has been successfully recorded
-        records_list = self.browser.find_element_by_id("records").text
-        self.assertIn("03/24/2019 12:34 p.m.", records_list)
-        self.assertIn("Growth Milestone", records_list)
-        self.assertIn("This one's looking nice!", records_list)
 
 
 class StaticURLTest(StaticLiveServerTestCase):
