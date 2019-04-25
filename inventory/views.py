@@ -1,6 +1,7 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety
+from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
+from inventory.forms import SanitationRecordForm
 from datetime import datetime
 from dateutil import parser
 from dateutil import tz
@@ -279,6 +280,30 @@ def update_crop_record(request, record_id):
 def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
+
+@login_required
+def sanitation_records(request):
+    """GET: Displays the page with the current sanitation records
+    POST: Records the new sanitation record"""
+    if request.method == 'GET':
+        sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y %H:%M") })
+        return render(request, "inventory/sanitation_records.html",
+                      context={"record_list": sanitation_record_list, "form": form })
+
+    if request.method == 'POST':
+        form = SanitationRecordForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            employee_name = form.cleaned_data['employee_name']
+            equipment_sanitized = form.cleaned_data['equipment_sanitized']
+            chemicals_used = form.cleaned_data['chemicals_used']
+            note = form.cleaned_data['note']
+
+            SanitationRecord.objects.create(date=date, employee_name=employee_name, equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used, note=note)
+
+            return redirect(sanitation_records)
+
 
 @login_required
 def variety_autofill(request):

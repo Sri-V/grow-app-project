@@ -58,7 +58,16 @@ class Slot(models.Model):
     # accurate
     current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
     # location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
-    
+
+
+class SanitationRecord(models.Model):
+    """Represents a sanitation record of when the equipment has been sanitized for health inspectors"""
+    date = models.DateTimeField()
+    employee_name = models.CharField(max_length=25)
+    equipment_sanitized = models.CharField(max_length=100)
+    chemicals_used = models.CharField(max_length=100)
+    note = models.CharField(max_length=200, blank=True)
+
 
 # class Location(models.Model):
 #     """Represents the physical location of one or more Trays. Can be a Slot in-house, or Customer upon delivery."""
