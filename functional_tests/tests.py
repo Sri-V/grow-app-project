@@ -300,11 +300,11 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # Check that current details of the crop are correct
         crop = Slot.objects.get(id=self.plant_origin_slot.id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
-        self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.today(), 'm/d/Y P'))
+        self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.astimezone(), 'm/d/Y P'))
         last_watered_date = self.browser.find_element_by_id("water-date").text
-        self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime.today(), 'm/d/Y P'))
+        self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime, 'm/d/Y P'))
         harvested_date = self.browser.find_element_by_id("harvest-date").text
-        self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y P'))
+        self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime, 'm/d/Y P'))
         # Check that the newest crop record shows up first and the oldest is last
         records = self.browser.find_element_by_id("records").text
 
