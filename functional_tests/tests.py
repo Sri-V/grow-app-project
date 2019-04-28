@@ -52,7 +52,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         # Oliver just learned about this cool new growing app.
         self.browser.get(self.live_server_url + '/growhouse_settings/')
         # He goes to the homepage and reads the title.
-        self.assertEqual('Greenhouse Config – BMG', self.browser.title)
+        self.assertEqual('Growhouse Config – BMG', self.browser.title)
         # He sees that he currently has no trays set up.
         body = self.browser.find_element_by_tag_name("body").text
         self.assertIn("Current capacity: 0 slots", body)
