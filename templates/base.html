@@ -22,8 +22,37 @@
     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Libre+Barcode+39+Text" rel="stylesheet">
     <link rel="stylesheet" href="{% static "base.css" %}">
 
-    <!-- jQuery -->
+    <!-- jQuery, Popper, Bootstrap JS (in that order) -->
     <script src="{% static "jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "popper.min.js" %}"></script>
+    <script src="{% static "bootstrap.min.js" %}"></script>
+
+
+    {% block extrahead %}
+    {% endblock %}
+    <script type='text/javascript'>
+
+        function autofill_variety(variety) {
+            var form = $("#form-new-crop");
+            $.ajax({
+                url: form.attr("data-variety-autofill-url"),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                if (data.days_germ) {
+                    $("#form-new-crop-germination-length").val(data.days_germ);
+                }
+                if (data.days_grow) {
+                    $("#form-new-crop-grow-length").val(data.days_grow);
+                }
+                },
+                fail: function (data) {
+                console.log("Ajax request of variety info failed.");
+                console.log(data);
+                }
+            });
+        }
+    </script>
 
 </head>
 

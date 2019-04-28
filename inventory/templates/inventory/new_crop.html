@@ -6,12 +6,12 @@
 {% block content %}
     <div class="col-10 col-lg-6 col-xl-4">
         <h1>Add a New Crop</h1>
-        <form id="form-new-crop" method="post">
+        <form id="form-new-crop" method="post" data-variety-autofill-url="{% url 'variety_autofill' %}">
             {% csrf_token %}
 
             <div class="form-group">
                 <label for="form-new-crop-variety">Variety</label>
-                <select id="form-new-crop-variety" name="variety" class="form-control">
+                <select id="form-new-crop-variety" name="variety" class="form-control" onchange="autofill_variety($(this).val())">
                     {% for variety in variety_list %}
                         <option>{{ variety.name }}</option>
                     {% endfor %}
@@ -58,12 +58,13 @@
             <div class="form-group">
                 <label for="form-new-crop-germination-length">Germination Length</label>
                 <input id="form-new-crop-germination-length" name="germination-length" class="form-control"
-                       type="number" min="1">
+                       type="number" min="1" value="{{days_germ}}">
             </div>
 
             <div class="form-group">
                 <label for="form-new-crop-grow-length">Grow Length</label>
-                <input id="form-new-crop-grow-length" name="grow-length" class="form-control" type="number" min="1">
+                <input id="form-new-crop-grow-length" name="grow-length" class="form-control" 
+                        type="number" min="1"  value="{{days_grow}}">
             </div>
 
             <div class="form-group">
@@ -72,6 +73,11 @@
                                     id="form-new-crop-barcode-btn">Scan Slot</button>
                 <input type="text" id="form-new-crop-barcode-input" name="slot-barcode"
                                placeholder="Or type the barcode here">
+            </div>
+
+            <div class="form-group">
+                <label for="form-new-crop-date-seeded">Date Seeded</label>
+                <input id="form-new-crop-date-seeded" type="datetime-local" class="form-control" name="date" value="{{ current_datetime }}"/>
             </div>
 
             <input id="form-new-crop-submit" type="submit" class="btn btn-primary" value="Create New Crop">
