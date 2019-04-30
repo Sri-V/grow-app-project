@@ -81,9 +81,8 @@ def create_crop(request):
         #variety_list = forms.ModelChoiceField(queryset=Variety.objects.all(), widget=forms.Select(attrs={"onChange":'refresh()'}))
         variety = variety_list[0]
 
-        new_crop_form = NewCropForm()
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow, "new_crop_form": new_crop_form})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
@@ -114,6 +113,10 @@ def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
     delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
+
+    edit = request.GET.get('edit', False)
+
+    record_id = int(request.GET.get('id', -1))
 
     all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
 
@@ -158,7 +161,7 @@ def crop_detail(request, crop_id):
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types })
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id })
 
 
 @login_required
@@ -262,9 +265,54 @@ def record_note(request, slot_id):
 
 
 @login_required
+def delete_record(request, record_id):
+    """GET: Deletes the crop record with the specified record id"""
+    crop_record = CropRecord.objects.get(id=record_id)
+    crop_record.delete()
+    crop = crop_record.crop
+    return redirect(crop_detail, crop_id=crop.id)
+
+@login_required
+def update_crop_record(request, record_id):
+    """POST: Updates the specified record"""
+    crop_record = CropRecord.objects.get(id=record_id)
+    updated_date = request.POST["date"]
+    datetime_object = parser.parse(updated_date).replace(tzinfo=tz.tzlocal())
+    updated_note = request.POST["note"]
+    crop_record.date = datetime_object
+    crop_record.note = updated_note
+    crop_record.save()
+    crop = crop_record.crop
+    return redirect(crop_detail, crop_id=crop.id)
+
+@login_required
 def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
+
+@login_required
+def sanitation_records(request):
+    """GET: Displays the page with the current sanitation records
+    POST: Records the new sanitation record"""
+    if request.method == 'GET':
+        sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y %H:%M") })
+        return render(request, "inventory/sanitation_records.html",
+                      context={"record_list": sanitation_record_list, "form": form })
+
+    if request.method == 'POST':
+        form = SanitationRecordForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            employee_name = form.cleaned_data['employee_name']
+            equipment_sanitized = form.cleaned_data['equipment_sanitized']
+            chemicals_used = form.cleaned_data['chemicals_used']
+            note = form.cleaned_data['note']
+
+            SanitationRecord.objects.create(date=date, employee_name=employee_name, equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used, note=note)
+
+            return redirect(sanitation_records)
+
 
 @login_required
 def variety_autofill(request):
@@ -273,4 +321,4 @@ def variety_autofill(request):
         'days_germ': Variety.objects.get(name=variety).days_germ,
         'days_grow': Variety.objects.get(name=variety).days_grow
     }
-    return JsonResponse(data)
+    return JsonResponse(data)   

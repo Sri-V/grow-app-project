@@ -26,7 +26,7 @@ urlpatterns = [
     path('crop/new/autofill', views.variety_autofill, name="variety_autofill"),
     path('crop/add_variety', views.add_variety, name="add_variety"),
     path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
-    path('crop/<int:crop_id>/record/', views.record_crop_info, name="record_crop_info"),
+    path('crop/<int:crop_id>/record', views.record_crop_info, name="record_crop_info"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
@@ -35,7 +35,10 @@ urlpatterns = [
     path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
     path('slot/<int:slot_id>/action/move_tray', views.move_tray, name="move_tray"),
     path('slot/<int:slot_id>/action/note', views.record_note, name="record_note"),
-    path('barcode/<str:barcode_text>/', views.parse_barcode, name="parse_barcode")
+    path('barcode/<str:barcode_text>/', views.parse_barcode, name="parse_barcode"),
+    path('sanitation_records/', views.sanitation_records, name='sanitation_records'),
+    path('record/<int:record_id>/edit', views.update_crop_record, name="update_crop_record"),
+    path('record/<int:record_id>/delete', views.delete_record, name="delete_record")
 ]
 
 urlpatterns += [

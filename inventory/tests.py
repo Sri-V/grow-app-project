@@ -247,3 +247,66 @@ class BarcodeRedirectTest(TestCase):
         
     def test404UnknownBarcode(self):
         self.assertEqual(self.client.get('/barcode/NOT_A_BARCODE/').status_code, 404)
+
+class CropRecordTest(TestCase):
+    """Unit test that we can manually add, update, or delete a crop record and it will be correctly saved in the database."""
+
+    def setUp(self):
+        self.id_of_plant_slot = Slot.objects.create().id
+        self.variety_basil = Variety.objects.create(name="Basil", days_plant_to_harvest=20)
+        self.basil = Crop.objects.create(variety=self.variety_basil, tray_size="0505", live_delivery=True, exp_num_germ_days=8,
+                                         exp_num_grow_days=12)
+        # The crop is added to the slot
+        Slot.objects.filter(id=self.id_of_plant_slot).update(current_crop=self.basil)
+
+        self.client = Client()
+        login_the_test_user(self)
+
+    def testAddCropRecord(self):
+        # Make a post request for a new crop record
+        crop_record = self.client.post(f'/crop/{self.basil.id}/record',
+                                data={"record-type": "Growth Milestone",
+                                      "date": "3/24/2019, 12:34 PM",
+                                      "note": "This one's looking nice!"})
+        # Check that note is stored in crop record
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        self.assertEqual(1, len(record_list))
+        self.assertEqual(record_list[0].crop, self.basil)
+        self.assertEqual(record_list[0].record_type, "Growth Milestone")
+        self.assertEqual(record_list[0].date.astimezone().strftime("%-m/%-d/%Y, %-I:%M %p"), "3/24/2019, 12:34 PM")
+        self.assertEqual(record_list[0].note, "This one's looking nice!")
+
+    def testUpdateCropRecord(self):
+        # Make a post request for a new crop record
+        crop_record = self.client.post(f'/crop/{self.basil.id}/record',
+                                data={"record-type": "Growth Milestone",
+                                      "date": "3/24/2019, 12:34 PM",
+                                      "note": "This one's looking nice!"})
+        # Send an update request for that record
+        crop_record = self.client.post(f'/record/1/edit',
+                                       data={"date": "4/6/2019, 11:48 AM",
+                                             "note": "Needs more light"})
+        # Check that note is stored in crop record
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        self.assertEqual(1, len(record_list))
+        self.assertEqual(record_list[0].crop, self.basil)
+        self.assertEqual(record_list[0].record_type, "Growth Milestone")
+        self.assertEqual(record_list[0].date.astimezone().strftime("%-m/%-d/%Y, %-I:%M %p"), "4/6/2019, 11:48 AM")
+        self.assertEqual(record_list[0].note, "Needs more light")
+
+
+    def testDeleteCropRecord(self):
+        # Make a post request for a new crop record
+        crop_record = self.client.post(f'/crop/{self.basil.id}/record',
+                                data={"record-type": "Growth Milestone",
+                                      "date": "3/24/2019, 12:34 PM",
+                                      "note": "This one's looking nice!"})
+        # Check that note is stored in crop record
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        self.assertEqual(1, len(record_list))
+        self.assertEqual(record_list[0].crop, self.basil)
+        # Send a request to delete the crop record
+        self.client.get(f'/record/1/delete')
+        record_list = CropRecord.objects.filter(crop=self.basil)
+        # We can see that the length of the record list is now zero
+        self.assertEqual(0, len(record_list))

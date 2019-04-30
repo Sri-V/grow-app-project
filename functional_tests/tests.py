@@ -206,7 +206,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         simulate_barcode_scan(self.browser, self.plant_destination_slot.barcode)
         # Then he hits submit and waits
         self.browser.find_element_by_id("form-move-tray-submit").click()
-        
+
         # And he gets redirected to the page belonging to the new slot
         self.assertRegex(self.browser.current_url, f'/slot/{self.plant_destination_slot.id}/')
         self.assertEqual(self.browser.title, "Slot Details – BMG")
@@ -311,8 +311,6 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime.today(), 'm/d/Y P'))
         harvested_date = self.browser.find_element_by_id("harvest-date").text
         self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y P'))
-        # Check that the newest crop record shows up first and the oldest is last
-        records = self.browser.find_element_by_id("records").text
 
     def test_scan_from_homepage(self):
         # Oliver wants to make sure the that barcode scanning is working correctly
@@ -323,6 +321,67 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # And he sees that he has be redirected to the slot details page for that slot
         self.assertRegex(self.browser.current_url, f"/slot/{self.plant_origin_slot.id}/")
         self.assertEqual(self.browser.title, "Slot Details – BMG")
+
+    def test_add_lifecycle_moment(self):
+        # Natalie would like to be able to set the current lifecycle stage of a crop with an additional form
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # Under the add a record section she selects the growth milestone from the drop down
+        select_variety = self.browser.find_element_by_id("form-new-crop-record-type")
+        for option in select_variety.find_elements_by_tag_name("option"):
+            if option.text == "Growth Milestone":
+                option.click()
+                break
+        else:
+            self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
+        # Next she adds the date for the growth milestone
+        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019, 12:34 PM")
+        # Finally she adds a quick note about the record
+        self.browser.find_element_by_id("form-add-crop-record-note").send_keys("This one's looking nice!")
+        # And hits submit
+        self.browser.find_element_by_id("form-add-crop-record-submit").click()
+        # When the page refreshes she can see that her crop record has been successfully recorded
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("03/24/2019 12:34 p.m.", records_list)
+        self.assertIn("Growth Milestone", records_list)
+        self.assertIn("This one's looking nice!", records_list)
+
+    def test_edit_crop_record(self):
+        # Natalie wants to edit a note for a specific crop record
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # She wants to add a note the first "seed" crop record
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded", records_list)
+        # She clicks the edit button for the given record
+        self.browser.find_element_by_xpath('//*[contains(@id,"edit_record")]').find_element_by_tag_name("a").click()
+        # Once the page reloads she navigates to the update record form and adds the note
+        self.browser.find_element_by_id("form-edit-crop-record-note").send_keys("Seeded in the morning")
+        # She then hits submit
+        self.browser.find_element_by_id("form-edit-crop-record-submit").click()
+        # After the page refreshes she sees that the updated crop record has been recorded
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded in the morning", records_list)
+
+
+    def test_delete_crop_record(self):
+        # Natalie wants to delete a crop record of one that was mistakenly created
+        # First she scans the desired slot
+        simulate_barcode_scan(self.browser, self.plant_origin_slot.barcode)
+        # Next she then navigates to the crop details page
+        self.browser.find_element_by_id("link-crop-details").click()
+        # She sees the first "seed" crop record is not correct
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertIn("Seeded", records_list)
+        # She clicks the delete button for the given record
+        self.browser.find_element_by_xpath('//*[contains(@id,"delete_record")]').find_element_by_tag_name("a").click()
+        # Once the page reloads the record is no longer there
+        records_list = self.browser.find_element_by_id("records").text
+        self.assertNotIn("Seeded", records_list)
 
 
 class StaticURLTest(StaticLiveServerTestCase):
