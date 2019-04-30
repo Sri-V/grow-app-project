@@ -27,10 +27,4 @@ class AddVarietyForm(forms.ModelForm):
 
 
 
-class NewCropForm(forms.Form):
-    variety = forms.ModelChoiceField(
-        widget=forms.Select,
-        queryset=Variety.objects.all(),
-    )
-
 
