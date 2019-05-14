@@ -2,7 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
 from inventory.forms import SanitationRecordForm
-from datetime import datetime
+from datetime import date, datetime
 from dateutil import parser
 from dateutil import tz
 
@@ -161,10 +161,10 @@ def record_crop_info(request, crop_id):
     current_crop = Crop.objects.get(id=crop_id)
     record_type = request.POST["record-type"]
     record_date = request.POST["date"]
-    datetime_object = parser.parse(record_date).replace(tzinfo=tz.tzlocal())
+    date_object = parser.parse(record_date)
     record_note = request.POST["note"]
     new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
-    new_crop_record.date = datetime_object
+    new_crop_record.date = date_object
     new_crop_record.save()
     return redirect(crop_detail, crop_id=current_crop.id)
 
@@ -219,7 +219,7 @@ def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
-    rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
+    rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=date.today(), note='')
     return redirect(slot_detail, slot_id=slot_id)
 
 
@@ -237,8 +237,7 @@ def move_tray(request, slot_id):
     arriving_slot.current_crop = leaving_slot.current_crop
     leaving_slot.current_crop = None
     if new_lifecycle is not '-- none --':
-        date = datetime.now()
-        CropRecord.objects.create(record_type=new_lifecycle, date=date, note="Tray Moved",
+        CropRecord.objects.create(record_type=new_lifecycle, date=date.today(), note="Tray Moved",
                                   crop=arriving_slot.current_crop)
     leaving_slot.save()
     arriving_slot.save()
@@ -250,8 +249,7 @@ def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
     crop = Slot.objects.get(id=slot_id).current_crop
     note = request.POST["note"]
-    date = datetime.now()
-    CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
+    CropRecord.objects.create(record_type="NOTE", date=date.today(), note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
 
 
@@ -268,9 +266,9 @@ def update_crop_record(request, record_id):
     """POST: Updates the specified record"""
     crop_record = CropRecord.objects.get(id=record_id)
     updated_date = request.POST["date"]
-    datetime_object = parser.parse(updated_date).replace(tzinfo=tz.tzlocal())
+    date_object = parser.parse(updated_date)
     updated_note = request.POST["note"]
-    crop_record.date = datetime_object
+    crop_record.date = date_object
     crop_record.note = updated_note
     crop_record.save()
     crop = crop_record.crop
@@ -287,7 +285,7 @@ def sanitation_records(request):
     POST: Records the new sanitation record"""
     if request.method == 'GET':
         sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
-        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y %H:%M") })
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y") })
         return render(request, "inventory/sanitation_records.html",
                       context={"record_list": sanitation_record_list, "form": form })
 

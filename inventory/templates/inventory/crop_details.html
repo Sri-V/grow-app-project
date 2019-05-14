@@ -62,7 +62,7 @@
         <h1>Crop History</h1>
         <table id="records" class="table">
             <tr>
-                <th>Time</th>
+                <th>Date</th>
                 <th>Record Type</th>
                 <th>Note</th>
             </tr>
@@ -72,7 +72,7 @@
                         {% csrf_token %}
                         <tr>
 
-                            <td width='20%'><input id="form-edit-crop-record-date" type="datetime-local" value="{{ record.date }}" name="date"/></td>
+                            <td width='20%'><input id="form-edit-crop-record-date" value="{{ record.date }}" name="date"/></td>
                             <td width='30%'>{{ record.get_record_type_display }}</td>
                             <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record">{{ record.note }}</textarea></td>
                             <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Submit"/></td>
