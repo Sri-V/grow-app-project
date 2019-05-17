@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Greenhouse Config{% endblock %}
+{% block title %}Growhouse Config{% endblock %}
 
 {% block content %}
     <div class="col-12 row d-flex justify-content-center">
         <div class="col-10 col-lg-4">
             <h2>Add Racks</h2>
+            <p>Current capacity: <b>{{ total_slot_count }}</b> slots</p>
             <form id="form-set-slot-count" method="POST" action="/slot/set_qty">
                 {% csrf_token %}
                 <div class="form-group">
@@ -14,19 +15,19 @@
                         <option value="S">Germination</option>
                         <option value="G" selected>Grow</option>
                     </select>
-                    
+
                     <label for="form-set-rack-count">Number of new racks</label>
                     <input id="form-set-rack-count" type="number" class="form-control" min="1"
                             name="racks"
                             placeholder="Enter number of new racks"/>
-                
+
                     <label for="form-set-row-count">Rows per rack</label>
                     <input id="form-set-row-count" type="number" class="form-control" min="1" max="99"
                             name="rows"
                             placeholder="Enter number of rows per rack"/>
-            
-                    <label for="form-set-slot-count">Slots per row</label>
-                    <input id="form-set-slot-count" type="number" class="form-control" min="1" max="99"
+
+                    <label for="form-set-slots-per-row">Slots per row</label>
+                    <input id="form-set-slots-per-row" type="number" class="form-control" min="1" max="99"
                             name="slots"
                             placeholder="Enter number of slots per row"/>
                 </div>
@@ -34,30 +35,16 @@
                 <input id="form-set-slot-count-submit" type="submit" class="btn btn-primary" value="Update Capacity"/>
             </form>
         </div>
-
         <div class="col-10 col-lg-4">
             <h2>New Variety</h2>
             <form id="form-add-variety" method="POST" action="/crop/add_variety">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li><strong>{{ error|escape }}</strong></li>
+                    {% endfor %}
+                </ul>
                 {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="form-add-variety-name">Name:</label>
-                    <input id="form-add-variety-name" type="text" class="form-control" name="variety-name"
-                           placeholder="e.g. Basil"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="form-add-variety-days-germ">Days in Germination:</label>
-                    <input id="form-add-variety-days-germ" type="number" class="form-control" min="1"
-                           name="days-germ" placeholder="1"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="form-add-variety-days-grow">Days in Grow:</label>
-                    <input id="form-add-variety-days-grow" type="number" class="form-control" min="1"
-                           name="days-grow" placeholder="1"/>
-                </div>
-
+                {{ form.as_p }}
                 <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety"/>
             </form>
         </div>
