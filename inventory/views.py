@@ -1,7 +1,7 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, SanitationRecord, Variety
-from inventory.forms import SanitationRecordForm
+from inventory.models import Crop, CropRecord, Slot, Variety
+from inventory.forms import *
 from datetime import date, datetime
 from dateutil import parser
 from dateutil import tz
@@ -22,7 +22,8 @@ def growhouse_settings(request):
     """GET: Shows the setup page which contains forms for the inital setup of the grow space including
     allowing a user to set the original number of slots and adding varieties"""
     total_slot_count = Slot.objects.count()
-    return render(request, "inventory/greenhouse_settings.html", context={"total_slot_count": total_slot_count})
+    add_variety_form = AddVarietyForm()
+    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": add_variety_form})
 
 @login_required
 def set_total_slot_quantity(request):
@@ -54,11 +55,17 @@ def set_total_slot_quantity(request):
 @login_required
 def add_variety(request):
     """POST: Adds Variety Objects"""
-    variety_name = request.POST["variety-name"]
-    days_germ = request.POST["days-germ"]
-    days_grow = request.POST["days-grow"]
-    Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
-    return redirect(growhouse_settings)
+    form = AddVarietyForm(request.POST)
+    if form.is_valid():
+        variety_name = form.cleaned_data["name"]
+        days_germ = form.cleaned_data["days_germ"]
+        days_grow = form.cleaned_data["days_grow"]
+        Variety.objects.create(name=variety_name, days_germ=days_germ, days_grow=days_grow)
+
+        return redirect(growhouse_settings)
+
+    total_slot_count = Slot.objects.count()
+    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": form})
 
 
 @login_required

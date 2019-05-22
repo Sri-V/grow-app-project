@@ -8,7 +8,6 @@
         <h1>Add a New Crop</h1>
         <form id="form-new-crop" method="post" data-variety-autofill-url="{% url 'variety_autofill' %}">
             {% csrf_token %}
-
             <div class="form-group">
                 <label for="form-new-crop-variety">Variety</label>
                 <select id="form-new-crop-variety" name="variety" class="form-control" onchange="autofill_variety($(this).val())">

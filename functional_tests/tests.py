@@ -52,7 +52,7 @@ class GreenhouseSetupTest(LiveServerTestCase):
         # Oliver just learned about this cool new growing app.
         self.browser.get(self.live_server_url + '/growhouse_settings/')
         # He goes to the homepage and reads the title.
-        self.assertEqual('Greenhouse Config – BMG', self.browser.title)
+        self.assertEqual('Growhouse Config – BMG', self.browser.title)
         # He sees that he currently has no trays set up.
         body = self.browser.find_element_by_tag_name("body").text
         self.assertIn("Current capacity: 0 slots", body)
@@ -77,17 +77,22 @@ class GreenhouseSetupTest(LiveServerTestCase):
         self.browser.get(self.live_server_url + '/growhouse_settings/')
         # He starts by clicking the variety name text box
         add_variety_name = self.browser.find_element_by_id("form-add-variety-name")
-        # And adds Kale
+        # He adds Kale as the name
         add_variety_name.send_keys("Kale")
-        # And sets the expected days until harvest to 18
-        add_days_to_harvest = self.browser.find_element_by_id("form-add-variety-days-to-harvest")
-        add_days_to_harvest.send_keys(18)
+        # And sets the expected germination days to 10
+        add_days_germ = self.browser.find_element_by_id("form-add-variety-days-germ")
+        add_days_germ.send_keys(10)
+        # And sets the expected grow days to 8
+        add_days_grow = self.browser.find_element_by_id("form-add-variety-days-grow")
+        add_days_grow.send_keys(8)
         self.browser.find_element_by_id("form-add-variety-submit").click()
         # He then goes to add Cilantro as another crop
         add_variety_name = self.browser.find_element_by_id("form-add-variety-name")
         add_variety_name.send_keys("Cilantro")
-        add_days_to_harvest = self.browser.find_element_by_id("form-add-variety-days-to-harvest")
-        add_days_to_harvest.send_keys(10)
+        add_days_germ = self.browser.find_element_by_id("form-add-variety-days-germ")
+        add_days_germ.send_keys(6)
+        add_days_grow = self.browser.find_element_by_id("form-add-variety-days-grow")
+        add_days_grow.send_keys(14)
         self.browser.find_element_by_id("form-add-variety-submit").click()
         # To check if the varieties have been added he navigates to the add crop page
         self.browser.find_element_by_id("link-to-home").click()
