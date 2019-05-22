@@ -35,30 +35,16 @@
                 <input id="form-set-slot-count-submit" type="submit" class="btn btn-primary" value="Update Capacity"/>
             </form>
         </div>
-
         <div class="col-10 col-lg-4">
             <h2>New Variety</h2>
             <form id="form-add-variety" method="POST" action="/crop/add_variety">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li><strong>{{ error|escape }}</strong></li>
+                    {% endfor %}
+                </ul>
                 {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="form-add-variety-name">Name:</label>
-                    <input id="form-add-variety-name" type="text" class="form-control" name="variety-name"
-                           placeholder="e.g. Basil"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="form-add-variety-days-germ">Days in Germination:</label>
-                    <input id="form-add-variety-days-germ" type="number" class="form-control" min="1"
-                           name="days-germ" placeholder="1"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="form-add-variety-days-grow">Days in Grow:</label>
-                    <input id="form-add-variety-days-grow" type="number" class="form-control" min="1"
-                           name="days-grow" placeholder="1"/>
-                </div>
-
+                {{ form.as_p }}
                 <input id="form-add-variety-submit" type="submit" class="btn btn-primary" value="Add Variety"/>
             </form>
         </div>

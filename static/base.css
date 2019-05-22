@@ -42,6 +42,10 @@ nav * {
     color: rgb(152, 251, 152);
 }
 
+.errorlist {
+    color: red;
+}
+
 main {
     margin-top: 4vh;
     margin-bottom: 4vh;

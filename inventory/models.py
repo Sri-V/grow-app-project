@@ -9,6 +9,8 @@ class Variety(models.Model):
     days_germ = models.IntegerField(null=True)
     days_grow = models.IntegerField(null=True)
 
+    def __str__(self):
+        return self.name
 
 class Crop(models.Model):
     """Represents a single attempt to grow a tray of Microgreens at a given time. Maintains a history of growth data
