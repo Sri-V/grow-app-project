@@ -111,9 +111,7 @@ def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
     delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
-
     edit = request.GET.get('edit', False)
-
     record_id = int(request.GET.get('id', -1))
 
     all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
@@ -157,23 +155,24 @@ def crop_detail(request, crop_id):
         returned = None
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
+    crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id })
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id,
+                                                                   "crop_record_form": crop_record_form })
 
 
 @login_required
 def record_crop_info(request, crop_id):
     """POST: Record a timestampped CropRecord event into the history of this crop's life."""
-    current_crop = Crop.objects.get(id=crop_id)
-    record_type = request.POST["record-type"]
-    record_date = request.POST["date"]
-    date_object = parser.parse(record_date)
-    record_note = request.POST["note"]
-    new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
-    new_crop_record.date = date_object
-    new_crop_record.save()
-    return redirect(crop_detail, crop_id=current_crop.id)
+    form = CropRecordForm(request.POST)
+    if form.is_valid():
+        current_crop = Crop.objects.get(id=crop_id)
+        record_type = form.cleaned_data["record_type"]
+        record_date = form.cleaned_data["date"]
+        record_note = form.cleaned_data["note"]
+        new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, date=record_date, note=record_note)
+        return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def update_crop_lifecycle():

@@ -1,6 +1,5 @@
 from django.db import models
-
-# Create your models here.
+from django.utils import timezone
 
 
 class Variety(models.Model):
@@ -47,9 +46,9 @@ class CropRecord(models.Model):
         ('NOTE', 'Notes')
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
-    note = models.CharField(max_length=200)
+    note = models.CharField(max_length=200, blank=True)
 
 
 class Slot(models.Model):
