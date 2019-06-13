@@ -54,3 +54,10 @@ class CropRecordForm(ModelForm):
                 }),
             'note': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
         }
+
+class DateSeededForm(forms.Form):
+    date_seeded = forms.DateField(widget=DatePickerInput(
+                options={
+                    "format": "MM/DD/YYYY",
+                },
+                attrs={'class': 'form-control'}))
