@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety, InHouse
+from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement
 from inventory.forms import *
 from datetime import datetime
 from dateutil import parser
@@ -324,6 +324,10 @@ def variety_autofill(request):
     return JsonResponse(data)
 
 @login_required
+def inventory_home(request):
+    return render(request, "inventory/inventory_home.html")
+
+@login_required
 def inventory_overview(request):
     varieties = Variety.objects.all()
     for v in varieties:
@@ -335,3 +339,32 @@ def inventory_overview(request):
 
     in_house = InHouse.objects.all()
     return render(request, 'inventory/inventory_overview.html', context={'in_house':in_house})
+
+@login_required
+def inventory_seed(request):
+    today = datetime.today().weekday()
+    if request.method == 'GET':
+        for v in Variety.objects.all():
+            if len(WeekdayRequirement.objects.filter(plant_day=today).filter(variety=v)) == 0:
+                WeekdayRequirement.objects.create(variety=v, plant_day=today, num_small=0, num_medium=0, num_big=0)
+
+        to_do = WeekdayRequirement.objects.filter(plant_day=today).order_by('num_big')
+        return render(request, 'inventory/inventory_seed.html', context={'to_do':to_do})
+    
+    if request.method == 'POST':
+        for v in Variety.objects.all():
+            try:
+                print (request.POST['form-seed-big-' + v.name])
+                big = request.POST['form-seed-big-' + v.name]
+                medium = request.POST['form-seed-medium-' + v.name]
+                small = request.POST['form-seed-small-' + v.name]
+                in_house = InHouse.objects.get(variety=v)
+                in_house.num_big += int(big)
+                in_house.num_medium += int(medium)
+                in_house.num_small += int(small)
+                in_house.save()
+            except KeyError:
+                pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the slot details page
+        return redirect(inventory_overview)

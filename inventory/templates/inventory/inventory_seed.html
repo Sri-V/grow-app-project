@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Seed{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Seeding: <script> document.write(new Date().toLocaleDateString()); </script></h1>
+    </div>
+    <div id="greenhouse_inventory">
+        <form id="form-seed" method="post">
+                {% csrf_token %}
+            <table id="inventory" class="table">
+                <tr>
+                    <th></th>
+                    <th>B</th>
+                    <th>M</th>
+                    <th>S</th>
+                </tr>
+                {% for task in to_do %}
+                <tr>
+                    <td width='40%'>{{ task.variety }}</td>
+                    <td width='20%'><input id="form-seed-big-{{task.variety.name}}" name="form-seed-big-{{task.variety.name}}" class="form-control" 
+                        type="number"  value="{{task.num_big}}"></td>
+                    <td width='20%'><input id="form-seed-medium-{{task.variety.name}}" name="form-seed-medium-{{task.variety.name}}" class="form-control" 
+                        type="number"  value="{{task.num_medium}}"></td>
+                    <td width='20%'><input id="form-seed-small-{{task.variety.name}}" name="form-seed-small-{{task.variety.name}}" class="form-control" 
+                        type="number"  value="{{task.num_small}}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <input id="form-seed-submit" type="submit" class="btn btn-primary" value="Accept">
+        </form>
+    </div>
+{% endblock %}
+
