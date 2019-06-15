@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Barcode Test</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body {
+			font-size: 1.6em;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.show {
+			display: inline !important;
+		}
+
+		button {
+			border: 2px solid black;
+			background: #E5E4E2;
+			font-size: .5em;
+			font-weight: bold;
+			color: black;
+			padding: .8em 2em;
+			margin-top: .4em;
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body>
+	<form action = "#" id="forms">
+		Input: <br />
+		<input type="text" id="input" ><br />
+		<input type="submit" value="Submit" id="submit"><br/>	
+	</form>
+
+	<p id="scan" style="display:none;"></p>
+
+	<script>
+
+        // FIXME -- eliminate global variables if possible: consider using CustomEvent.detail to pass data to a handler
+		//var data = ""; // The raw data read from the form field  
+
+        /**
+         * On keypress in the input tag, get characters from input and store it in a variable.
+         */
+		/*document.getElementById('input').onkeypress = function(event) {
+  			if (event.key != "Enter"){
+            	data += event.key;
+            	return true;
+            }
+		};*/
+		
+	</script>
+		
+	<script>
+
+        // FIXME -- eliminate global variables if possible, but for now more descriptive variables and some explanation.
+		//var dataScan = "";// The raw data read from the scanner
+
+        /**
+         * When the document registers a keypress, get the data from the scanner if the form field is not focused.
+         */
+		$(document).keypress(function(event){
+
+			if (event.keyCode == 13) {
+				// Handle redirect with barcode, if a complete barcode has been entered. If not, do nothing.
+				var bc = document.getElementById("scan").innerHTML;
+				if (bc.length == 10) {
+					// Redirect
+				}
+			}
+			// If a non-enter key was pressed and the focus isn't in another input, add char to scan field.
+			else if (event.key != "Enter" && document.activeElement.tagName != "input") {
+				document.getElementById("scan").innerHTML = document.getElementById("scan").innerHTML + event.key;
+            }
+
+
+
+			// If keycode 13 (enter key) is detected, any input tag is focused 
+			// and scanner was detected, show the data and where it came from 
+			if (event.keyCode === 13 && (document.activeElement.tagName != "INPUT") && (dataScan.charCodeAt(0) == 17 || dataScan.charCodeAt(0) == 88)) {
+				document.getElementById("scan").innerHTML = dataScan.slice(1) + " Scanner detected no form";
+				dataScan = "";
+			// Otherwise clear the dataScan variable 
+			}else if(event.keyCode === 13){
+				dataScan = "";
+			}
+
+			return true; 
+		});
+
+        /**
+         * When the form's submit button is clicked, determine the source of barcode input and respond accordingly.
+         */
+		/*
+		document.getElementById("submit").onclick = function(event){
+			if (data.charCodeAt(0) == 17 || data.charCodeAt(0) == 88) {  // FIXME -- this is a fragile way to check where the data came from
+                                               // Is there a way to do better?
+				document.getElementById("scan").innerHTML = data.slice(1) + " Scanner detected from form";
+        
+			} else {
+				data = document.getElementById("input").value;
+				document.getElementById("scan").innerHTML = data + " Came from user ";
+			}
+
+
+			// Finally reset the data variable and the contents of the form field
+            // FIXME -- this should be a separate event handler, eventually in the controller
+			//data = "";
+			let inputElements = document.getElementsByTagName('input');
+  			for (let i = 0; i < inputElements.length; i++) {
+ 				if (inputElements[i].type == "text") {
+  					  inputElements[i].value = "";
+			  	}
+ 			}
+		};
+		*/
+
+	</script>
+
+</body >
+</html >

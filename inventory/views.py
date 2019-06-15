@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety
+from inventory.models import Crop, CropRecord, Slot, Variety, InHouse
 from inventory.forms import *
 from datetime import datetime
 from dateutil import parser
@@ -321,4 +321,17 @@ def variety_autofill(request):
         'days_germ': Variety.objects.get(name=variety).days_germ,
         'days_grow': Variety.objects.get(name=variety).days_grow
     }
-    return JsonResponse(data)   
+    return JsonResponse(data)
+
+@login_required
+def inventory_overview(request):
+    varieties = Variety.objects.all()
+    for v in varieties:
+        # InHouse.objects.create(variety=v, num_small=0, num_medium=0, num_big=0)
+        try:
+            InHouse.objects.create(variety=v, num_small=0, num_medium=0, num_big=0)
+        except:
+            pass
+
+    in_house = InHouse.objects.all()
+    return render(request, 'inventory/inventory_overview.html', context={'in_house':in_house})

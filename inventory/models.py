@@ -69,3 +69,9 @@ class SanitationRecord(models.Model):
     chemicals_used = models.CharField(max_length=100)
     note = models.CharField(max_length=200, blank=True)
 
+class InHouse(models.Model):
+    variety = models.OneToOneField(Variety, on_delete=models.PROTECT, primary_key=True)
+    num_small = models.IntegerField(default=0)
+    num_medium = models.IntegerField(default=0)
+    num_big = models.IntegerField(default=0)
+    
