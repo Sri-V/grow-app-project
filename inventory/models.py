@@ -94,3 +94,15 @@ class WeekdayRequirement(models.Model):
 
     class Meta:
         unique_together = ['plant_day', 'variety']
+
+class InventoryAction(models.Model):
+    ACTION_TYPES = (
+        ('SEED', 'Seeded'),
+        ('HARVEST', 'Harvested'),
+        ('KILL', 'Killed'),
+    )
+
+    variety = models.ForeignKey(Variety, on_delete=models.DO_NOTHING)
+    date = models.DateField(auto_now_add=True)
+    action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
+    note = models.CharField(max_length=200)

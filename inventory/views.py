@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement
+from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
 from inventory.forms import *
 from datetime import datetime
 from dateutil import parser
@@ -77,8 +77,6 @@ def create_crop(request):
 
         slot_list = Slot.objects.filter(current_crop=None)
         current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-        #variety = Variety.objects.get(name=variety_name)
-        #variety_list = forms.ModelChoiceField(queryset=Variety.objects.all(), widget=forms.Select(attrs={"onChange":'refresh()'}))
         variety = variety_list[0]
 
         return render(request, "inventory/new_crop.html",
@@ -354,17 +352,47 @@ def inventory_seed(request):
     if request.method == 'POST':
         for v in Variety.objects.all():
             try:
-                print (request.POST['form-seed-big-' + v.name])
-                big = request.POST['form-seed-big-' + v.name]
-                medium = request.POST['form-seed-medium-' + v.name]
-                small = request.POST['form-seed-small-' + v.name]
+                big = int(request.POST['form-seed-big-' + v.name])
+                medium = int(request.POST['form-seed-medium-' + v.name])
+                small = int(request.POST['form-seed-small-' + v.name])
                 in_house = InHouse.objects.get(variety=v)
-                in_house.num_big += int(big)
-                in_house.num_medium += int(medium)
-                in_house.num_small += int(small)
+                in_house.num_big += big
+                in_house.num_medium += medium
+                in_house.num_small += small
                 in_house.save()
+
+                note = "big: {}, medium: {}, small: {}".format(big, medium, small)
+                var_obj = Variety.objects.get(name=v)
+                InventoryAction.objects.create(variety=var_obj, action_type='SEED', note=note)
             except KeyError:
                 pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the slot details page
+        return redirect(inventory_overview)
+
+@login_required
+def inventory_kill(request):
+    today = datetime.today().weekday()
+    if request.method == 'GET':
+        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all()})
+    
+    if request.method == 'POST':
+        try:
+            variety = request.POST['form-kill-variety']
+            big = int(request.POST['form-kill-big'])
+            medium = int(request.POST['form-kill-medium'])
+            small = int(request.POST['form-kill-small'])
+            note = request.POST['form-kill-reason']
+            var_obj = Variety.objects.get(name=variety)
+            in_house = InHouse.objects.get(variety=var_obj)
+            in_house.num_big = in_house.num_big - big if big <= in_house.num_big else 0
+            in_house.num_medium = in_house.num_medium - medium if medium <= in_house.num_medium else 0
+            in_house.num_small = in_house.num_small - small if small <= in_house.num_small else 0
+            in_house.save()
+            InventoryAction.objects.create(variety=var_obj, action_type='KILL', note=note)
+        except KeyError as e:
+            print (e)
+            pass # In case there's a variety inconsistency
         
         # Redirect the user to the slot details page
         return redirect(inventory_overview)

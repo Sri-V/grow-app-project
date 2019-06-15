@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Kill{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Kill</script></h1>
+    </div>
+    <div id="inventory_form">
+        <form id="form-kill" method="post">
+            {% csrf_token %}
+            <label for="form-kill-variety">Variety</label>
+            <select id="form-kill-variety" name="form-kill-variety" class="form-control">
+                {% for variety in variety_list %}
+                    <option>{{ variety.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="form-kill-big"># Big</label>
+            <input id="form-kill-big" name="form-kill-big" class="form-control" 
+                type="number" value=0>
+            <label for="form-kill-medium"># Medium</label>
+            <input id="form-kill-medium" name="form-kill-medium" class="form-control" 
+                type="number" value=0>
+            <label for="form-kill-small"># Small</label>
+            <input id="form-kill-small" name="form-kill-small" class="form-control" 
+                type="number" value=0>
+            <label for="form-kill-reason">Reason</label>
+            <br>
+            <textarea name="form-kill-reason" id="form-kill-reason" form="form-kill"></textarea>
+            <input id="form-kill-submit" type="submit" class="btn btn-primary" value="Accept">
+        </form>
+    </div>
+{% endblock %}
+
