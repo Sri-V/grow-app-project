@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekday Seed Plan{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Weekday Seed Plan</h1>
+    </div>
+    <div id="greenhouse_inventory">
+        <form id="form-plan" method="post"  data-weekday-autofill-url="{% url 'weekday_autofill' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="form-plan-day">Weekday</label>
+                <select id="form-plan-day" name="day" class="form-control" onchange="autofill_weekday($(this).val())">
+                    {% for wd in weekdays %}
+                        {% if wd.0 == day %}
+                            <option value='{{ wd.0 }}' selected>{{ wd.1 }}</option>
+                        {% else %}
+                        <option value='{{ wd.0 }}'>{{ wd.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <table id="inventory" class="table">
+                <tr>
+                    <th>Variety</th>
+                    <th>B</th>
+                    <th>M</th>
+                    <th>S</th>
+                </tr>
+                {% for variety in variety_list %}
+                <tr>
+                    <td width='40%'>{{ variety.name }}</td>
+                    <td width='20%'><input id="form-plan-{{variety.name}}-big" name="form-plan-{{variety.name}}-big" class="form-control" 
+                        type="number"  ></td>
+                    <td width='20%'><input id="form-plan-{{variety.name}}-medium" name="form-plan-{{variety.name}}-medium" class="form-control" 
+                        type="number"  ></td>
+                    <td width='20%'><input id="form-plan-{{variety.name}}-small" name="form-plan-{{variety.name}}-small" class="form-control" 
+                        type="number"  ></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <input id="form-plan-submit" type="submit" class="btn btn-primary" value="Accept">
+        </form>
+    </div>
+{% endblock %}
+

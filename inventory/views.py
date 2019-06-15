@@ -360,14 +360,14 @@ def inventory_seed(request):
                 in_house.num_medium += medium
                 in_house.num_small += small
                 in_house.save()
-
-                note = "big: {}, medium: {}, small: {}".format(big, medium, small)
-                var_obj = Variety.objects.get(name=v)
-                InventoryAction.objects.create(variety=var_obj, action_type='SEED', note=note)
+                if big or medium or small:
+                    note = "big: {}, medium: {}, small: {}".format(big, medium, small)
+                    var_obj = Variety.objects.get(name=v)
+                    InventoryAction.objects.create(variety=var_obj, action_type='SEED', note=note)
             except KeyError:
                 pass # In case there's a variety inconsistency
         
-        # Redirect the user to the slot details page
+        # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
 @login_required
@@ -394,5 +394,65 @@ def inventory_kill(request):
             print (e)
             pass # In case there's a variety inconsistency
         
-        # Redirect the user to the slot details page
+        # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
+
+@login_required
+def inventory_plan(request, plant_day=None):
+    if plant_day == None:
+        plant_day = datetime.today().weekday()
+    DAYS_OF_WEEK = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    )
+    if request.method == 'GET':
+        for v in Variety.objects.all():
+            if len(WeekdayRequirement.objects.filter(plant_day=plant_day).filter(variety=v)) == 0:
+                WeekdayRequirement.objects.create(variety=v, plant_day=plant_day, num_small=0, num_medium=0, num_big=0)
+
+        return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list':Variety.objects.all()})
+    
+    if request.method == 'POST':
+        for v in Variety.objects.all():
+            try:
+                day = int(request.POST['day'])
+                big = int(request.POST['form-plan-' + v.name + '-big'])
+                medium = int(request.POST['form-plan-' + v.name + '-medium'])
+                small = int(request.POST['form-plan-' + v.name + '-small'])
+                plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
+                plan.num_big = big
+                plan.num_medium = medium
+                plan.num_small = small
+                plan.save()
+            except KeyError:
+                pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the weekly planning page
+        return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list':Variety.objects.all()})
+
+@login_required
+def weekday_autofill(request):
+    weekday = request.GET.get('day', None)
+    data = {}
+    for v in Variety.objects.all():
+        if len(WeekdayRequirement.objects.filter(plant_day=weekday).filter(variety=v)) == 0:
+                WeekdayRequirement.objects.create(variety=v, plant_day=weekday, num_small=0, num_medium=0, num_big=0)
+        try:
+            plan = WeekdayRequirement.objects.get(variety=v, plant_day=weekday)
+            data[v.name + '-big'] = plan.num_big
+            data[v.name + '-medium'] = plan.num_medium
+            data[v.name + '-small'] = plan.num_small
+        except Exception as e:
+            print (e)
+            pass
+
+    # data = {
+    #     'days_germ': Variety.objects.get(name=variety).days_germ,
+    #     'days_grow': Variety.objects.get(name=variety).days_grow
+    # }
+    return JsonResponse(data)
