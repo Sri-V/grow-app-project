@@ -8,6 +8,8 @@
         <h1>Scan a crop to begin,</h1>
         <h2>or <a id="link-new-crop" href="{% url "create_crop" %}">add a new crop</a>.</h2>
         <br/>
+        <a id="link-to-inventory" class="col-6" href="{% url "inventory_home" %}">
+            Inventory</a>
         <a id="link-to-sanitation-records" class="col-6" href="{% url "sanitation_records" %}">
             Sanitation Records</a>
         <a id="link-to-growhouse-settings" class="col-6" href="{% url "growhouse_settings" %}">
