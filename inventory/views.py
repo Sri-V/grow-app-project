@@ -2,13 +2,13 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
 from inventory.forms import *
-from datetime import datetime
+from datetime import datetime, date
 from dateutil import parser
 from dateutil import tz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-
+import json
 
 # Create your views here.
 @login_required
@@ -352,18 +352,21 @@ def inventory_seed(request):
     if request.method == 'POST':
         for v in Variety.objects.all():
             try:
-                big = int(request.POST['form-seed-big-' + v.name])
-                medium = int(request.POST['form-seed-medium-' + v.name])
-                small = int(request.POST['form-seed-small-' + v.name])
+                big = request.POST['form-seed-big-' + v.name]
+                medium = request.POST['form-seed-medium-' + v.name]
+                small = request.POST['form-seed-small-' + v.name]
+                big = 0 if len(big) == 0 else int(big)
+                medium = 0 if len(medium) == 0 else int(medium)
+                small = 0 if len(small) == 0 else int(small)
                 in_house = InHouse.objects.get(variety=v)
                 in_house.num_big += big
                 in_house.num_medium += medium
                 in_house.num_small += small
                 in_house.save()
                 if big or medium or small:
-                    note = "big: {}, medium: {}, small: {}".format(big, medium, small)
+                    data = json.dumps({'big':big, 'medium':medium, 'small':small})
                     var_obj = Variety.objects.get(name=v)
-                    InventoryAction.objects.create(variety=var_obj, action_type='SEED', note=note)
+                    InventoryAction.objects.create(variety=var_obj, action_type='SEED', data=data)
             except KeyError:
                 pass # In case there's a variety inconsistency
         
@@ -379,9 +382,12 @@ def inventory_kill(request):
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
-            big = int(request.POST['form-kill-big'])
-            medium = int(request.POST['form-kill-medium'])
-            small = int(request.POST['form-kill-small'])
+            big = request.POST['form-kill-big']
+            medium = request.POST['form-kill-medium']
+            small = request.POST['form-kill-small']
+            big = 0 if len(big) == 0 else int(big)
+            medium = 0 if len(medium) == 0 else int(medium)
+            small = 0 if len(small) == 0 else int(small)
             note = request.POST['form-kill-reason']
             var_obj = Variety.objects.get(name=variety)
             in_house = InHouse.objects.get(variety=var_obj)
@@ -389,7 +395,9 @@ def inventory_kill(request):
             in_house.num_medium = in_house.num_medium - medium if medium <= in_house.num_medium else 0
             in_house.num_small = in_house.num_small - small if small <= in_house.num_small else 0
             in_house.save()
-            InventoryAction.objects.create(variety=var_obj, action_type='KILL', note=note)
+            if big or medium or small:
+                data = json.dumps({'big':big, 'medium':medium, 'small':small})
+                InventoryAction.objects.create(variety=var_obj, action_type='KILL', note=note, data=data)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
@@ -434,6 +442,103 @@ def inventory_plan(request, plant_day=None):
         
         # Redirect the user to the weekly planning page
         return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list':Variety.objects.all()})
+
+@login_required
+def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
+    today = date.today().isoformat()
+    if request.method == 'GET':
+        return render(request, 'inventory/inventory_harvest_bulk.html', context={'variety_list':Variety.objects.all(), 'today':today})
+    
+    if request.method == 'POST':
+        for v in Variety.objects.all():
+            try:
+                h_date = request.POST['form-harvest-date']
+                big = request.POST['form-harvest-' + v.name + '-big']
+                medium = request.POST['form-harvest-' + v.name + '-medium']
+                small = request.POST['form-harvest-' + v.name + '-small']
+                big = 0 if len(big) == 0 else int(big)
+                medium = 0 if len(medium) == 0 else int(medium)
+                small = 0 if len(small) == 0 else int(small)
+                in_house = InHouse.objects.get(variety=v)
+                in_house.num_big = in_house.num_big - big if big <= in_house.num_big else 0
+                in_house.num_medium = in_house.num_medium - medium if medium <= in_house.num_medium else 0
+                in_house.num_small = in_house.num_small - small if small <= in_house.num_small else 0
+                in_house.save()
+                if big or medium or small:
+                    data = json.dumps({'big':big, 'medium':medium, 'small':small})
+                    InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', data=data)
+            except KeyError:
+                pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the inventory overview page
+        return redirect(inventory_overview)
+
+@login_required
+def inventory_harvest_variety(request): # Numbers of trays and yield for a single variety
+    today = date.today().isoformat()
+    if request.method == 'GET':
+        return render(request, 'inventory/inventory_harvest_variety.html', context={'variety_list':Variety.objects.all(), 'today':today})
+    
+    if request.method == 'POST':
+        try:
+            variety = request.POST['form-harvest-variety']
+            h_date = request.POST['form-harvest-date']
+            big = request.POST['form-harvest-big']
+            medium = request.POST['form-harvest-medium']
+            small = request.POST['form-harvest-small']
+            h_yield = request.POST['form-harvest-yield']
+            big = 0 if len(big) == 0 else int(big)
+            medium = 0 if len(medium) == 0 else int(medium)
+            small = 0 if len(small) == 0 else int(small)
+            h_yield = 0 if len(h_yield) == 0 else float(h_yield)
+            var_obj = Variety.objects.get(name=variety)
+            in_house = InHouse.objects.get(variety=var_obj)
+            in_house.num_big = in_house.num_big - big if big <= in_house.num_big else 0
+            in_house.num_medium = in_house.num_medium - medium if medium <= in_house.num_medium else 0
+            in_house.num_small = in_house.num_small - small if small <= in_house.num_small else 0
+            in_house.save()
+            if big or medium or small:
+                data = json.dumps({'big':big, 'medium':medium, 'small':small, 'yield':h_yield})
+                InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
+        except KeyError as e:
+            print (e)
+            pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the inventory overview page
+        return redirect(inventory_overview)
+
+@login_required
+def inventory_harvest_single(request): # One tray, with detailed records
+    today = date.today().isoformat()
+    if request.method == 'GET':
+        return render(request, 'inventory/inventory_harvest_single.html', context={'variety_list':Variety.objects.all(), 'today':today})
+    
+    if request.method == 'POST':
+        try:
+            tray_size = str(request.POST["form-harvest-tray-size"])
+            h_date = request.POST['form-harvest-date']
+            variety = request.POST['form-harvest-variety']
+            h_yield = request.POST['form-harvest-yield']
+            h_yield = 0 if len(h_yield) == 0 else float(h_yield)
+            big = 1 if tray_size == 'big' else 0
+            medium = 1 if tray_size == 'medium' else 0
+            small = 1 if tray_size == 'small' else 0
+            var_obj = Variety.objects.get(name=variety)
+            in_house = InHouse.objects.get(variety=var_obj)
+            in_house.num_big = in_house.num_big - big if big <= in_house.num_big else 0
+            in_house.num_medium = in_house.num_medium - medium if medium <= in_house.num_medium else 0
+            in_house.num_small = in_house.num_small - small if small <= in_house.num_small else 0
+            in_house.save()
+            if big or medium or small:
+                data = json.dumps({'big':big, 'medium':medium, 'small':small, 'yield':h_yield})
+                InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
+        except KeyError as e:
+            print (e)
+            pass # In case there's a variety inconsistency
+        
+        # Redirect the user to the inventory overview page
+        return redirect(inventory_overview)
+
 
 @login_required
 def weekday_autofill(request):
