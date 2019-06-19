@@ -1,7 +1,8 @@
-from inventory.models import Crop, Slot, Variety
+from inventory.models import Crop, Slot, Variety, SanitationRecord, CropRecord
 from django import forms
+from django.forms import ModelForm, Textarea, TextInput
 from django.core.exceptions import ValidationError
-from bootstrap_datepicker_plus import DateTimePickerInput
+from bootstrap_datepicker_plus import DatePickerInput
 
 
 class AddVarietyForm(forms.ModelForm):
@@ -26,21 +27,14 @@ class AddVarietyForm(forms.ModelForm):
             return name
 
 
-
-
-from inventory.models import SanitationRecord
-from django.forms import ModelForm, DateTimeField, DateTimeInput, Textarea, TextInput
-from bootstrap_datepicker_plus import DateTimePickerInput
-
-
 class SanitationRecordForm(ModelForm):
     class Meta:
         model = SanitationRecord
         fields = '__all__'
         widgets = {
-            'date': DateTimePickerInput(
+            'date': DatePickerInput(
                 options={
-                     "format": "MM/DD/YYYY h:mm",
+                     "format": "MM/DD/YYYY",
                  }),
             'employee_name': TextInput(attrs={'class': 'form-control'}),
             'equipment_sanitized': TextInput(attrs={'class': 'form-control'}),
@@ -48,3 +42,22 @@ class SanitationRecordForm(ModelForm):
             'note': Textarea(attrs={'class': 'form-control'}),
         }
 
+class CropRecordForm(ModelForm):
+    class Meta:
+        model = CropRecord
+        fields = ['record_type', 'date', 'note']
+        widgets = {
+            'record_type': forms.Select(choices=CropRecord.RECORD_TYPES,attrs={'class': 'form-control'}),
+            'date': DatePickerInput(
+                options={
+                    "format": "MM/DD/YYYY",
+                }),
+            'note': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
+        }
+
+class DateSeededForm(forms.Form):
+    date_seeded = forms.DateField(widget=DatePickerInput(
+                options={
+                    "format": "MM/DD/YYYY",
+                },
+                attrs={'class': 'form-control'}))

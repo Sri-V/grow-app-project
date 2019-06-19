@@ -2,6 +2,10 @@
 
 {% block title %}Crop Details{% endblock %}
 
+{% block extrahead %}
+{{ crop_record_form.media }}
+{% endblock %}
+
 {% block content %}
     <div id="crop-details" class="jumbotron col-10 col-lg-8 row d-flex">
         <div class="col-12 col-md-6">
@@ -62,7 +66,7 @@
         <h1>Crop History</h1>
         <table id="records" class="table">
             <tr>
-                <th>Time</th>
+                <th>Date</th>
                 <th>Record Type</th>
                 <th>Note</th>
             </tr>
@@ -72,11 +76,11 @@
                         {% csrf_token %}
                         <tr>
 
-                            <td width='20%'><input id="form-edit-crop-record-date" type="datetime-local" value="{{ record.date }}" name="date"/></td>
+                            <td width='20%'><input id="form-edit-crop-record-date" value="{{ record.date }}" name="date"/></td>
                             <td width='30%'>{{ record.get_record_type_display }}</td>
                             <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record">{{ record.note }}</textarea></td>
-                            <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Submit"/></td>
-                            <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
+                            <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Save"/></td>
+                            <td width='5%' id="cancel_edit"><a href="/crop/{{ crop.id }}/">Cancel</a></td>
                         </tr>
                     </form>
                 {% else %}
@@ -92,27 +96,15 @@
             </tr>
             {% endfor %}
         </table>
-    </div>
+
     <div id="add-crop-record" class="col-8">
         <h1>Add Crop Record</h1>
         <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="form-new-crop-record-type">Record Type</label>
-                <select id="form-new-crop-record-type" name="record-type" class="form-control">
-                    {% for record_type in record_types %}
-                        <option>{{ record_type }}</option>
-                    {% endfor %}
-                </select>
-                <label for="form-new-crop-record-date">Record Date</label>
-                <input id="form-add-crop-record-date" type="datetime-local" class="form-control" name="date"/>
-                <label for="form-new-crop-record-Note">Record Note</label>
-                <br>
-                <textarea name="note" id="form-add-crop-record-note" form="form-add-crop-record"
-                          placeholder="Add Note about crop record here"></textarea>
-            </div>
+            {{ crop_record_form.as_p }}
             <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>
         </form>
+    </div>
     </div>
 {% endblock %}
 

@@ -174,8 +174,8 @@ USE_L10N = False
 
 USE_TZ = True
 
-# Changed default DATETIME_FORMAT to be more concise
-DATETIME_FORMAT = 'm/d/Y P'
+# Changed default DATE_FORMAT to be more concise
+DATE_FORMAT = 'm/d/Y'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
