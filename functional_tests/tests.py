@@ -235,7 +235,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # Verify that a water action was recorded for this crop
         record = CropRecord.objects.filter(record_type='WATER')[0]
         # And the date and time are correct
-        self.assertEqual(record.date.today().replace(microsecond=0), datetime.datetime.today().replace(microsecond=0))
+        self.assertEqual(record.date.today(), datetime.date.today())
 
     def test_harvest_the_crop(self):
         # Oliver would like to harvest a crop of microgreens.
@@ -248,7 +248,8 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertRegex(self.browser.current_url, f'/crop/{self.first_crop.id}/')
         # And the history displays a crop record indicating it was harvested
         harvest_text = self.browser.find_element_by_id("harvest-date").text
-        self.assertEqual("Harvested: " + dateformat.format(datetime.datetime.now(), 'm/d/Y P'), harvest_text)
+
+        self.assertEqual("Harvested: " + dateformat.format(datetime.datetime.now(), 'm/d/Y'), harvest_text)
         # Then he navigates back to the slot that the crop was in
         self.browser.get(self.live_server_url + f'/slot/{self.plant_origin_slot.id}/')
         # And sees that it is empty
@@ -273,7 +274,7 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         self.assertEqual("Crop Details – BMG", self.browser.title)
         # Under the crop history section he sees that the trashed crop record has been recorded
         trashed_record = self.browser.find_element_by_id("trash-date").text
-        self.assertEqual(trashed_record, "Trashed: " + dateformat.format(datetime.datetime.today(), 'm/d/Y P'))
+        self.assertEqual(trashed_record, "Trashed: " + dateformat.format(datetime.datetime.today(), 'm/d/Y'))
 
     def test_add_note_about_crop(self):
         # Oliver wants to record that this crop had its grow lamp die when the bulb burnt out.
@@ -311,11 +312,11 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         # Check that current details of the crop are correct
         crop = Slot.objects.get(id=self.plant_origin_slot.id).current_crop
         seed_date = self.browser.find_element_by_id("seed-date").text
-        self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.astimezone(), 'm/d/Y P'))
+        self.assertEqual(seed_date, "Seeded: " + dateformat.format(self.first_crop_record.date.today(), 'm/d/Y'))
         last_watered_date = self.browser.find_element_by_id("water-date").text
-        self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime, 'm/d/Y P'))
+        self.assertEqual(last_watered_date, "Last watered: " + dateformat.format(water_crop_datetime.today(), 'm/d/Y'))
         harvested_date = self.browser.find_element_by_id("harvest-date").text
-        self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime, 'm/d/Y P'))
+        self.assertEqual(harvested_date, "Harvested: " + dateformat.format(harvest_crop_datetime.today(), 'm/d/Y'))
 
     def test_scan_from_homepage(self):
         # Oliver wants to make sure the that barcode scanning is working correctly
@@ -342,14 +343,14 @@ class BasicUserInteractionsTest(StaticLiveServerTestCase):
         else:
             self.fail("The 'Growth Milestone' option was not found in the new crop record form!")
         # Next she adds the date for the growth milestone
-        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019, 12:34 PM")
+        self.browser.find_element_by_id("form-add-crop-record-date").send_keys("3/24/2019")
         # Finally she adds a quick note about the record
         self.browser.find_element_by_id("form-add-crop-record-note").send_keys("This one's looking nice!")
         # And hits submit
         self.browser.find_element_by_id("form-add-crop-record-submit").click()
         # When the page refreshes she can see that her crop record has been successfully recorded
         records_list = self.browser.find_element_by_id("records").text
-        self.assertIn("03/24/2019 12:34 p.m.", records_list)
+        self.assertIn("03/24/2019", records_list)
         self.assertIn("Growth Milestone", records_list)
         self.assertIn("This one's looking nice!", records_list)
 

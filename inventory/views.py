@@ -2,7 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
 from inventory.forms import *
-from datetime import datetime, date
+from datetime import date, datetime
 from dateutil import parser
 from dateutil import tz
 
@@ -78,9 +78,9 @@ def create_crop(request):
         slot_list = Slot.objects.filter(current_crop=None)
         current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
         variety = variety_list[0]
-
+        date_form = DateSeededForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow, "date_form": date_form})
 
     if request.method == 'POST':
         variety_name = request.POST["variety"]
@@ -111,9 +111,7 @@ def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
     delivered live, ect. Page also provides a link to the crop's slot."""
     crop = Crop.objects.get(id=crop_id)
-
     edit = request.GET.get('edit', False)
-
     record_id = int(request.GET.get('id', -1))
 
     all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
@@ -157,23 +155,24 @@ def crop_detail(request, crop_id):
         returned = None
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
+    crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id })
+                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id,
+                                                                   "crop_record_form": crop_record_form })
 
 
 @login_required
 def record_crop_info(request, crop_id):
     """POST: Record a timestampped CropRecord event into the history of this crop's life."""
-    current_crop = Crop.objects.get(id=crop_id)
-    record_type = request.POST["record-type"]
-    record_date = request.POST["date"]
-    datetime_object = parser.parse(record_date).replace(tzinfo=tz.tzlocal())
-    record_note = request.POST["note"]
-    new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, note=record_note)
-    new_crop_record.date = datetime_object
-    new_crop_record.save()
-    return redirect(crop_detail, crop_id=current_crop.id)
+    form = CropRecordForm(request.POST)
+    if form.is_valid():
+        current_crop = Crop.objects.get(id=crop_id)
+        record_type = form.cleaned_data["record_type"]
+        record_date = form.cleaned_data["date"]
+        record_note = form.cleaned_data["note"]
+        new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, date=record_date, note=record_note)
+        return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def update_crop_lifecycle():
@@ -226,7 +225,7 @@ def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
-    rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=datetime.now(), note='')
+    rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=date.today(), note='')
     return redirect(slot_detail, slot_id=slot_id)
 
 
@@ -244,8 +243,7 @@ def move_tray(request, slot_id):
     arriving_slot.current_crop = leaving_slot.current_crop
     leaving_slot.current_crop = None
     if new_lifecycle is not '-- none --':
-        date = datetime.now()
-        CropRecord.objects.create(record_type=new_lifecycle, date=date, note="Tray Moved",
+        CropRecord.objects.create(record_type=new_lifecycle, date=date.today(), note="Tray Moved",
                                   crop=arriving_slot.current_crop)
     leaving_slot.save()
     arriving_slot.save()
@@ -257,8 +255,7 @@ def record_note(request, slot_id):
     """POST: Record that the crop has been moved and redirect user to homepage."""
     crop = Slot.objects.get(id=slot_id).current_crop
     note = request.POST["note"]
-    date = datetime.now()
-    CropRecord.objects.create(record_type="NOTE", date=date, note=note, crop=crop)
+    CropRecord.objects.create(record_type="NOTE", date=date.today(), note=note, crop=crop)
     return redirect(slot_detail, slot_id=slot_id)
 
 
@@ -275,9 +272,9 @@ def update_crop_record(request, record_id):
     """POST: Updates the specified record"""
     crop_record = CropRecord.objects.get(id=record_id)
     updated_date = request.POST["date"]
-    datetime_object = parser.parse(updated_date).replace(tzinfo=tz.tzlocal())
+    date_object = parser.parse(updated_date)
     updated_note = request.POST["note"]
-    crop_record.date = datetime_object
+    crop_record.date = date_object
     crop_record.note = updated_note
     crop_record.save()
     crop = crop_record.crop
@@ -294,7 +291,7 @@ def sanitation_records(request):
     POST: Records the new sanitation record"""
     if request.method == 'GET':
         sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
-        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y %H:%M") })
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y") })
         return render(request, "inventory/sanitation_records.html",
                       context={"record_list": sanitation_record_list, "form": form })
 
@@ -561,3 +558,4 @@ def weekday_autofill(request):
     #     'days_grow': Variety.objects.get(name=variety).days_grow
     # }
     return JsonResponse(data)
+    

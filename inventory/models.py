@@ -1,6 +1,5 @@
 from django.db import models
-
-# Create your models here.
+from django.utils import timezone
 
 
 class Variety(models.Model):
@@ -47,9 +46,9 @@ class CropRecord(models.Model):
         ('NOTE', 'Notes')
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
-    note = models.CharField(max_length=200)
+    note = models.CharField(max_length=200, blank=True)
 
 
 class Slot(models.Model):
@@ -63,7 +62,7 @@ class Slot(models.Model):
 
 class SanitationRecord(models.Model):
     """Represents a sanitation record of when the equipment has been sanitized for health inspectors"""
-    date = models.DateTimeField()
+    date = models.DateField()
     employee_name = models.CharField(max_length=25)
     equipment_sanitized = models.CharField(max_length=100)
     chemicals_used = models.CharField(max_length=100)
