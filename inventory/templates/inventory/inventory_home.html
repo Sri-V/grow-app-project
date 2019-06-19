@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Inventory</h1>
+    </div>
+    <div>
+        <table id="inventory_links" class="table" style='width: 100%;'>
+            <tr>
+                <td width='30%' style='text-align: center; vertical-align: middle;'><a href="{% url "inventory_seed" %}" class="btn btn-default">SEED</a></td>
+                <td width='30%' style='text-align: center; vertical-align: middle;'><a href="{% url "inventory_kill" %}" class="btn btn-default">KILL</a></td>
+                <td width='30%' style='text-align: center; vertical-align: middle;'><a href="{% url "inventory_harvest_bulk" %}" class="btn btn-default">HARVEST: BULK</a><br>
+                    <a href="{% url "inventory_harvest_variety" %}" class="btn btn-default">HARVEST: SINGLE VARIETY</a><br>
+                    <a href="{% url "inventory_harvest_single" %}" class="btn btn-default">HARVEST: SINGLE TRAY</a><br></td>
+            </tr>
+            <tr>
+                <td width='30%'></td>
+                <td width='30%' style='text-align: center'><a href="{% url "inventory_overview" %}" class="btn btn-default">OVERVIEW</a></td>
+                <td width='30%'></td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

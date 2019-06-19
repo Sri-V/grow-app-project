@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Greenhouse Inventory{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Overview</h1>
+    </div>
+    <div id="greenhouse_inventory">
+        <table id="inventory" class="table">
+            <tr>
+                <th></th>
+                <th>B</th>
+                <th>M</th>
+                <th>S</th>
+            </tr>
+            {% for variety in in_house %}
+            <tr>
+                <td width='40%'>{{ variety.variety }}</td>
+                <td width='20%'>{{ variety.num_big }}</td>
+                <td width='20%'>{{ variety.num_medium }}</td>
+                <td width='20%'>{{ variety.num_small }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+

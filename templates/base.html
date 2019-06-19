@@ -32,6 +32,8 @@
     {% endblock %}
     <script type='text/javascript'>
 
+        window.onload = autofill_weekday;
+
         function autofill_variety(variety) {
             var form = $("#form-new-crop");
             $.ajax({
@@ -49,6 +51,24 @@
                 fail: function (data) {
                 console.log("Ajax request of variety info failed.");
                 console.log(data);
+                }
+            });
+        }
+
+        function autofill_weekday(day) {
+            var form = $("#form-plan");
+            $.ajax({
+                url: form.attr("data-weekday-autofill-url"),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    for (const [key, value] of Object.entries(data)) {
+                        $("#form-plan-" + key).val(value);
+                    }
+                },
+                fail: function (data) {
+                    console.log("Ajax request of weekday info failed.");
+                    console.log(data);
                 }
             });
         }
