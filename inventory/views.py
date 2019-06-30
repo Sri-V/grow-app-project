@@ -10,7 +10,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 import json
 
-# Create your views here.
+@login_required
+def golden_trays_home(request):
+    """GET: Display the homepage for the golden trays"""
+    return render(request, "inventory/golden_trays_home.html")
+
 @login_required
 def homepage(request):
     """GET: Display a homepage that offers links to detail pages for crops and slots."""

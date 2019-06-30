@@ -4,20 +4,21 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <section id="primary-actions" class="row d-flex flex-column align-items-center justify-content-center">
-        <h1>Scan a crop to begin,</h1>
-        <h2>or <a id="link-new-crop" href="{% url "create_crop" %}">add a new crop</a>.</h2>
-        <br/>
-        <a id="link-to-inventory" class="col-6" href="{% url "inventory_home" %}">
-            Inventory</a>
-        <a id="link-to-sanitation-records" class="col-6" href="{% url "sanitation_records" %}">
-            Sanitation Records</a>
-        <a id="link-to-growhouse-settings" class="col-6" href="{% url "growhouse_settings" %}">
-            Growhouse Settings</a>
-    </section>
-{% endblock %}
+        <div class="row align-items-center justify-content-center">
+            <div class="col-sm-12">
+                <h1 class="text-center">BMG Grow App Home</h1>
+                <br>
+            </div>
+            <div class="col-sm-6 border rounded">
+                <a id="link-to-inventory" href="{% url "inventory_home" %}"><h2 class="text-center">Inventory</h2></a>
+            </div>
+            <div class="col-sm-6 border rounded">
+                <a id="link-to-golden-trays" href="{% url "golden_trays_home" %}"><h2 class="text-center">Golden Trays</h2></a>
+            </div>
+            <a id="link-to-sanitation-records" class="col-12 text-center" href="{% url "sanitation_records" %}">
+                <br>
+                <h6>Sanitation Records</h6></a>
+        </div>
 
-{% block scripts %}
-    <script src="{% static "barcode/barcodeEvent.js" %}"></script>
-    <script src="{% static "barcode/homepageController.js" %}"></script>
+
 {% endblock %}

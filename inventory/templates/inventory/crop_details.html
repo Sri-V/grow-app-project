@@ -3,62 +3,39 @@
 {% block title %}Crop Details{% endblock %}
 
 {% block extrahead %}
-{{ crop_record_form.media }}
+    {{ crop_record_form.media }}
 {% endblock %}
 
 {% block content %}
     <div id="crop-details" class="jumbotron col-10 col-lg-8 row d-flex">
         <div class="col-12 col-md-6">
             <h1>Crop Details</h1>
-            <div id="crop-type">
-                Crop Type: {{ crop.variety.name }}
+            <div id="crop-variety">
+                Variety: {{ crop.variety.name }}
+            </div>
+            <div id="day-planted">
+                Day Planted: {{ seed.date }}
+            </div>
+            <div id="days-germinated">
+                Days Germinated:
+                {#                Days Germinated: {{ crop.germ_days }}#}
+            </div>
+            <div id="water-date">
+                Last watered: {{ water.date|default:"Never" }}
             </div>
             <div id="tray-size">
                 Tray Size: {{ crop.get_tray_size_display }}
             </div>
-            <div id="live-delivery">
-                Live Delivery: {{ crop.live_delivery }}
-            </div>
-            <div id="exp-num-germ-days">
-                Expected number of germination days: {{ crop.exp_num_germ_days }}
-            </div>
-            <div id="exp-num-grow-days">
-                Expected number of grow days: {{ crop.exp_num_grow_days }}
-            </div>
-        </div>
-        <div class="col-12 col-md-6">
-            <div id="current-details">
-                <h2>Recent Activity</h2>
-                <div id="water-date">
-                    Last watered: {{ water.date|default:"Never" }}
+            {% if harvest %}
+                <div id="harvest-date">
+                    Harvested: {{ harvest.date }}
                 </div>
-                <div id="seed-date">
-                    Seeded: {{ seed.date|default:"Never" }}
+            {% endif %}
+            {% if trash %}
+                <div id="trash-date">
+                    Trashed: {{ trash.date }}
                 </div>
-                <div id="grow-date">
-                    Sprouted: {{ grow.date|default:"Never" }}
-                </div>
-                {% if harvest %}
-                    <div id="harvest-date">
-                        Harvested: {{ harvest.date }}
-                    </div>
-                {% endif %}
-                {% if delivered %}
-                    <div id="delivered-date">
-                        Delivered: {{ delivered.date }}
-                    </div>
-                {% endif %}
-                {% if trash %}
-                    <div id="trash-date">
-                        Trashed: {{ trash.date }}
-                    </div>
-                {% endif %}
-                {% if returned %}
-                    <div id="returned-date">
-                        Returned: {{ returned.date }}
-                    </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
 
     </div>
@@ -86,7 +63,7 @@
                 {% else %}
                     <tr>
                     <td width='20%'>{{ record.date }}</td>
-                    <td width='30%'>{{ record.get_record_type_display }}</td>
+                    <td width='40%'>{{ record.get_record_type_display }}</td>
                     <td width='40%'>{{ record.note|default:"None" }}</td>
                 {% endif %}
             {% if not edit %}
@@ -97,14 +74,14 @@
             {% endfor %}
         </table>
 
-    <div id="add-crop-record" class="col-8">
-        <h1>Add Crop Record</h1>
-        <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">
-            {% csrf_token %}
-            {{ crop_record_form.as_p }}
-            <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>
-        </form>
-    </div>
+        <div id="add-crop-record" class="col-12">
+            <h1>Add Crop Record</h1>
+            <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">
+                {% csrf_token %}
+                {{ crop_record_form.as_p }}
+                <input id="form-add-crop-record-submit" type="submit" class="btn btn-primary" value="Add Crop Record"/>
+            </form>
+        </div>
     </div>
 {% endblock %}
 

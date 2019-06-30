@@ -8,67 +8,114 @@
         <div class="row d-flex justify-content-between jumbotron">
             <div class="col-12 col-md-4">
                 <h1 id="slot-id">Slot #{{ slot_id }}</h1>
+                <div id="crop-variety">
+                    Variety: {{ crop.variety.name }}
+                </div>
+                <div id="day-planted">
+                    Day Planted: {{ seed.date }}
+                </div>
+                <div id="days-germinated">
+                    Days Germinated:
+                    {#                Days Germinated: {{ crop.germ_days }}#}
+                </div>
+                <div id="water-date">
+                    Last watered: {{ water.date|default:"Never" }}
+                </div>
+                <div id="tray-size">
+                    Tray Size: {{ crop.get_tray_size_display }}
+                </div>
+                {% if harvest %}
+                    <div id="harvest-date">
+                        Harvested: {{ harvest.date }}
+                    </div>
+                {% endif %}
+                {% if trash %}
+                    <div id="trash-date">
+                        Trashed: {{ trash.date }}
+                    </div>
+                {% endif %}
             </div>
-            <div class="col-12 col-md-8 col-lg-7 col-xl-6">
+
+            <div class="col-12 col-md-6">
                 <div id="current-crop-type">
                     <h2>Current Crop:
-                    {% if current_crop %}
-                        <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
-                    {% else %}
-                        None
-                    {% endif %}</h2>
+                        {% if current_crop %}
+                            <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
+                        {% else %}
+                            None
+                        {% endif %}</h2>
                 </div>
 
                 {% if current_crop %}
-                <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input type="submit" value="Water The Crop" name="record-watered-crop"
-                               class="btn btn-primary btn-lg" id="form-record-watered-crop-submit"/>
-                    </div>
-                </form>
+                    <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="submit" value="Water The Crop" name="record-watered-crop"
+                                   class="btn btn-primary btn-lg" id="form-record-watered-crop-submit"/>
+                        </div>
+                    </form>
 
-                <form id="form-harvest-crop" action="/slot/{{ slot_id }}/action/harvest" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input id="form-harvest-tray-submit" type="submit" value="Harvest The Crop"
+                    <form id="form-harvest-crop" action="/slot/{{ slot_id }}/action/harvest" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input id="form-harvest-tray-submit" type="submit" value="Harvest The Crop"
+                                   class="btn btn-primary btn-lg"/>
+                        </div>
+                    </form>
+                    <h3>Trash the Crop</h3>
+                    <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <textarea name="reason-for-trash-text" id="form-record-dead-crop-reason"
+                                      form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
+                        </div>
+                        <input type="submit" value="Trash The Crop" id="form-record-dead-crop-submit"
                                class="btn btn-primary btn-lg"/>
-                    </div>
-                </form>
+                    </form>
                 {% endif %}
 
             </div>
         </div>
+        <div id="crop-history" class="col-12">
+            <h1>Crop History</h1>
+            <table id="records" class="table">
+                <tr>
+                    <th>Date</th>
+                    <th>Record Type</th>
+                    <th>Note</th>
+                </tr>
+                {% for record in history %}
+                    {% if edit and record_id == record.id %}
+                        <form id="form-edit-crop-record" action="/record/{{ record.id }}/edit" method="POST">
+                            {% csrf_token %}
+                            <tr>
 
+                                <td width='20%'><input id="form-edit-crop-record-date" value="{{ record.date }}" name="date"/></td>
+                                <td width='30%'>{{ record.get_record_type_display }}</td>
+                                <td width='40%'><textarea name="note" id="form-edit-crop-record-note" form="form-edit-crop-record">{{ record.note }}</textarea></td>
+                                <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Save"/></td>
+                                <td width='5%' id="cancel_edit"><a href="/crop/{{ crop.id }}/">Cancel</a></td>
+                            </tr>
+                        </form>
+                    {% else %}
+                        <tr>
+                        <td width='20%'>{{ record.date }}</td>
+                        <td width='40%'>{{ record.get_record_type_display }}</td>
+                        <td width='40%'>{{ record.note|default:"None" }}</td>
+                    {% endif %}
+                {% if not edit %}
+                    <td width='5%' id="edit_record_{{ record.id }}"><a href="/crop/{{ crop.id }}/?edit=True&id={{ record.id }}">Edit</a></td>
+                    <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
         <div class="row d-flex flex-column">
             {% if current_crop %}
                 <h2>More Actions</h2>
 
-                <h3>Move the Tray</h3>
-                <form action="/slot/{{ slot_id }}/action/move_tray" method="post" id="form-move-tray">
-                    {% csrf_token %}
-
-                    <div class="form-group d-flex row">
-                        <button type="button" class="select-scan btn btn-primary"
-                                    id="form-move-tray-barcode-btn">Scan Slot Destination</button>
-                        <input type="text" id="form-move-tray-barcode-input" name="slot-destination-barcode"
-                               placeholder="Or type the barcode here">
-                    </div>
-
-                    <div class="form-group">
-                    <label for="form-move-tray-destination-phase">New Grow Phase?</label>
-                    <select id="form-move-tray-destination-phase" name="new-lifecycle-moment" class="form-control">
-                            <option>-- none --</option>
-                            <option>GROW</option>
-                            <option>GERM</option>
-                            <option>SEED</option>
-                            <option>TRASH</option>
-                    </select>
-                    </div>
-
-                    <input id="form-move-tray-submit" value="Move The Tray" type="submit"
-                           class="btn btn-primary btn-lg">
-                </form>
 
                 <h3>Record a Note</h3>
                 <form action="/slot/{{ slot_id }}/action/note" id="form-record-note" method="post">
@@ -81,17 +128,7 @@
                            class="btn btn-primary btn-lg"/>
                 </form>
 
-                <h3>Trash the Crop</h3>
-                <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
-                    {% csrf_token %}
 
-                    <div class="form-group">
-                        <textarea name="reason-for-trash-text" id="form-record-dead-crop-reason"
-                                  form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
-                    </div>
-                    <input type="submit" value="Trash The Crop" id="form-record-dead-crop-submit"
-                           class="btn btn-primary btn-lg"/>
-                </form>
 
             {% else %}
                 <p id="empty-slot">Would you like to
