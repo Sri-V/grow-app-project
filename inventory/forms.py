@@ -10,13 +10,13 @@ class AddVarietyForm(forms.ModelForm):
         model = Variety
         fields = '__all__'
         labels = {
-            'days_germ':'Days in Germination:',
-            'days_grow':'Days in Grow:'
+            'days_germ': 'Days in Germination:',
+            'days_grow': 'Days in Grow:'
         }
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'id':'form-add-variety-name', 'placeholder': 'e.g. Basil'}),
-            'days_germ': forms.NumberInput(attrs={'class': 'form-control', 'id':'form-add-variety-days-germ', 'min': '1'}),
-            'days_grow': forms.NumberInput(attrs={'class': 'form-control', 'id':'form-add-variety-days-grow', 'min': '1'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'form-add-variety-name', 'placeholder': 'e.g. Basil'}),
+            'days_germ': forms.NumberInput(attrs={'class': 'form-control', 'id': 'form-add-variety-days-germ', 'min': '1'}),
+            'days_grow': forms.NumberInput(attrs={'class': 'form-control', 'id': 'form-add-variety-days-grow', 'min': '1'}),
         }
 
     def clean_name(self):
@@ -34,30 +34,41 @@ class SanitationRecordForm(ModelForm):
         widgets = {
             'date': DatePickerInput(
                 options={
-                     "format": "MM/DD/YYYY",
-                 }),
+                    "format": "MM/DD/YYYY",
+                }),
             'employee_name': TextInput(attrs={'class': 'form-control'}),
             'equipment_sanitized': TextInput(attrs={'class': 'form-control'}),
             'chemicals_used': TextInput(attrs={'class': 'form-control'}),
             'note': Textarea(attrs={'class': 'form-control'}),
         }
 
+
 class CropRecordForm(ModelForm):
     class Meta:
         model = CropRecord
-        fields = ['record_type', 'date', 'note']
+        fields = ['record_type', 'date']
         widgets = {
-            'record_type': forms.Select(choices=CropRecord.RECORD_TYPES,attrs={'class': 'form-control'}),
+            'record_type': forms.Select(choices=CropRecord.RECORD_TYPES, attrs={'class': 'form-control'}),
             'date': DatePickerInput(
                 options={
                     "format": "MM/DD/YYYY",
                 }),
-            'note': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
+            # 'note': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
         }
+
+
+class CropNotesForm(ModelForm):
+    class Meta:
+        model = Crop
+        fields = ['notes']
+        widgets = {
+            'notes': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
+        }
+
 
 class DateSeededForm(forms.Form):
     date_seeded = forms.DateField(widget=DatePickerInput(
-                options={
-                    "format": "MM/DD/YYYY",
-                },
-                attrs={'class': 'form-control'}))
+        options={
+            "format": "MM/DD/YYYY",
+        },
+        attrs={'class': 'form-control'}))

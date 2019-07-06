@@ -71,6 +71,19 @@ def add_variety(request):
     total_slot_count = Slot.objects.count()
     return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": form})
 
+@login_required
+def record_notes(request, crop_id):
+    """POST: Adds or updates notes for a given crop"""
+    form = CropNotesForm(request.POST)
+    crop = Crop.objects.get(id=crop_id)
+    if form.is_valid():
+        notes = form.cleaned_data["notes"]
+        crop.notes = notes
+        crop.save()
+
+    next = request.POST.get('next', '/')
+    return HttpResponseRedirect(next)
+
 
 @login_required
 def create_crop(request):
@@ -178,11 +191,6 @@ def record_crop_info(request, crop_id):
         new_crop_record = CropRecord.objects.create(crop=current_crop, record_type=record_type, date=record_date, note=record_note)
         return redirect(crop_detail, crop_id=current_crop.id)
 
-@login_required
-def update_crop_lifecycle():
-    """POST: Advance the crop from one lifecycle moment to another."""
-    return None
-
 
 @login_required
 def slot_detail(request, slot_id):
@@ -191,7 +199,9 @@ def slot_detail(request, slot_id):
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
     open_slots = Slot.objects.filter(current_crop=None)
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots })
+    all_records = CropRecord.objects.filter(crop=current_crop).order_by("-date")
+    notes_form = CropNotesForm(initial={'notes':current_crop.notes})
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots, "notes_form": notes_form, "history": all_records })
 
 
 @login_required
@@ -252,15 +262,6 @@ def move_tray(request, slot_id):
     leaving_slot.save()
     arriving_slot.save()
     return redirect(slot_detail, slot_id=arriving_slot.id)
-
-
-@login_required
-def record_note(request, slot_id):
-    """POST: Record that the crop has been moved and redirect user to homepage."""
-    crop = Slot.objects.get(id=slot_id).current_crop
-    note = request.POST["note"]
-    CropRecord.objects.create(record_type="NOTE", date=date.today(), note=note, crop=crop)
-    return redirect(slot_detail, slot_id=slot_id)
 
 
 @login_required

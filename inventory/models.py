@@ -22,42 +22,57 @@ class Crop(models.Model):
         ('1010', '10" × 10"'),
         ('0505', '5" × 5"'),
     )
+    SUBSTRATES = (
+        ('Promix'),
+        # ???
+    )
+    LIGHT_TYPES = (
+        ('LED', 'LED'),
+        ('T5', 'T5')
+    )
+    LIGHTS_DISTANCES = (
+        ('S', 'Short'),
+        ('M', 'Medium'),
+        ('L', 'Long')
+    )
+
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
     tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
-    live_delivery = models.BooleanField(default=True)  # Do we deliver the live tray to the customer or cut it for them?
-    # The number of days we plan to let the Crop germinate and grow, respectively
-    # Different from the actual length of germination/grow time, encoded as CropRecords
-    exp_num_germ_days = models.IntegerField()
-    exp_num_grow_days = models.IntegerField()
+    # substrate = models.CharField(max_length=10 ) # TODO -- Add choices
+    # light_type = models.CharField(max_length=3, choices=LIGHT_TYPES)
+    # light_distance = models.CharField(max_length=1, choices=LIGHTS_DISTANCES)
+    # ## density = models.CharField(
+    # crop_yield = models.FloatField(blank=True, null=True)
+
+    # Number of germination days are inputted when the plant is added to the rack
+    # germ_days = models.IntegerField()
+    notes = models.TextField()
 
 
 class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
     list of all CropRecords describe the entire life of a plant from start to finish."""
     RECORD_TYPES = (
-        ('SEED', 'Seeded'),
-        ('GERM', 'Germinated/Sprouted'),
-        ('GROW', 'Growth Milestone'),
+        ('SEED', 'Seeded'),  # generate from what the user has typed in for germination days
+        ('GERM', 'Finished Germinating/Sprouted'),  # generate from current date
+        # ('GROW', 'Growth Milestone'),
         ('WATER', 'Watered'),
         ('HARVEST', 'Harvested'),
-        ('DELIVERED', 'Delivered to Customer'),
-        ('TRASH', 'Disposed'),
-        ('RETURNED', 'Tray Returned'),
-        ('NOTE', 'Notes')
+        # ('DELIVERED', 'Delivered to Customer'),
+        ('TRASH', 'Trashed'),
+        # ('RETURNED', 'Tray Returned'),
+        # ('NOTE', 'Notes')
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
-    note = models.CharField(max_length=200, blank=True)
+    # note = models.CharField(max_length=200, blank=True)
 
 
 class Slot(models.Model):
-    """Represents an address on a grow rack for a single Crop. Has a barcode, links to a Crop object, and is part
-    of one or more Locations in the greenhouse hierarchy (e.g.: a rack or a shelf on a rack)."""
+    """Represents an address on a grow rack for a single Crop. Has a barcode and links to a Crop object"""
     barcode = models.CharField(max_length=50, blank=True, unique=True)
-    # accurate
-    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
-    # location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
+    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, related_name='current_slot',  blank=True, null=True)
 
 
 class SanitationRecord(models.Model):
