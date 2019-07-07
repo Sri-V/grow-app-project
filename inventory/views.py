@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
+from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
 from inventory.forms import *
 from datetime import date, datetime
 from dateutil import parser
@@ -122,6 +122,8 @@ def create_crop(request):
         # Redirect the user to the slot details page
         return redirect(slot_detail, slot_id=slot.id)
 
+def get_crop_attributes_list(crop):
+    return [('Light Type', 'LED'), ('Soil Type', 'Prolite'), ('Light Distance', 'Short')]
 
 @login_required
 def crop_detail(request, crop_id):
@@ -173,8 +175,12 @@ def crop_detail(request, crop_id):
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
+    # light_type = CropAttributeOption.objects.filter(crops__id=crop.id)
+    crop_attribute = crop.crop_attributes.filter(attribute_group__name='Light Type')[0]
+    print("light_type", crop_attribute)
+    light_type = crop_attribute
 
-    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
+    return render(request, "inventory/crop_details.html", context={"light_type": light_type, "history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
                            "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id,
                                                                    "crop_record_form": crop_record_form })
 
@@ -199,9 +205,15 @@ def slot_detail(request, slot_id):
      see as they're working all day, so it needs to feel like a control panel."""
     current_crop = Slot.objects.get(id=slot_id).current_crop
     open_slots = Slot.objects.filter(current_crop=None)
+    crop_attributes = get_crop_attributes_list(current_crop)
     all_records = CropRecord.objects.filter(crop=current_crop).order_by("-date")
     notes_form = CropNotesForm(initial={'notes':current_crop.notes})
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id, "current_crop": current_crop, "open_slots": open_slots, "notes_form": notes_form, "history": all_records })
+    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
+                                                                   "current_crop": current_crop,
+                                                                   "open_slots": open_slots,
+                                                                   "crop_attributes": crop_attributes,
+                                                                   "notes_form": notes_form,
+                                                                   "history": all_records })
 
 
 @login_required

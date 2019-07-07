@@ -11,42 +11,73 @@ class Variety(models.Model):
     def __str__(self):
         return self.name
 
+
+class CropAttribute(models.Model):
+    """Represent the an attribute abut a given crop that we would like to track. (e.g. Light height,
+    soil type, substrate type, ect.)"""
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+class CropAttributeOption(models.Model):
+    """Represents a specific crop attribute type. For example if the CropAttribute was Light Type,
+    then the CropAttributeOption's would be LED and T5."""
+    attribute_group = models.ForeignKey(CropAttribute, related_name='options', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    # tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
+    # substrate = models.CharField(max_length=10 ) # TODO -- Add choices
+    # light_type = models.CharField(max_length=3, choices=LIGHT_TYPES)
+    # light_distance = models.CharField(max_length=1, choices=LIGHTS_DISTANCES)
+    # ## density = models.CharField(
+
+    # TRAY_SIZES = (
+    #     ('1020', 'Standard - 10" × 20"'),
+    #     ('1010', '10" × 10"'),
+    #     ('0505', '5" × 5"'),
+    # )
+    # SUBSTRATES = (
+    #     ('Promix'),
+    #     # ???
+    # )
+    # LIGHT_TYPES = (
+    #     ('LED', 'LED'),
+    #     ('T5', 'T5')
+    # )
+    # LIGHTS_DISTANCES = (
+    #     ('S', 'Short'),
+    #     ('M', 'Medium'),
+    #     ('L', 'Long')
+    # )
+
 class Crop(models.Model):
     """Represents a single attempt to grow a tray of Microgreens at a given time. Maintains a history of growth data
     in the form of sensor data, lifecycle advancements, tray movements, grower actions, and free-form notes.
     
     -> History recorded elsewhere, but linked by the crop's ID.
     """
-    TRAY_SIZES = (
-        ('1020', 'Standard - 10" × 20"'),
-        ('1010', '10" × 10"'),
-        ('0505', '5" × 5"'),
-    )
-    SUBSTRATES = (
-        ('Promix'),
-        # ???
-    )
-    LIGHT_TYPES = (
-        ('LED', 'LED'),
-        ('T5', 'T5')
-    )
-    LIGHTS_DISTANCES = (
-        ('S', 'Short'),
-        ('M', 'Medium'),
-        ('L', 'Long')
-    )
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
-    # substrate = models.CharField(max_length=10 ) # TODO -- Add choices
-    # light_type = models.CharField(max_length=3, choices=LIGHT_TYPES)
-    # light_distance = models.CharField(max_length=1, choices=LIGHTS_DISTANCES)
-    # ## density = models.CharField(
-    # crop_yield = models.FloatField(blank=True, null=True)
-
-    # Number of germination days are inputted when the plant is added to the rack
-    # germ_days = models.IntegerField()
+    crop_attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
+    germ_days = models.IntegerField()
+    grow_days = models.IntegerField()
+    crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
+    leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     notes = models.TextField()
+
+    def save(self, *args, **kwargs):
+        # check that the crop has all the crop attributes that we have created
+        # only needs to be checked on creation
+        if not self.pk:
+            # loops through all the crop attributes to make sure it has a value for each
+            pass
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+
 
 
 class CropRecord(models.Model):

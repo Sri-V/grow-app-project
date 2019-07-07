@@ -8,22 +8,17 @@
         <div class="row d-flex justify-content-between jumbotron">
             <div class="col-12 col-md-4">
                 <h1 id="slot-id">Slot #{{ slot_id }}</h1>
-                <div id="crop-variety">
-                    Variety: {{ crop.variety.name }}
-                </div>
-                <div id="day-planted">
-                    Day Planted: {{ seed.date }}
+                <div id="date-planted">
+                    Date Planted: {{ seed.date }}
                 </div>
                 <div id="days-germinated">
-                    Days Germinated:
-                    {#                Days Germinated: {{ crop.germ_days }}#}
+                    Days Germinated: {{ current_crop.germ_days }}
                 </div>
-                <div id="water-date">
-                    Last watered: {{ water.date|default:"Never" }}
+                {% for attribute in crop_attributes %}
+                <div id="{{ attribute.0 }}">
+                    {{ attribute.0 }}: {{ attribute.1 }}
                 </div>
-                <div id="tray-size">
-                    Tray Size: {{ crop.get_tray_size_display }}
-                </div>
+                {% endfor %}
                 {% if harvest %}
                     <div id="harvest-date">
                         Harvested: {{ harvest.date }}
