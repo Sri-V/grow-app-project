@@ -1,4 +1,4 @@
-from inventory.models import Crop, Slot, Variety, SanitationRecord, CropRecord
+from inventory.models import Crop, CropAttribute, CropAttributeOption, Slot, Variety, SanitationRecord, CropRecord
 from django import forms
 from django.forms import ModelForm, Textarea, TextInput
 from django.core.exceptions import ValidationError
@@ -72,3 +72,34 @@ class DateSeededForm(forms.Form):
             "format": "MM/DD/YYYY",
         },
         attrs={'class': 'form-control'}))
+
+def generate_attributes():
+    attributes = CropAttribute.objects.all()
+    crop_attributes_list = []
+    for attr in attributes:
+        attribute_name = attr.name
+        attribute_options = attr.options.all()
+        choices_tuple = ()
+        for option in attribute_options:
+            choices_tuple += ((option.name, option.name),)
+        select_tuple = (attribute_name, choices_tuple)
+        crop_attributes_list.append(select_tuple)
+    return crop_attributes_list
+
+class NewCropForm(forms.Form):
+    variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                     widget=forms.Select(attrs={'class': 'form-control'}))
+
+    date_seeded = forms.DateField(widget=DatePickerInput(
+        options={
+            "format": "MM/DD/YYYY",
+        },
+        attrs={'class': 'form-control'}))
+
+    days_germinated = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        attrs = generate_attributes()
+        super(NewCropForm, self).__init__(*args, **kwargs)
+        for attribute in attrs:
+            self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))

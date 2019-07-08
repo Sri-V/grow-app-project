@@ -96,31 +96,59 @@ def create_crop(request):
         current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
         variety = variety_list[0]
         date_form = DateSeededForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
+        new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow, "date_form": date_form})
+                      context={"variety_list": variety_list, "slot_list": slot_list, "days_germ": variety.days_germ, "days_grow": variety.days_grow, "date_form": date_form, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
-        variety_name = request.POST["variety"]
-        tray_size = str(request.POST["tray-size"])
-        delivered_live = (request.POST["delivered-live"] == 'True')
-        germination_length = int(request.POST["germination-length"])
-        grow_length = int(request.POST["grow-length"])
-        slot_barcode = request.POST["slot-barcode"]
-        variety = Variety.objects.get(name=variety_name)
-        
-        slot = get_object_or_404(Slot, barcode=slot_barcode)
-        if slot.current_crop is not None:
-            return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
-        
-        new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live,
-                                       exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
-        slot.current_crop = new_crop
-        slot.save()
-        
-        # Create crop record for this event
-        CropRecord.objects.create(crop=new_crop, record_type='SEED')
-        # Redirect the user to the slot details page
-        return redirect(slot_detail, slot_id=slot.id)
+        form = NewCropForm(request.POST)
+        if form.is_valid():
+            variety = form.cleaned_data.pop('variety')
+            date_seeded = form.cleaned_data.pop('date_seeded')
+            days_germinated = form.cleaned_data.pop('days_germinated')
+            slot_barcode = request.POST["slot-barcode"]
+            slot = get_object_or_404(Slot, barcode=slot_barcode)
+            if slot.current_crop is not None:
+                return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+            print("cleaned data:", form.cleaned_data)
+
+            # del form.cleaned_data['variety']
+            # del form.cleaned_data['date_seeded']
+            # del form.cleaned_data['days_germinated']
+            new_crop = Crop.objects.create(variety=variety, germ_days=days_germinated)
+            form_attributes = form.cleaned_data
+            # print(form_attributes)
+            for attribute_option in form_attributes.values():
+                print(attribute_option)
+                crop_attribute_option = CropAttributeOption.objects.get(name=attribute_option)
+                new_crop.attributes.add(crop_attribute_option)
+
+            slot.current_crop = new_crop
+            slot.save()
+            # Redirect the user to the slot details page
+            return redirect(slot_detail, slot_id=slot.id)
+
+        # tray_size = str(request.POST["tray-size"])
+        # days_germ = int(request.POST["germination-length"])
+        # slot_barcode = request.POST["slot-barcode"]
+        # variety = Variety.objects.get(name=variety_name)
+        #
+        # slot = get_object_or_404(Slot, barcode=slot_barcode)
+        # if slot.current_crop is not None:
+        #     return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+        #
+        # new_crop = Crop.objects.create(variety=variety, tray_size=tray_size, live_delivery=delivered_live,
+        #                                exp_num_germ_days=germination_length, exp_num_grow_days=grow_length)
+        # slot.current_crop = new_crop
+        # slot.save()
+        #
+        # # Create crop record for this event
+        # CropRecord.objects.create(crop=new_crop, record_type='SEED')
+        # # Redirect the user to the slot details page
+        # return redirect(slot_detail, slot_id=slot.id)
+        #
+        # request.method = "GET"
+        # return create_crop(request)
 
 def get_crop_attributes_list(crop):
     return [('Light Type', 'LED'), ('Soil Type', 'Prolite'), ('Light Distance', 'Short')]
@@ -176,8 +204,8 @@ def crop_detail(request, crop_id):
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
     # light_type = CropAttributeOption.objects.filter(crops__id=crop.id)
-    crop_attribute = crop.crop_attributes.filter(attribute_group__name='Light Type')[0]
-    print("light_type", crop_attribute)
+    print(crop.attributes.all())
+    crop_attribute = crop.attributes.filter(attribute_group__name='Light Type')[0]
     light_type = crop_attribute
 
     return render(request, "inventory/crop_details.html", context={"light_type": light_type, "history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,

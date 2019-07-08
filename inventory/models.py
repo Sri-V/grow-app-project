@@ -63,9 +63,9 @@ class Crop(models.Model):
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    crop_attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
+    attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
     germ_days = models.IntegerField()
-    grow_days = models.IntegerField()
+    grow_days = models.IntegerField(null=True, blank=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     notes = models.TextField()
