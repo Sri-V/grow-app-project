@@ -3,10 +3,8 @@ from django.utils import timezone
 
 
 class Variety(models.Model):
-    """Represents the types of plants that can be grown. Has a name and number of days between plant and harvest."""
+    """Represents the types of plants that can be grown."""
     name = models.CharField(max_length=50)
-    days_germ = models.IntegerField(null=True)
-    days_grow = models.IntegerField(null=True)
 
     def __str__(self):
         return self.name
@@ -30,30 +28,6 @@ class CropAttributeOption(models.Model):
     def __str__(self):
         return self.name
 
-    # tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
-    # substrate = models.CharField(max_length=10 ) # TODO -- Add choices
-    # light_type = models.CharField(max_length=3, choices=LIGHT_TYPES)
-    # light_distance = models.CharField(max_length=1, choices=LIGHTS_DISTANCES)
-    # ## density = models.CharField(
-
-    # TRAY_SIZES = (
-    #     ('1020', 'Standard - 10" × 20"'),
-    #     ('1010', '10" × 10"'),
-    #     ('0505', '5" × 5"'),
-    # )
-    # SUBSTRATES = (
-    #     ('Promix'),
-    #     # ???
-    # )
-    # LIGHT_TYPES = (
-    #     ('LED', 'LED'),
-    #     ('T5', 'T5')
-    # )
-    # LIGHTS_DISTANCES = (
-    #     ('S', 'Short'),
-    #     ('M', 'Medium'),
-    #     ('L', 'Long')
-    # )
 
 class Crop(models.Model):
     """Represents a single attempt to grow a tray of Microgreens at a given time. Maintains a history of growth data
@@ -84,20 +58,15 @@ class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
     list of all CropRecords describe the entire life of a plant from start to finish."""
     RECORD_TYPES = (
-        ('SEED', 'Seeded'),  # generate from what the user has typed in for germination days
-        ('GERM', 'Finished Germinating/Sprouted'),  # generate from current date
-        # ('GROW', 'Growth Milestone'),
+        ('GERM', 'Started Germinating'),
+        ('GROW', 'Started Grow Phase'),
         ('WATER', 'Watered'),
         ('HARVEST', 'Harvested'),
-        # ('DELIVERED', 'Delivered to Customer'),
         ('TRASH', 'Trashed'),
-        # ('RETURNED', 'Tray Returned'),
-        # ('NOTE', 'Notes')
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
-    # note = models.CharField(max_length=200, blank=True)
 
 
 class Slot(models.Model):

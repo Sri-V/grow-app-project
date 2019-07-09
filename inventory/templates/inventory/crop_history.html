@@ -1,0 +1,35 @@
+<div id="crop-history" class="col-12">
+            {% if history %}
+            <h1>Crop History</h1>
+            <table id="records" class="table">
+                <tr>
+                    <th>Date</th>
+                    <th>Record Type</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                {% for record in history %}
+                    {% if edit and record_id == record.id %}
+                        <form id="form-edit-crop-record" action="/record/{{ record.id }}/edit" method="POST">
+                            {% csrf_token %}
+                            <tr>
+                                <td width='20%'><input id="form-edit-crop-record-date" value="{{ record.date }}" name="date"/></td>
+                                <td width='30%'>{{ record.get_record_type_display }}</td>
+                                <td width='5%'><input id="form-edit-crop-record-submit" type="submit" class="btn btn-primary" value="Save"/></td>
+                                <td width='5%' id="cancel_edit"><a href="/crop/{{ crop.id }}/">Cancel</a></td>
+                            </tr>
+                        </form>
+                    {% else %}
+                        <tr>
+                        <td width='20%'>{{ record.date }}</td>
+                        <td width='40%'>{{ record.get_record_type_display }}</td>
+                    {% endif %}
+                {% if not edit %}
+                    <td width='5%' id="edit_record_{{ record.id }}"><a href="/crop/{{ crop.id }}/?edit=True&id={{ record.id }}">Edit</a></td>
+                    <td width='5%' id="delete_record_{{ record.id }}"><a href="/record/{{ record.id }}/delete">Delete</a></td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        </div>
