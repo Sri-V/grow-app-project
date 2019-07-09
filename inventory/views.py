@@ -151,7 +151,13 @@ def create_crop(request):
         # return create_crop(request)
 
 def get_crop_attributes_list(crop):
-    return [('Light Type', 'LED'), ('Soil Type', 'Prolite'), ('Light Distance', 'Short')]
+    attribute_options = crop.attributes.all()
+    crop_attributes_list = []
+    for option in attribute_options:
+        option_name = option.name
+        attribute_name = option.attribute_group.name
+        crop_attributes_list.append((attribute_name, option_name))
+    return crop_attributes_list
 
 @login_required
 def crop_detail(request, crop_id):
@@ -203,7 +209,6 @@ def crop_detail(request, crop_id):
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
-    # light_type = CropAttributeOption.objects.filter(crops__id=crop.id)
     print(crop.attributes.all())
     crop_attribute = crop.attributes.filter(attribute_group__name='Light Type')[0]
     light_type = crop_attribute
