@@ -33,15 +33,15 @@ class Crop(models.Model):
     """Represents a single attempt to grow a tray of Microgreens at a given time. Maintains a history of growth data
     in the form of sensor data, lifecycle advancements, tray movements, grower actions, and free-form notes.
     
-    -> History recorded elsewhere, but linked by the crop's ID.
+    -> History recorded as a CropRecord, but linked by the crop's ID.
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
     germ_days = models.IntegerField()
     grow_days = models.IntegerField(null=True, blank=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
+    attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
     notes = models.TextField()
 
     def save(self, *args, **kwargs):

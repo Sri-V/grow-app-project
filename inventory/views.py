@@ -4,8 +4,7 @@ from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecor
 from inventory.forms import *
 from datetime import date, datetime
 from dateutil import parser
-from dateutil import tz
-
+from google_sheets.upload_to_sheet import upload_data_to_drive
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 import json
@@ -257,6 +256,7 @@ def harvest_crop(request, slot_id):
     slot.current_crop = None
     slot.save()
     CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
+    upload_data_to_drive(current_crop)
     return redirect(crop_detail, crop_id=current_crop.id)
 
 
