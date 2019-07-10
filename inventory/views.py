@@ -130,11 +130,11 @@ def create_crop(request):
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
 
-        # tray_size = str(request.POST["tray-size"])
-        # days_germ = int(request.POST["germination-length"])
-        # slot_barcode = request.POST["slot-barcode"]
-        # variety = Variety.objects.get(name=variety_name)
-        #
+
+@login_required
+def add_crop_attributes(request):
+    # Create the add attributes form and add attributes options form and pass them to the view
+    pass
 
 def get_crop_attributes_list(crop):
     if crop is None:

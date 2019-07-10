@@ -38,6 +38,7 @@ urlpatterns = [
     path('crop/<int:crop_id>/record_notes', views.record_notes, name="record_notes"),
     path('crop/<int:crop_id>/record', views.record_crop_info, name="record_crop_info"),
     path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
+    path('crop/add_attributes/', views.add_crop_attributes, name="add_crop_attributes"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
