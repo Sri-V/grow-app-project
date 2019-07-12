@@ -3,7 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety
 
 
-def upload_data_to_drive(crop):
+def upload_data_to_sheets(crop):
     # Set up to be able to access google sheet
     scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
@@ -24,6 +24,11 @@ def upload_data_to_drive(crop):
     row.append(crop.grow_days)
     row.append(crop.crop_yield)
     row.append(crop.leaf_wingspan)
+
+    # Add the list of all the dates that the crop was watered
+    water_records = crop.croprecord_set.filter(record_type='WATER')
+    water_dates = ','.join([record.date.strftime("%m/%d/%y") for record in water_records])
+    row.append(water_dates)
 
     # Then iterate through all the attributes
     crop_attributes = crop.attributes.all()

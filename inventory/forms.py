@@ -65,6 +65,25 @@ class CropNotesForm(ModelForm):
             'notes': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
         }
 
+class AddCropAttributesForm(ModelForm):
+    class Meta:
+        model = CropAttribute
+        fields = ['name']
+        widgets = {
+            'name': TextInput(attrs={'class': 'form-control', 'id': "form-add-crop-attribute", 'placeholder': "E.g. (Light Type, Substrate, ect.)"})
+        }
+
+class AddAttributeOptionsForm(ModelForm):
+    attribute_group = forms.ModelChoiceField(queryset=CropAttribute.objects.all(),
+                           widget=forms.Select(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = CropAttributeOption
+        fields = ['attribute_group', 'name']
+        widgets = {
+            'name': TextInput(attrs={'class': 'form-control', 'id': "form-add-attribute-option"})
+        }
+
 
 class DateSeededForm(forms.Form):
     date_seeded = forms.DateField(widget=DatePickerInput(
@@ -103,3 +122,5 @@ class NewCropForm(forms.Form):
         super(NewCropForm, self).__init__(*args, **kwargs)
         for attribute in attrs:
             self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))
+
+

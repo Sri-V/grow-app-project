@@ -58,7 +58,7 @@ class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
     list of all CropRecords describe the entire life of a plant from start to finish."""
     RECORD_TYPES = (
-        ('GERM', 'Started Germinating'),
+        ('GERM', 'Started Germination Phase'),
         ('GROW', 'Started Grow Phase'),
         ('WATER', 'Watered'),
         ('HARVEST', 'Harvested'),

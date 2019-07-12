@@ -4,7 +4,7 @@
 {% block title %}New Crop{% endblock %}
 
 {% block extrahead %}
-{{ date_form.media }}
+{{ new_crop_form.media }}
 {% endblock %}
 
 {% block content %}
@@ -18,13 +18,12 @@
                     <button type="button" class="select-scan btn btn-primary"
                                         id="form-new-crop-barcode-btn">Scan Slot</button>
                     <input type="text" id="form-new-crop-barcode-input" class="form-control" name="slot-barcode"
-                                   placeholder="Or type the barcode here">
+                                   placeholder="Or type the barcode here" value={{ barcode }}>
             </div>
             <input id="form-new-crop-submit" type="submit" class="btn btn-primary" value="Create New Crop">
         </form>
     </div>
 {% endblock %}
-{% include %}
 {% block scripts %}
     <script src="{% static "barcode/barcodeEvent.js" %}"></script>
     <script src="{% static "barcode/newCropController.js" %}"></script>

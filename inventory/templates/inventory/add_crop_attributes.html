@@ -6,7 +6,7 @@
     <div class="col-12 row d-flex justify-content-center">
         <div class="col-10 col-lg-4">
             <h2>Add Crop Attributes</h2>
-            <form id="form-add-crop-attributes" method="POST" action="/crop/attributes">
+            <form id="form-add-crop-attributes" method="POST" action="/crop/add_attribute">
                 {% csrf_token %}
                 <div class="form-group">
                     {{ add_attributes_form.as_p }}
@@ -17,10 +17,10 @@
         </div>
         <div class="col-10 col-lg-4">
             <h2>Add Attribute Options</h2>
-            <form id="form-add-attribute-options" method="POST" action="/crop/options">
+            <form id="form-add-attribute-options" method="POST" action="/crop/add_option">
                 {% csrf_token %}
                 <div class="form-group">
-                    {{ attribute_options_form.as_p }}
+                    {{ add_attribute_options_form.as_p }}
                     <input id="form-add-attribute-options-submit" type="submit" class="btn btn-primary"/>
                 </div>
             </form>

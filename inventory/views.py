@@ -2,9 +2,9 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
 from inventory.forms import *
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from dateutil import parser
-from google_sheets.upload_to_sheet import upload_data_to_drive
+from google_sheets.upload_to_sheet import upload_data_to_sheets
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 import json
@@ -91,12 +91,11 @@ def create_crop(request):
         variety_list = Variety.objects.all()
 
         slot_list = Slot.objects.filter(current_crop=None)
-        current_datetime = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
         variety = variety_list[0]
-        date_form = DateSeededForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
+        barcode = request.GET.get('barcode', '')
         new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "slot_list": slot_list, "date_form": date_form, "new_crop_form": new_crop_form})
+                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
         form = NewCropForm(request.POST)
@@ -120,7 +119,8 @@ def create_crop(request):
             slot.save()
 
             # Create a CropRecord to record when germination phase started
-            CropRecord.objects.create(crop=new_crop, record_type='GERM', date=date_seeded-days_germinated)
+            germ_date = date_seeded - timedelta(days=days_germinated)
+            CropRecord.objects.create(crop=new_crop, record_type='GERM', date=germ_date)
             # Create a CropRecord to record when germination phase started
             CropRecord.objects.create(crop=new_crop, record_type='GROW', date=date_seeded)
 
@@ -133,8 +133,30 @@ def create_crop(request):
 
 @login_required
 def add_crop_attributes(request):
-    # Create the add attributes form and add attributes options form and pass them to the view
-    pass
+    add_attributes_form = AddCropAttributesForm()
+    add_attribute_options_form = AddAttributeOptionsForm()
+    return render(request, "inventory/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form, "add_attribute_options_form": add_attribute_options_form})
+
+
+@login_required
+def add_crop_attribute(request):
+    form = AddCropAttributesForm(request.POST)
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        new_attribute = CropAttribute.objects.create(name=name)
+        return add_crop_attributes(request)
+
+
+@login_required
+def add_attribute_option(request):
+    form = AddAttributeOptionsForm(request.POST)
+    if form.is_valid():
+        options_name = form.cleaned_data['name']
+        attribute_name = form.cleaned_data['attribute_group']
+        attribute = CropAttribute.objects.get(name=attribute_name)
+        new_options = CropAttributeOption.objects.create(name=options_name, attribute_group=attribute)
+        return add_crop_attributes(request)
+
 
 def get_crop_attributes_list(crop):
     if crop is None:
@@ -156,25 +178,13 @@ def crop_detail(request, crop_id):
     edit = request.GET.get('edit', False)
     record_id = int(request.GET.get('id', -1))
 
-    all_records = CropRecord.objects.filter(crop=crop_id).order_by("-date")
+    all_records = CropRecord.objects.filter(crop=crop_id)
 
     # FIXME -- handle this selection client-side via template filtering and selection
-    try:
-        records = CropRecord.objects.filter(crop=crop_id).exclude(record_type='NOTE').order_by('-date')
-    except Exception:
-        records = None
-    try:
-        notes = CropRecord.objects.filter(crop=crop_id).filter(record_type='NOTE').order_by('-date')
-    except Exception:
-        notes = None
     try:
         seed = CropRecord.objects.filter(crop=crop_id).filter(record_type='SEED').order_by('-date')[0]
     except Exception:
         seed = None
-    try:
-        grow = CropRecord.objects.filter(crop=crop_id).filter(record_type='GROW').order_by('-date')[0]
-    except Exception:
-        grow = None
     try:
         water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('-date')[0]
     except Exception:
@@ -184,26 +194,15 @@ def crop_detail(request, crop_id):
     except Exception:
         harvest = None
     try:
-        delivered = CropRecord.objects.filter(crop=crop_id).filter(record_type='DELIVERED').order_by('-date')[0]
-    except Exception:
-        delivered = None
-    try:
         trash = CropRecord.objects.filter(crop=crop_id).filter(record_type='TRASH').order_by('-date')[0]
     except Exception:
         trash = None
-    try:
-        returned = CropRecord.objects.filter(crop=crop_id).filter(record_type='RETURNED').order_by('-date')[0]
-    except Exception:
-        returned = None
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
-    print(crop.attributes.all())
-    crop_attribute = crop.attributes.filter(attribute_group__name='Light Type')[0]
-    light_type = crop_attribute
 
-    return render(request, "inventory/crop_details.html", context={"light_type": light_type, "history": all_records, "crop": crop, "records": records, "notes": notes, "seed": seed, "grow": grow, "water": water,
-                           "harvest": harvest, "delivered": delivered, "trash": trash, "returned": returned, "record_types": record_types, "edit": edit, "record_id": record_id,
+    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "seed": seed, "water": water,
+                           "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
                                                                    "crop_record_form": crop_record_form })
 
 
@@ -224,16 +223,19 @@ def slot_detail(request, slot_id):
     """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
     Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
      see as they're working all day, so it needs to feel like a control panel."""
-    current_crop = Slot.objects.get(id=slot_id).current_crop
+    slot = Slot.objects.get(id=slot_id)
+    current_crop = slot.current_crop
+    barcode = slot.barcode
     open_slots = Slot.objects.filter(current_crop=None)
     crop_attributes = get_crop_attributes_list(current_crop)
-    all_records = CropRecord.objects.filter(crop=current_crop).order_by("-date")
+    all_records = CropRecord.objects.filter(crop=current_crop)
     if current_crop:
         notes = current_crop.notes
     else:
         notes = ""
     notes_form = CropNotesForm(initial={'notes': notes})
     return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
+                                                                   "barcode": barcode,
                                                                    "current_crop": current_crop,
                                                                    "open_slots": open_slots,
                                                                    "crop_attributes": crop_attributes,
@@ -253,10 +255,10 @@ def harvest_crop(request, slot_id):
     """POST: Remove the crop from its tray, record crop history as harvest, and redirect to crop detail page."""
     slot = Slot.objects.get(id=slot_id)
     current_crop = slot.current_crop
+    upload_data_to_sheets(current_crop)
     slot.current_crop = None
     slot.save()
     CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
-    upload_data_to_drive(current_crop)
     return redirect(crop_detail, crop_id=current_crop.id)
 
 
