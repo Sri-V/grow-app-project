@@ -124,3 +124,6 @@ class NewCropForm(forms.Form):
             self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))
 
 
+class HarvestCropForm(forms.Form):
+    crop_yield = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the crop yield in cm'}))
+    leaf_wingspan = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the leaf wingspan in cm'}))

@@ -10,8 +10,7 @@ def upload_data_to_sheets(crop):
 
     client = gspread.authorize(creds)
 
-    sheet = client.open("TestMicrogreensData").sheet1 # open sheet
-
+    sheet = client.open("TestMicrogreensData").sheet1  # open sheet
 
     # Date Planted, Crop Variety, Days in Germ (or date out of germ), Days in Grow (date in grow),
     # ... light type, light distance, substrate type, density?, yield, leaf wingspan, notes
@@ -19,11 +18,17 @@ def upload_data_to_sheets(crop):
     row = []
 
     # First append the data directly connected to the crop
+    # crop_link = "https://bostonmicrogreens.herokuapp.com/crop/%d/" % crop.id
+    crop_link = "http://127.0.0.1:8001/crop/%d/" % crop.id
+    full_hyperlink = '=HYPERLINK("' + crop_link + '", "' + crop.variety.name + '")'
     row.append(crop.variety.name)
     row.append(crop.germ_days)
     row.append(crop.grow_days)
     row.append(crop.crop_yield)
     row.append(crop.leaf_wingspan)
+
+    # Add a link to the crop
+    row.append(crop_link)
 
     # Add the list of all the dates that the crop was watered
     water_records = crop.croprecord_set.filter(record_type='WATER')

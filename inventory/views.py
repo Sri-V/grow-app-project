@@ -234,12 +234,14 @@ def slot_detail(request, slot_id):
     else:
         notes = ""
     notes_form = CropNotesForm(initial={'notes': notes})
+    harvest_crop_form = HarvestCropForm()
     return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
                                                                    "barcode": barcode,
                                                                    "current_crop": current_crop,
                                                                    "open_slots": open_slots,
                                                                    "crop_attributes": crop_attributes,
                                                                    "notes_form": notes_form,
+                                                                   "harvest_crop_form": harvest_crop_form,
                                                                    "history": all_records })
 
 
@@ -253,13 +255,24 @@ def slot_action():
 @login_required
 def harvest_crop(request, slot_id):
     """POST: Remove the crop from its tray, record crop history as harvest, and redirect to crop detail page."""
-    slot = Slot.objects.get(id=slot_id)
-    current_crop = slot.current_crop
-    upload_data_to_sheets(current_crop)
-    slot.current_crop = None
-    slot.save()
-    CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
-    return redirect(crop_detail, crop_id=current_crop.id)
+    form = HarvestCropForm(request.POST)
+    if form.is_valid():
+        # Update the data from the harvest crop form
+        crop_yield = form.cleaned_data['crop_yield']
+        leaf_wingspan = form.cleaned_data['leaf_wingspan']
+        slot = Slot.objects.get(id=slot_id)
+        current_crop = slot.current_crop
+        current_crop.crop_yield = crop_yield
+        current_crop.leaf_wingspan = leaf_wingspan
+        current_crop.save()
+        # Upload it to google sheets
+        upload_data_to_sheets(current_crop)
+        # Remove the crop from the slot
+        slot.current_crop = None
+        slot.save()
+        # Add the harvest crop record
+        CropRecord.objects.create(crop=current_crop, record_type="HARVEST")
+        return redirect(crop_detail, crop_id=current_crop.id)
 
 
 @login_required
