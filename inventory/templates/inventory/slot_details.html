@@ -51,27 +51,41 @@
                                    class="btn btn-primary btn-lg" id="form-record-watered-crop-submit"/>
                         </div>
                     </form>
-
-                    <input id="form-harvest-tray-submit" data-toggle="modal" data-target="#form-modal"
-                        value="Harvest The Crop"
+                    <div class="form-group">
+                    <input id="form-harvest-tray-submit" data-toggle="modal" data-target="#form-harvest-crop-modal"
+                           value="Harvest The Crop"
                            class="btn btn-primary btn-lg"/>
-
-                    <h3>Trash the Crop</h3>
-                    <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
-                        {% csrf_token %}
-
-                        <div class="form-group">
-                            <textarea name="reason-for-trash-text" id="form-record-dead-crop-reason"
-                                      form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
-                        </div>
-                        <input type="submit" value="Trash The Crop" id="form-record-dead-crop-submit"
-                               class="btn btn-primary btn-lg"/>
-                    </form>
+                    </div>
+                    <input id="form-record-dead-crop-submit" data-toggle="modal" data-target="#form-record-dead-crop-modal"
+                           value="Trash The Crop"
+                           class="btn btn-primary btn-lg"/>
                 {% endif %}
 
             </div>
         </div>
-        <div class="modal fade" id="form-modal" tabindex="-1" role="dialog" aria-labelledby="harvest-crop-modal" aria-hidden="true">
+        <div class="modal fade" id="form-record-dead-crop-modal" tabindex="-1" role="dialog" aria-labelledby="harvest-crop-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Trash Crop</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div id="form-modal-body" class="modal-body">
+                        <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Reason For Trashing:</label>
+                            <textarea class="form-control" name="reason-for-trash-text" id="form-record-dead-crop-reason"
+                                      form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
+                        </div>
+                        <input type="submit" value="Submit" id="form-record-dead-crop-submit"
+                               class="btn btn-primary btn-lg"/>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="form-harvest-crop-modal" tabindex="-1" role="dialog" aria-labelledby="harvest-crop-modal" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -85,9 +99,6 @@
                             <input type="submit" value="Submit" id="form-harvest-crop"
                                    class="btn btn-primary btn-lg"/>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>

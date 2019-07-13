@@ -278,8 +278,12 @@ def harvest_crop(request, slot_id):
 @login_required
 def trash_crop(request, slot_id):
     """POST: Record that the crop has been trashed and redirect user to homepage."""
+    reason_for_trash = request.POST["reason-for-trash-text"]
     slot = Slot.objects.get(id=slot_id)
     crop = slot.current_crop
+    crop.notes = crop.notes + " TRASHED: " + reason_for_trash
+    crop.save()
+    upload_data_to_sheets(crop)
     slot.current_crop = None
     slot.save()
     CropRecord.objects.create(crop=crop, record_type='TRASH')

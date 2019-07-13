@@ -26,6 +26,7 @@ def upload_data_to_sheets(crop):
     row.append(crop.grow_days)
     row.append(crop.crop_yield)
     row.append(crop.leaf_wingspan)
+    row.append(crop.notes)
 
     # Add a link to the crop
     row.append(crop_link)

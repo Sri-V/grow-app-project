@@ -62,7 +62,7 @@ class CropNotesForm(ModelForm):
         model = Crop
         fields = ['notes']
         widgets = {
-            'notes': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop record here"}),
+            'notes': Textarea(attrs={'class': 'form-control', 'id': "form-add-crop-record-note", 'placeholder': "Add Note about crop here"}),
         }
 
 class AddCropAttributesForm(ModelForm):
