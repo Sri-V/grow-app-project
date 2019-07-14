@@ -1,12 +1,26 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety
-
+import os
 
 def upload_data_to_sheets(crop):
     # Set up to be able to access google sheet
-    scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
+    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+
+    env_private_key = os.environ.get('SHEETS_API_KEY').replace('\\n', '\n')
+    credentails = {
+        "type": "service_account",
+        "project_id": "microgreens-245221",
+        "private_key_id": "cd23019fa78b82360026bc27731439520cba19d1",
+        "private_key": env_private_key,
+        "client_email": "stenzel@microgreens-245221.iam.gserviceaccount.com",
+        "client_id": "110324471923721786838",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/stenzel%40microgreens-245221.iam.gserviceaccount.com"
+    }
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentails, scope)
 
     client = gspread.authorize(creds)
 
