@@ -200,10 +200,11 @@ def crop_detail(request, crop_id):
 
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
+    notes_form = CropNotesForm(initial={'notes': crop.notes})
 
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "seed": seed, "water": water,
                            "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
-                                                                   "crop_record_form": crop_record_form })
+                                                                   "crop_record_form": crop_record_form, "notes_form": notes_form})
 
 
 @login_required

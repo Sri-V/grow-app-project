@@ -111,7 +111,7 @@
                     {% csrf_token %}
                     {{ notes_form.as_p }}
                     <input type="hidden" name="next" value="{{ request.path }}">
-                    <input id="crop-notes-form-submit" class="btn btn-primary" type="submit" value="Submit">
+                    <input id="crop-notes-form-submit" class="btn btn-primary" type="submit" value="Update">
                 </form>
             {% else %}
                 <h2 id="empty-slot">Would you like to

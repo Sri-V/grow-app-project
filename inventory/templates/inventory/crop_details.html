@@ -41,6 +41,16 @@
     </div>
     <div id="crop-history" class="col-10 col-lg-8">
         {% include 'inventory/crop_history.html' %}
+
+        <div class="col-12">
+                <form id="form-crop-notes" action="/crop/{{ crop.id }}/record_notes" method="POST">
+                    {% csrf_token %}
+                    {{ notes_form.as_p }}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <input id="crop-notes-form-submit" class="btn btn-primary" type="submit" value="Update">
+                </form>
+        </div>
+        <br/>
         <div id="add-crop-record" class="col-12">
             <h1>Add Crop Record</h1>
             <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">
