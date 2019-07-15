@@ -9,7 +9,8 @@
   ],
   "env": {
     "DISABLE_COLLECTSTATIC": {
-      "required": true
+      "required": true,
+      "value": 1
     },
     "DJANGO_DEBUG": {
       "required": true
