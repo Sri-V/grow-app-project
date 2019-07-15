@@ -264,7 +264,7 @@ def harvest_crop(request, slot_id):
         current_crop = slot.current_crop
         current_crop.crop_yield = crop_yield
         current_crop.leaf_wingspan = leaf_wingspan
-        current_crop.harvest_date = datetime.now()
+        current_crop.harvest_date = date.today()
         current_crop.save()
         # Upload it to google sheets
         upload_data_to_sheets(current_crop)

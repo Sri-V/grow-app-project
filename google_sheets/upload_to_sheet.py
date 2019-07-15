@@ -35,20 +35,22 @@ def upload_data_to_sheets(crop):
     # crop_link = "https://bostonmicrogreens.herokuapp.com/crop/%d/" % crop.id
     crop_link = "http://127.0.0.1:8001/crop/%d/" % crop.id
     full_hyperlink = '=HYPERLINK("' + crop_link + '", "' + crop.variety.name + '")'
-    row.append(crop.variety.name)
-    row.append(crop.germ_days)
-    row.append(crop.grow_days)
-    row.append(crop.crop_yield)
-    row.append(crop.leaf_wingspan)
-    row.append(crop.notes)
+
+    row.append(crop.variety.name)  # Variety
+    row.append(crop.grow_date.strftime("%m/%d/%y"))  # Date Planted
+    row.append(crop.days_in_germ())  # Germ Days
+    row.append(crop.days_in_grow())  # Grow Days
+    row.append(crop.crop_yield)  # Crop Yield
+    row.append(crop.leaf_wingspan)  # Leaf Wingspan
+    row.append(crop.notes)  # Notes
 
     # Add a link to the crop
-    row.append(crop_link)
+    row.append(crop_link)  # Crop URL
 
     # Add the list of all the dates that the crop was watered
     water_records = crop.croprecord_set.filter(record_type='WATER')
     water_dates = ','.join([record.date.strftime("%m/%d/%y") for record in water_records])
-    row.append(water_dates)
+    row.append(water_dates)  # Dates Watered
 
     # Then iterate through all the attributes
     crop_attributes = crop.attributes.all()

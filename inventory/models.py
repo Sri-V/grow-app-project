@@ -62,7 +62,7 @@ class Crop(models.Model):
             delta = self.harvest_date - self.grow_date
             return delta.days
         else:
-            return None
+            return 0
 
 
 class CropRecord(models.Model):
