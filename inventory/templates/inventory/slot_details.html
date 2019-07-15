@@ -8,42 +8,38 @@
         <div class="row d-flex justify-content-between jumbotron">
             <div class="col-12 col-md-4">
                 <h1 id="slot-id">Slot #{{ slot_id }}</h1>
-                {% if current_crop %}
-                    <div id="date-planted">
-                        Date Planted: {{ seed.date }}
+                {% if crop %}
+                    <div id="date-in-germ">
+                        Began Germ: {{ crop.germ_date }}
+                    </div>
+                    <div id="date-in-grow">
+                        Began Grow Phase: {{ crop.grow_date }}
                     </div>
                     <div id="days-germinated">
-                        Days Germinated: {{ current_crop.germ_days }}
+                        Days in Germ: {{ crop.days_in_germ }}
+                    </div>
+                    <div id="water-date">
+                        Last watered: {{ water.date|default:"Never" }}
                     </div>
                     {% for attribute in crop_attributes %}
                         <div id="{{ attribute.0 }}">
                             {{ attribute.0 }}: {{ attribute.1 }}
                         </div>
                     {% endfor %}
-                    {% if harvest %}
-                        <div id="harvest-date">
-                            Harvested: {{ harvest.date }}
-                        </div>
-                    {% endif %}
-                    {% if trash %}
-                        <div id="trash-date">
-                            Trashed: {{ trash.date }}
-                        </div>
-                    {% endif %}
                 {% endif %}
             </div>
 
             <div class="col-12 col-md-6">
                 <div id="current-crop-type">
                     <h2>Current Crop:
-                        {% if current_crop %}
-                            <a href="/crop/{{ current_crop.id }}/" id="link-crop-details"> {{ current_crop.variety.name }}</a>
+                        {% if crop %}
+                            <a href="/crop/{{ crop.id }}/" id="link-crop-details"> {{ crop.variety.name }}</a>
                         {% else %}
                             None
                         {% endif %}</h2>
                 </div>
 
-                {% if current_crop %}
+                {% if crop %}
                     <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">
                         {% csrf_token %}
                         <div class="form-group">
@@ -52,9 +48,9 @@
                         </div>
                     </form>
                     <div class="form-group">
-                    <input id="form-harvest-tray-submit" data-toggle="modal" data-target="#form-harvest-crop-modal"
-                           value="Harvest The Crop"
-                           class="btn btn-primary btn-lg"/>
+                        <input id="form-harvest-tray-submit" data-toggle="modal" data-target="#form-harvest-crop-modal"
+                               value="Harvest The Crop"
+                               class="btn btn-primary btn-lg"/>
                     </div>
                     <input id="form-record-dead-crop-submit" data-toggle="modal" data-target="#form-record-dead-crop-modal"
                            value="Trash The Crop"
@@ -72,15 +68,15 @@
                     </div>
                     <div id="form-modal-body" class="modal-body">
                         <form action="/slot/{{ slot_id }}/action/trash" method="post" id="form-record-dead-crop">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label>Reason For Trashing:</label>
-                            <textarea class="form-control" name="reason-for-trash-text" id="form-record-dead-crop-reason"
-                                      form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
-                        </div>
-                        <input type="submit" value="Submit" id="form-record-dead-crop-submit"
-                               class="btn btn-primary btn-lg"/>
-                    </form>
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Reason For Trashing:</label>
+                                <textarea class="form-control" name="reason-for-trash-text" id="form-record-dead-crop-reason"
+                                          form="form-record-dead-crop" placeholder="E.g.: Eaten by Desi"></textarea>
+                            </div>
+                            <input type="submit" value="Submit" id="form-record-dead-crop-submit"
+                                   class="btn btn-primary btn-lg"/>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -106,8 +102,8 @@
 
 
         <div class="col-12">
-            {% if current_crop %}
-                <form id="form-crop-notes" action="/crop/{{ current_crop.id }}/record_notes" method="POST">
+            {% if crop %}
+                <form id="form-crop-notes" action="/crop/{{ crop.id }}/record_notes" method="POST">
                     {% csrf_token %}
                     {{ notes_form.as_p }}
                     <input type="hidden" name="next" value="{{ request.path }}">

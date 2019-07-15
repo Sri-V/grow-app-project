@@ -13,20 +13,19 @@
             <div id="crop-variety">
                 Variety: {{ crop.variety.name }}
             </div>
-            <div id="day-planted">
-                Day Planted: {{ seed.date }}
+            <div id="date-in-germ">
+                Began Germ: {{ crop.germ_date }}
+            </div>
+            <div id="date-in-grow">
+                Began Grow Phase: {{ crop.grow_date }}
             </div>
             <div id="days-germinated">
-                Days Germinated:
-                {#                Days Germinated: {{ crop.germ_days }}#}
-            </div>
-            <div id="water-date">
-                Last watered: {{ water.date|default:"Never" }}
-            </div>
-            <div id="tray-size">
-                Tray Size: {{ crop.get_tray_size_display }}
+                Days in Germ: {{ crop.days_in_germ }}
             </div>
             {% if harvest %}
+                <div id="days-grown">
+                    Days in Grow: {{ crop.days_in_grow }}
+                </div>
                 <div id="harvest-date">
                     Harvested: {{ harvest.date }}
                 </div>
@@ -36,6 +35,11 @@
                     Trashed: {{ trash.date }}
                 </div>
             {% endif %}
+            {% for attribute in crop_attributes %}
+                <div id="{{ attribute.0 }}">
+                    {{ attribute.0 }}: {{ attribute.1 }}
+                </div>
+            {% endfor %}
         </div>
 
     </div>
@@ -43,12 +47,12 @@
         {% include 'inventory/crop_history.html' %}
 
         <div class="col-12">
-                <form id="form-crop-notes" action="/crop/{{ crop.id }}/record_notes" method="POST">
-                    {% csrf_token %}
-                    {{ notes_form.as_p }}
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                    <input id="crop-notes-form-submit" class="btn btn-primary" type="submit" value="Update">
-                </form>
+            <form id="form-crop-notes" action="/crop/{{ crop.id }}/record_notes" method="POST">
+                {% csrf_token %}
+                {{ notes_form.as_p }}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <input id="crop-notes-form-submit" class="btn btn-primary" type="submit" value="Update">
+            </form>
         </div>
         <br/>
         <div id="add-crop-record" class="col-12">

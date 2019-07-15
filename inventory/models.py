@@ -37,8 +37,9 @@ class Crop(models.Model):
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    germ_days = models.IntegerField()
-    grow_days = models.IntegerField(null=True, blank=True)
+    germ_date = models.DateField()
+    grow_date = models.DateField()
+    harvest_date = models.DateField(blank=True, null=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
@@ -52,6 +53,16 @@ class Crop(models.Model):
             pass
         super().save(*args, **kwargs)  # Call the "real" save() method.
 
+    def days_in_germ(self):
+        delta = self.grow_date - self.germ_date
+        return delta.days
+
+    def days_in_grow(self):
+        if self.harvest_date is not None:
+            delta = self.harvest_date - self.grow_date
+            return delta.days
+        else:
+            return None
 
 
 class CropRecord(models.Model):

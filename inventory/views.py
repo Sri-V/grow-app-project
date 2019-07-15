@@ -108,7 +108,7 @@ def create_crop(request):
             if slot.current_crop is not None:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
 
-            new_crop = Crop.objects.create(variety=variety, germ_days=days_germinated)
+            new_crop = Crop.objects.create(variety=variety, germ_date=(date_seeded - timedelta(days_germinated)), grow_date=date_seeded)
             form_attributes = form.cleaned_data
             for attribute_option in form_attributes.values():
                 print(attribute_option)
@@ -123,9 +123,6 @@ def create_crop(request):
             CropRecord.objects.create(crop=new_crop, record_type='GERM', date=germ_date)
             # Create a CropRecord to record when germination phase started
             CropRecord.objects.create(crop=new_crop, record_type='GROW', date=date_seeded)
-
-            # Redirect the user to the slot details page
-            return redirect(slot_detail, slot_id=slot.id)
 
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
@@ -186,10 +183,6 @@ def crop_detail(request, crop_id):
     except Exception:
         seed = None
     try:
-        water = CropRecord.objects.filter(crop=crop_id).filter(record_type='WATER').order_by('-date')[0]
-    except Exception:
-        water = None
-    try:
         harvest = CropRecord.objects.filter(crop=crop_id).filter(record_type='HARVEST').order_by('-date')[0]
     except Exception:
         harvest = None
@@ -201,8 +194,9 @@ def crop_detail(request, crop_id):
     record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
     notes_form = CropNotesForm(initial={'notes': crop.notes})
+    crop_attributes = get_crop_attributes_list(crop)
 
-    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "seed": seed, "water": water,
+    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
                            "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
                                                                    "crop_record_form": crop_record_form, "notes_form": notes_form})
 
@@ -230,6 +224,10 @@ def slot_detail(request, slot_id):
     open_slots = Slot.objects.filter(current_crop=None)
     crop_attributes = get_crop_attributes_list(current_crop)
     all_records = CropRecord.objects.filter(crop=current_crop)
+    try:
+        water = CropRecord.objects.filter(crop=current_crop).filter(record_type='WATER').order_by('-date')[0]
+    except Exception:
+        water = None
     if current_crop:
         notes = current_crop.notes
     else:
@@ -238,11 +236,12 @@ def slot_detail(request, slot_id):
     harvest_crop_form = HarvestCropForm()
     return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
                                                                    "barcode": barcode,
-                                                                   "current_crop": current_crop,
+                                                                   "crop": current_crop,
                                                                    "open_slots": open_slots,
                                                                    "crop_attributes": crop_attributes,
                                                                    "notes_form": notes_form,
                                                                    "harvest_crop_form": harvest_crop_form,
+                                                                   "water": water,
                                                                    "history": all_records })
 
 
@@ -265,6 +264,7 @@ def harvest_crop(request, slot_id):
         current_crop = slot.current_crop
         current_crop.crop_yield = crop_yield
         current_crop.leaf_wingspan = leaf_wingspan
+        current_crop.harvest_date = datetime.now()
         current_crop.save()
         # Upload it to google sheets
         upload_data_to_sheets(current_crop)
