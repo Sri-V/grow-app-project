@@ -24,7 +24,7 @@ def upload_data_to_sheets(crop):
 
     client = gspread.authorize(creds)
 
-    sheet = client.open("TestMicrogreensData").sheet1  # open sheet
+    sheet = client.open("GoldenTrayData").sheet1  # open sheet
 
     # Date Planted, Crop Variety, Days in Germ (or date out of germ), Days in Grow (date in grow),
     # ... light type, light distance, substrate type, density?, yield, leaf wingspan, notes
@@ -33,7 +33,7 @@ def upload_data_to_sheets(crop):
 
     # First append the data directly connected to the crop
     # crop_link = "https://bostonmicrogreens.herokuapp.com/crop/%d/" % crop.id
-    crop_link = "http://127.0.0.1:8001/crop/%d/" % crop.id
+    crop_link = "https://bostonmicrogreens.herokuapp.com/crop/%d/" % crop.id
     full_hyperlink = '=HYPERLINK("' + crop_link + '", "' + crop.variety.name + '")'
 
     row.append(crop.variety.name)  # Variety
@@ -59,11 +59,5 @@ def upload_data_to_sheets(crop):
 
     # Finally add the row of data to the sheet
     sheet.append_row(row)
-
-
-
-
-
-
 
 
