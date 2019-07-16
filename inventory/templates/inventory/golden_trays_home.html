@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section id="primary-actions" class="row d-flex flex-column align-items-center justify-content-center">
+    <h1>Scan a crop to begin,</h1>
+    <h2>or <a id="link-new-crop" href="{% url "create_crop" %}">add a new crop</a>.</h2>
+    <br/>
+    <a id="link-to-growhouse-settings" class="col-6" href="{% url "growhouse_settings" %}">
+        Add Slots or Varieties</a>
+    <a id="link-to-add-crop-attributes" class="col-6" href="{% url "add_crop_attributes" %}">
+            Add Crop Attributes</a>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="{% static "barcode/barcodeEvent.js" %}"></script>
+    <script src="{% static "barcode/homepageController.js" %}"></script>
+{% endblock %}

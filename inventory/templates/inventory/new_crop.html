@@ -4,7 +4,7 @@
 {% block title %}New Crop{% endblock %}
 
 {% block extrahead %}
-{{ date_form.media }}
+{{ new_crop_form.media }}
 {% endblock %}
 
 {% block content %}
@@ -12,78 +12,18 @@
         <h1>Add a New Crop</h1>
         <form id="form-new-crop" method="post" data-variety-autofill-url="{% url 'variety_autofill' %}">
             {% csrf_token %}
+            {{ new_crop_form.as_p }}
             <div class="form-group">
-                <label for="form-new-crop-variety">Variety</label>
-                <select id="form-new-crop-variety" name="variety" class="form-control" onchange="autofill_variety($(this).val())">
-                    {% for variety in variety_list %}
-                        <option>{{ variety.name }}</option>
-                    {% endfor %}
-                </select>
+                    <label for="form-new-crop-barcode-input">Location</label>
+                    <button type="button" class="select-scan btn btn-primary"
+                                        id="form-new-crop-barcode-btn">Scan Slot</button>
+                    <input type="text" id="form-new-crop-barcode-input" class="form-control" name="slot-barcode"
+                                   placeholder="Or type the barcode here" value={{ barcode }}>
             </div>
-
-            <div class="d-flex justify-content-around">
-                <div class="form-group">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tray-size" value="1020"
-                               id="form-new-crop-tray-size-1020" checked>
-                        <label class="form-check-label" for="form-new-crop-tray-size-1020">10" × 20"</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tray-size" value="1010"
-                               id="form-new-crop-tray-size-1010">
-                        <label class="form-check-label" for="form-new-crop-tray-size-1010">10" × 10"</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tray-size" value="0505"
-                               id="form-new-crop-tray-size-0505">
-                        <label class="form-check-label" for="form-new-crop-tray-size-0505">5" × 5"</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="delivered-live" value="True"
-                               id="form-new-crop-delivered-live-true" checked>
-                        <label class="form-check-label" for="form-new-crop-delivered-live-true">Delivered Live</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="delivered-live" value="False"
-                               id="form-new-crop-delivered-live-false">
-                        <label class="form-check-label" for="form-new-crop-delivered-live-false">Harvested
-                            on-site</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="form-new-crop-germination-length">Germination Length</label>
-                <input id="form-new-crop-germination-length" name="germination-length" class="form-control"
-                       type="number" min="1" value="{{days_germ}}">
-            </div>
-
-            <div class="form-group">
-                <label for="form-new-crop-grow-length">Grow Length</label>
-                <input id="form-new-crop-grow-length" name="grow-length" class="form-control" 
-                        type="number" min="1"  value="{{days_grow}}">
-            </div>
-
-            <div class="form-group">
-                <label for="form-new-crop-barcode-input">Location</label>
-                <button type="button" class="select-scan btn btn-primary"
-                                    id="form-new-crop-barcode-btn">Scan Slot</button>
-                <input type="text" id="form-new-crop-barcode-input" class="form-control" name="slot-barcode"
-                               placeholder="Or type the barcode here">
-            </div>
-            {{ date_form.as_p }}
-
             <input id="form-new-crop-submit" type="submit" class="btn btn-primary" value="Create New Crop">
         </form>
     </div>
 {% endblock %}
-
 {% block scripts %}
     <script src="{% static "barcode/barcodeEvent.js" %}"></script>
     <script src="{% static "barcode/newCropController.js" %}"></script>

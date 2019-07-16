@@ -3,61 +3,87 @@ from django.utils import timezone
 
 
 class Variety(models.Model):
-    """Represents the types of plants that can be grown. Has a name and number of days between plant and harvest."""
+    """Represents the types of plants that can be grown."""
     name = models.CharField(max_length=50)
-    days_germ = models.IntegerField(null=True)
-    days_grow = models.IntegerField(null=True)
 
     def __str__(self):
         return self.name
+
+
+class CropAttribute(models.Model):
+    """Represent the an attribute abut a given crop that we would like to track. (e.g. Light height,
+    soil type, substrate type, ect.)"""
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+class CropAttributeOption(models.Model):
+    """Represents a specific crop attribute type. For example if the CropAttribute was Light Type,
+    then the CropAttributeOption's would be LED and T5."""
+    attribute_group = models.ForeignKey(CropAttribute, related_name='options', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 
 class Crop(models.Model):
     """Represents a single attempt to grow a tray of Microgreens at a given time. Maintains a history of growth data
     in the form of sensor data, lifecycle advancements, tray movements, grower actions, and free-form notes.
     
-    -> History recorded elsewhere, but linked by the crop's ID.
+    -> History recorded as a CropRecord, but linked by the crop's ID.
     """
-    TRAY_SIZES = (
-        ('1020', 'Standard - 10" × 20"'),
-        ('1010', '10" × 10"'),
-        ('0505', '5" × 5"'),
-    )
+
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    tray_size = models.CharField(max_length=4, choices=TRAY_SIZES, default='1020')
-    live_delivery = models.BooleanField(default=True)  # Do we deliver the live tray to the customer or cut it for them?
-    # The number of days we plan to let the Crop germinate and grow, respectively
-    # Different from the actual length of germination/grow time, encoded as CropRecords
-    exp_num_germ_days = models.IntegerField()
-    exp_num_grow_days = models.IntegerField()
+    germ_date = models.DateField()
+    grow_date = models.DateField()
+    harvest_date = models.DateField(blank=True, null=True)
+    crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
+    leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
+    attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
+    notes = models.TextField()
+
+    def save(self, *args, **kwargs):
+        # check that the crop has all the crop attributes that we have created
+        # only needs to be checked on creation
+        if not self.pk:
+            # loops through all the crop attributes to make sure it has a value for each
+            pass
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+
+    def days_in_germ(self):
+        delta = self.grow_date - self.germ_date
+        return delta.days
+
+    def days_in_grow(self):
+        if self.harvest_date is not None:
+            delta = self.harvest_date - self.grow_date
+            return delta.days
+        else:
+            return 0
 
 
 class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
     list of all CropRecords describe the entire life of a plant from start to finish."""
     RECORD_TYPES = (
-        ('SEED', 'Seeded'),
-        ('GERM', 'Germinated/Sprouted'),
-        ('GROW', 'Growth Milestone'),
+        ('GERM', 'Started Germination Phase'),
+        ('GROW', 'Started Grow Phase'),
         ('WATER', 'Watered'),
         ('HARVEST', 'Harvested'),
-        ('DELIVERED', 'Delivered to Customer'),
-        ('TRASH', 'Disposed'),
-        ('RETURNED', 'Tray Returned'),
-        ('NOTE', 'Notes')
+        ('TRASH', 'Trashed'),
     )
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
-    note = models.CharField(max_length=200, blank=True)
 
 
 class Slot(models.Model):
-    """Represents an address on a grow rack for a single Crop. Has a barcode, links to a Crop object, and is part
-    of one or more Locations in the greenhouse hierarchy (e.g.: a rack or a shelf on a rack)."""
+    """Represents an address on a grow rack for a single Crop. Has a barcode and links to a Crop object"""
     barcode = models.CharField(max_length=50, blank=True, unique=True)
-    # accurate
-    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, blank=True, null=True)
-    # location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
+    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, related_name='current_slot',  blank=True, null=True)
 
 
 class SanitationRecord(models.Model):
