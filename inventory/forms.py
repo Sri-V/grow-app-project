@@ -122,7 +122,6 @@ class NewCropForm(forms.Form):
         super(NewCropForm, self).__init__(*args, **kwargs)
         for attribute in attrs:
             self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))
-        print(str(self.fields))
 
 
 class HarvestCropForm(forms.Form):
