@@ -41,7 +41,6 @@ urlpatterns = [
     path('crop/add_attributes/', views.add_crop_attributes, name="add_crop_attributes"),
     path('crop/add_attribute', views.add_crop_attribute, name="add_crop_attribute"),
     path('crop/add_option', views.add_attribute_option, name="add_attribute_option"),
-    path('crop/auto_fill', views.auto_fill_crop, name="auto_fill_crop"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
     path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
