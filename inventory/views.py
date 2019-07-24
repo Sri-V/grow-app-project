@@ -89,13 +89,10 @@ def create_crop(request):
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
     if request.method == 'GET':
         variety_list = Variety.objects.all()
-
-        slot_list = Slot.objects.filter(current_crop=None)
-        variety = variety_list[0]
         barcode = request.GET.get('barcode', '')
         new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "new_crop_form": new_crop_form})
+                      context={"variety_list": variety_list, "barcode": barcode, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
         form = NewCropForm(request.POST)
@@ -126,6 +123,20 @@ def create_crop(request):
 
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
+
+@login_required
+def auto_fill_crop(request):
+    # Look up the crop from the barcode
+    # Go throught the attributes
+    # add those to the inital value of the form
+    slot_barcode = request.POST["slot-barcode"]
+    variety_list = Variety.objects.all()
+    selected_crop = Slot.objects.get(barcode=slot_barcode).current_crop
+    barcode = request.GET.get('barcode', '')
+    initail_dict = {'date_seeded': datetime.now().strftime("%m/%d/%Y"), 'Light Type': 'T5', 'Light Distance': 'Medium'}
+    new_crop_form = NewCropForm(initial=initail_dict)
+    return render(request, "inventory/new_crop.html",
+                  context={"variety_list": variety_list, "barcode": barcode, "new_crop_form": new_crop_form})
 
 
 @login_required

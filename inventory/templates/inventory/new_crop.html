@@ -9,6 +9,18 @@
 
 {% block content %}
     <div class="col-10 col-lg-6 col-xl-4">
+    <form id="form-auto-fill-crop" method="post" action="/crop/auto_fill">
+        {% csrf_token %}
+        <div class="form-group">
+                    <label for="form-auto-fill-crop">Barcode</label>
+                    <button type="button" class="auto-fill-crop btn btn-primary"
+                                        id="form-auto-fill-barcode-btn">Scan Slot</button>
+                    <input type="text" id="form-auto-fill-barcode-input" class="form-control" name="slot-barcode"
+                                   placeholder="Or type the barcode here" value={{ barcode }}>
+            </div>
+        <input id="form-auto-fill-submit" type="submit" class="btn btn-primary" value="Auto-fill Data">
+        </form>
+        <br/>
         <h1>Add a New Crop</h1>
         <form id="form-new-crop" method="post" data-variety-autofill-url="{% url 'variety_autofill' %}">
             {% csrf_token %}
