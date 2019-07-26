@@ -108,7 +108,7 @@ def create_crop(request):
             if slot.current_crop is not None:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
 
-            new_crop = Crop.objects.create(variety=variety, germ_date=(date_seeded - timedelta(days_germinated)), grow_date=date_seeded)
+            new_crop = Crop.objects.create(variety=variety, germ_date=date_seeded, grow_date=date_seeded + timedelta(days_germinated))
             form_attributes = form.cleaned_data
             for attribute_option in form_attributes.values():
                 print(attribute_option)
