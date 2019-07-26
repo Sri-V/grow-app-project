@@ -117,6 +117,10 @@ class NewCropForm(forms.Form):
 
     days_germinated = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
+    seeding_density = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=False)
+
     def __init__(self, *args, **kwargs):
         attrs = generate_attributes()
         super(NewCropForm, self).__init__(*args, **kwargs)

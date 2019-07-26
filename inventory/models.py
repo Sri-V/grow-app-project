@@ -42,8 +42,9 @@ class Crop(models.Model):
     harvest_date = models.DateField(blank=True, null=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
+    seeding_density = models.FloatField(null=True, blank=True)  # measured in g/tray
     attributes = models.ManyToManyField(CropAttributeOption, related_name='crops')
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # check that the crop has all the crop attributes that we have created
