@@ -119,7 +119,7 @@ def create_crop(request):
             slot.save()
 
             # Create a CropRecord to record when germination phase started
-            germ_date = date_seeded - timedelta(days=days_germinated)
+            germ_date = date_seeded # - timedelta(days=days_germinated)
             CropRecord.objects.create(crop=new_crop, record_type='GERM', date=germ_date)
             # Create a CropRecord to record when germination phase started
             CropRecord.objects.create(crop=new_crop, record_type='GROW', date=date_seeded)
@@ -127,6 +127,43 @@ def create_crop(request):
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
 
+def edit_crop(request, crop_id):
+    """GET: Display a form for editing crop data.
+    POST: Accept form submission for editing crop data."""
+    if request.method == 'GET':
+        variety_list = Variety.objects.all()
+        slot_list = Slot.objects.filter(current_crop=None)
+        variety = variety_list[0]
+        barcode = request.GET.get('barcode', '')
+        new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
+        return render(request, "inventory/new_crop.html",
+                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "new_crop_form": new_crop_form})
+
+    current_crop = get_object_or_404(Crop, id=crop_id)
+    form = EditCropForm(request.POST)
+    if form.is_valid():
+        variety = form.cleaned_data.pop('variety')
+        date_seeded = form.cleaned_data.pop('date_seeded')
+        days_germinated = form.cleaned_data.pop('days_germinated')
+        crop_notes = form.cleaned_data.pop('notes')
+        slot_barcode = request.POST["slot-barcode"]
+        slot = get_object_or_404(Slot, barcode=slot_barcode)
+        if slot.current_crop is not None:
+            return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+
+        # Edit the crop fields (minus 'attributes')
+        current_crop.variety = variety
+        current_crop.germ_date = date_seeded
+        current_crop.grow_date = date_seeded + timedelta(days_germinated)
+        current_crop.notes = crop_notes
+
+        # Edit crop 'attributes'
+        for attribute in form.cleaned_data.keys():
+            current_crop.attributes.remove(attribute_group=attribute)
+            current_crop.attributes.add(form.cleaned_data.get(attribute))
+
+        current_crop.save()
+        return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def add_crop_attributes(request):
@@ -234,13 +271,15 @@ def slot_detail(request, slot_id):
         notes = ""
     notes_form = CropNotesForm(initial={'notes': notes})
     harvest_crop_form = HarvestCropForm()
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
+    edit_crop_form = EditCropForm()
+    return render(request, "inventory/ .html", context={"slot_id": slot_id,
                                                                    "barcode": barcode,
                                                                    "crop": current_crop,
                                                                    "open_slots": open_slots,
                                                                    "crop_attributes": crop_attributes,
                                                                    "notes_form": notes_form,
                                                                    "harvest_crop_form": harvest_crop_form,
+                                                                   "edit_crop_form": edit_crop_form,
                                                                    "water": water,
                                                                    "history": all_records })
 

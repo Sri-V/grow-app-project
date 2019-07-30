@@ -55,6 +55,12 @@
                     <input id="form-record-dead-crop-submit" data-toggle="modal" data-target="#form-record-dead-crop-modal"
                            value="Trash The Crop"
                            class="btn btn-primary btn-lg"/>
+                    // Edit Crop Button
+                    <div class="form-group">
+                        <input id="form-edit-crop-submit" data-toggle="modal" data-target="#form-edit-crop-modal"
+                               value="Edit The Crop"
+                               class="btn btn-primary btn-lg"/>
+                    </div>
                 {% endif %}
 
             </div>
@@ -99,7 +105,25 @@
                 </div>
             </div>
         </div>
-
+        // Edit Crop Form
+        <div class="modal fade" id="form-edit-crop-modal" tabindex="-1" role="dialog" aria-labelledby="edit-crop-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Crop</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div id="form-modal-body" class="modal-body">
+                        <form action="/slot/{{ slot_id }}/action/edit" method="POST" id="form-edit-crop">
+                            {% csrf_token %}
+                            {{ edit_crop_form.as_p }}
+                            <input type="submit" value="Submit" id="form-edit-crop"
+                                   class="btn btn-primary btn-lg"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-12">
             {% if crop %}
