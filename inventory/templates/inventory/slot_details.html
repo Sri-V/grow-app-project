@@ -105,26 +105,6 @@
                 </div>
             </div>
         </div>
-        // Edit Crop Form
-        <div class="modal fade" id="form-edit-crop-modal" tabindex="-1" role="dialog" aria-labelledby="edit-crop-modal" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Edit Crop</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    </div>
-                    <div id="form-modal-body" class="modal-body">
-                        <form action="/slot/{{ slot_id }}/action/edit" method="POST" id="form-edit-crop">
-                            {% csrf_token %}
-                            {{ edit_crop_form.as_p }}
-                            <input type="submit" value="Submit" id="form-edit-crop"
-                                   class="btn btn-primary btn-lg"/>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="col-12">
             {% if crop %}
                 <form id="form-crop-notes" action="/crop/{{ crop.id }}/record_notes" method="POST">

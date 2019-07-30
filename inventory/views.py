@@ -131,39 +131,59 @@ def edit_crop(request, crop_id):
     """GET: Display a form for editing crop data.
     POST: Accept form submission for editing crop data."""
     if request.method == 'GET':
+        current_crop = get_object_or_404(Crop, id=crop_id)
         variety_list = Variety.objects.all()
         slot_list = Slot.objects.filter(current_crop=None)
-        variety = variety_list[0]
         barcode = request.GET.get('barcode', '')
-        new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
-        return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "new_crop_form": new_crop_form})
+        # new_crop_barcode = request.GET.get('barcode', '')
+        # auto_fill_barcode = request.GET.get('autofill-barcode', False)
+        # print("autofill barcode", auto_fill_barcode)
+        initial_dict = {'date_seeded': datetime.now().strftime("%m/%d/%Y")}
 
-    current_crop = get_object_or_404(Crop, id=crop_id)
-    form = EditCropForm(request.POST)
-    if form.is_valid():
-        variety = form.cleaned_data.pop('variety')
-        date_seeded = form.cleaned_data.pop('date_seeded')
-        days_germinated = form.cleaned_data.pop('days_germinated')
-        crop_notes = form.cleaned_data.pop('notes')
-        slot_barcode = request.POST["slot-barcode"]
-        slot = get_object_or_404(Slot, barcode=slot_barcode)
-        if slot.current_crop is not None:
-            return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+        # selected_crop = Slot.objects.get(barcode=auto_fill_barcode).current_crop
 
-        # Edit the crop fields (minus 'attributes')
-        current_crop.variety = variety
-        current_crop.germ_date = date_seeded
-        current_crop.grow_date = date_seeded + timedelta(days_germinated)
-        current_crop.notes = crop_notes
+        initial_dict['variety'] = current_crop.variety
+        initial_dict['days_germinated'] = current_crop.days_in_germ()
+        initial_dict['seeding_density'] = current_crop.seeding_density
+        initial_dict['notes'] = current_crop.notes
 
-        # Edit crop 'attributes'
-        for attribute in form.cleaned_data.keys():
-            current_crop.attributes.remove(attribute_group=attribute)
-            current_crop.attributes.add(form.cleaned_data.get(attribute))
+        # Get the current crop's attributes to pre-populate form.
+        crop_attribute_options = current_crop.attributes.all()
+        print("crop attributes ", crop_attribute_options)
+        for option in crop_attribute_options:
+            initial_dict[option.attribute_group.name] = option.name
+        print(initial_dict)
+        pass
 
-        current_crop.save()
-        return redirect(crop_detail, crop_id=current_crop.id)
+        form = EditCropForm(initial=initial_dict)
+        return render(request, "inventory/edit_crop.html",
+                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "edit_crop_form": form})
+    if request.method == 'POST':
+        current_crop = get_object_or_404(Crop, id=crop_id)
+        form = EditCropForm(request.POST)
+        if form.is_valid():
+            variety = form.cleaned_data.pop('variety')
+            date_seeded = form.cleaned_data.pop('date_seeded')
+            days_germinated = form.cleaned_data.pop('days_germinated')
+            crop_notes = form.cleaned_data.pop('notes')
+            slot_barcode = request.POST["slot-barcode"]
+            slot = get_object_or_404(Slot, barcode=slot_barcode)
+            if slot.current_crop is not None:
+                return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
+
+            # Edit the crop fields (minus 'attributes')
+            current_crop.variety = variety
+            current_crop.germ_date = date_seeded
+            current_crop.grow_date = date_seeded + timedelta(days_germinated)
+            current_crop.notes = crop_notes
+
+            # Edit crop 'attributes'
+            for attribute in form.cleaned_data.keys():
+                current_crop.attributes.remove(attribute_group=attribute)
+                current_crop.attributes.add(form.cleaned_data.get(attribute))
+
+            current_crop.save()
+            return redirect(crop_detail, crop_id=current_crop.id)
 
 @login_required
 def add_crop_attributes(request):
