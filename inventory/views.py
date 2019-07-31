@@ -89,30 +89,50 @@ def create_crop(request):
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
     if request.method == 'GET':
         variety_list = Variety.objects.all()
+        new_crop_barcode = request.GET.get('barcode', '')
+        auto_fill_barcode = request.GET.get('autofill-barcode', False)
+        print("autofill barcode", auto_fill_barcode)
+        initial_dict = {'date_seeded': datetime.now().strftime("%m/%d/%Y")}
+        if auto_fill_barcode:
+            selected_crop = Slot.objects.get(barcode=auto_fill_barcode).current_crop
 
-        slot_list = Slot.objects.filter(current_crop=None)
-        variety = variety_list[0]
-        barcode = request.GET.get('barcode', '')
-        new_crop_form = NewCropForm(initial={'date_seeded': datetime.now().strftime("%m/%d/%Y")})
+            initial_dict['variety'] = selected_crop.variety
+            initial_dict['days_germinated'] = selected_crop.days_in_germ()
+            initial_dict['seeding_density'] = selected_crop.seeding_density
+            initial_dict['notes'] = selected_crop.notes
+
+            crop_attribute_options = selected_crop.attributes.all()
+            print("crop attributes ", crop_attribute_options)
+            for option in crop_attribute_options:
+                initial_dict[option.attribute_group.name] = option.name
+            print(initial_dict)
+            pass
+        new_crop_form = NewCropForm(initial=initial_dict)
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": slot_list, "new_crop_form": new_crop_form})
+                      context={"variety_list": variety_list, "barcode": new_crop_barcode, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
         form = NewCropForm(request.POST)
+        print("Form is valid: ", form.is_valid())
+        print(form.errors)
         if form.is_valid():
             variety = form.cleaned_data.pop('variety')
             date_seeded = form.cleaned_data.pop('date_seeded')
             days_germinated = form.cleaned_data.pop('days_germinated')
+            seeding_density = form.cleaned_data.pop('seeding_density')
+            notes = form.cleaned_data.pop('notes')
             slot_barcode = request.POST["slot-barcode"]
             slot = get_object_or_404(Slot, barcode=slot_barcode)
             if slot.current_crop is not None:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
 
-            new_crop = Crop.objects.create(variety=variety, germ_date=date_seeded, grow_date=date_seeded + timedelta(days_germinated))
+            new_crop = Crop.objects.create(variety=variety, germ_date=(date_seeded - timedelta(days_germinated)), grow_date=date_seeded, seeding_density=seeding_density, notes=notes)
+
             form_attributes = form.cleaned_data
-            for attribute_option in form_attributes.values():
-                print(attribute_option)
-                crop_attribute_option = CropAttributeOption.objects.get(name=attribute_option)
+            for attribute in form_attributes.keys():
+                crop_attribute = CropAttribute.objects.get(name=attribute)
+                option_name = form_attributes.get(attribute)
+                crop_attribute_option = crop_attribute.options.get(name=option_name)
                 new_crop.attributes.add(crop_attribute_option)
 
             slot.current_crop = new_crop

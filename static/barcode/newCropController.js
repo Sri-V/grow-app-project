@@ -6,6 +6,7 @@
 var inputReceivingBarcodeScan = null;
 const buttonToInputMapping = {
     "form-new-crop-barcode-btn": "form-new-crop-barcode-input",
+    "form-auto-fill-barcode-btn": "form-auto-fill-barcode-input",
 };
 
 document.addEventListener("barcode-scanned", function (e) {
@@ -20,5 +21,9 @@ document.addEventListener("barcode-scanned", function (e) {
 });
 
 $(".select-scan").click(function(e) {
+    inputReceivingBarcodeScan = buttonToInputMapping[e.target.id];
+});
+
+$(".autofill-crop").click(function(e) {
     inputReceivingBarcodeScan = buttonToInputMapping[e.target.id];
 });
