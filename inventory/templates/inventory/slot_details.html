@@ -52,15 +52,15 @@
                                value="Harvest The Crop"
                                class="btn btn-primary btn-lg"/>
                     </div>
-                    <input id="form-record-dead-crop-submit" data-toggle="modal" data-target="#form-record-dead-crop-modal"
+                    <div class="form-group">
+                        <input id="form-record-dead-crop-submit" data-toggle="modal" data-target="#form-record-dead-crop-modal"
                            value="Trash The Crop"
                            class="btn btn-primary btn-lg"/>
-                    // Edit Crop Button
-                    <div class="form-group">
-                        <input id="form-edit-crop-submit" data-toggle="modal" data-target="#form-edit-crop-modal"
-                               value="Edit The Crop"
-                               class="btn btn-primary btn-lg"/>
                     </div>
+                    <a id="form-edit-crop" href="/crop/{{ crop.id }}/edit/?barcode={{ barcode }}" class="btn btn-primary btn-lg">
+                        Edit
+                    </a>
+            </div>
                 {% endif %}
 
             </div>
