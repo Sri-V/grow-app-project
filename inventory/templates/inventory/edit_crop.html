@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Crop{% endblock %}
+
+{% block extrahead %}
+{{ edit_crop_form.media }}
+{% endblock %}
+
+{% block content %}
+    <div class="col-10 col-lg-6 col-xl-4">
+        <h1>Edit a Crop</h1>
+        <form id="form-edit-crop" method="post" data-variety-autofill-url="{% url 'variety_autofill' %}">
+            {% csrf_token %}
+            {{ edit_crop_form.as_p }}
+            <div class="form-group">
+                    <label for="form-new-crop-barcode-input">Location</label>
+                    <button type="button" class="select-scan btn btn-primary"
+                                        id="form-new-crop-barcode-btn">Scan Slot</button>
+                    <input type="text" id="form-new-crop-barcode-input" class="form-control" name="slot-barcode"
+                                   placeholder="Or type the barcode here" value={{ barcode }}>
+            </div>
+            <input id="form-new-crop-submit" type="submit" class="btn btn-primary" value="Update Crop">
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static "barcode/barcodeEvent.js" %}"></script>
+    <script src="{% static "barcode/newCropController.js" %}"></script>
+{% endblock %}

@@ -127,6 +127,27 @@ class NewCropForm(forms.Form):
         for attribute in attrs:
             self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))
 
+class EditCropForm(forms.Form):
+    variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                     widget=forms.Select(attrs={'class': 'form-control'}))
+
+    date_seeded = forms.DateField(widget=DatePickerInput(
+        options={
+            "format": "MM/DD/YYYY",
+        },
+        attrs={'class': 'form-control'}))
+
+    days_germinated = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    seeding_density = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=False)
+
+    def __init__(self, *args, **kwargs):
+        attrs = generate_attributes()
+        super(EditCropForm, self).__init__(*args, **kwargs)
+        for attribute in attrs:
+            self.fields[attribute[0]] = forms.ChoiceField(choices=attribute[1], widget=forms.Select(attrs={'class': 'form-control'}))
 
 class HarvestCropForm(forms.Form):
     crop_yield = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the crop yield in cm'}))
