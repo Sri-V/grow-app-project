@@ -51,7 +51,8 @@ urlpatterns = [
     path('barcode/<str:barcode_text>/', views.parse_barcode, name="parse_barcode"),
     path('sanitation_records/', views.sanitation_records, name='sanitation_records'),
     path('record/<int:record_id>/edit', views.update_crop_record, name="update_crop_record"),
-    path('record/<int:record_id>/delete', views.delete_record, name="delete_record")
+    path('record/<int:record_id>/delete', views.delete_record, name="delete_record"),
+    path('environment_data', views.environment_data, name="environment_data")
 ]
 
 urlpatterns += [

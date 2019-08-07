@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Temp & Humidity Data From Arduinos {% endblock %}
+
+{% block content %}
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+    <script>
+
+    var rack_channel = {
+        channel_no: {{ rack_channel_no }},
+        channel_name: 'rack-arduino-1',
+        read_key: '{{ rack_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+
+    var germ_channel = {
+        channel_no: {{ germ_channel_no }},
+        channel_name: 'germ-arduino-1',
+        read_key: '{{ germ_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+    </script>
+    <script src="static/farm_enviromental_data/environment_data.js"></script>
+    <script language="JavaScript">
+
+        // Create the charts
+        createChart("Rack Data", rack_channel);
+        createChart("Germ Data", germ_channel);
+    </script>
+    <div id="chart-container-{{ rack_channel_no }}" style="height: 400px; min-width: 700px">
+    </div>
+    <div id="chart-container-{{ germ_channel_no }}" style="height: 400px; min-width: 700px">
+    </div>
+{% endblock %}
