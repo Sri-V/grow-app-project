@@ -706,3 +706,25 @@ def environment_data(request):
     germ_api_key = os.environ.get('GERM_API_KEY')
 
     return render(request, "inventory/environment_data.html", context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key})
+
+@login_required
+def add_barcodes(request):
+    """GET: All slots """
+    if request.method == 'GET':
+        slot_list = Slot.objects.all()
+        initial_dict = {}
+        for slot in slot_list:
+            initial_dict["Slot " + str(slot.id)] = slot.barcode
+        form = AddBarcodesForm(initial=initial_dict)
+        return render(request, "inventory/add_barcodes.html",
+                      context={"slot_list": slot_list,
+                               "add_barcodes_to_slots_form": form})
+    if request.method == 'POST':
+        slot_list = Slot.objects.all()
+        form = AddBarcodesForm(request.POST)
+        if form.is_valid():
+            form = form.clean_barcode()
+            for slot in slot_list:
+                slot.barcode = form.cleaned_data.pop('Slot '+str(slot.id))
+                slot.save()
+        return redirect(golden_trays_home)
