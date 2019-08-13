@@ -702,10 +702,12 @@ def environment_data(request):
     """GET: Display a page that shows temperature and humidity data from the farm."""
     rack_channel_no = os.environ.get('RACK_CHANNEL_NO')
     germ_channel_no = os.environ.get('GERM_CHANNEL_NO')
+    weather_channel_no = os.environ.get('WEATHER_CHANNEL_NO')
     rack_api_key = os.environ.get('RACK_API_KEY')
     germ_api_key = os.environ.get('GERM_API_KEY')
+    weather_api_key = os.environ.get('WEATHER_API_KEY')
 
-    return render(request, "inventory/environment_data.html", context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key})
+    return render(request, "inventory/environment_data.html", context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key, "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
 
 @login_required
 def add_barcodes(request):

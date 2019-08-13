@@ -23,13 +23,36 @@
         read_key: '{{ germ_api_key }}',
         field_list: ['field1', 'field2']
     };
+
+    var weather_channel = {
+        channel_no: {{ weather_channel_no }},
+        channel_name:  'outside-weather-1',
+        read_key: '{{ weather_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+
+    // TODO: create new Thingspeak channels & fill in info
+    /*
+    var inlet_channel = {
+        channel_no: xxxxx,
+        channel_name: 'xxxxxx',
+        read_key: 'xxxxxxxxxxxxxxx'
+    }
+
+    var other_channel = {
+        channel_no: xxxxxxxxxx,
+        channel_name: 'xxxxxxxxxx',
+        read_key: 'xxxxxxxxxxxxxx'
+    }
+    */
+
     </script>
     <script src="static/farm_enviromental_data/environment_data.js"></script>
     <script language="JavaScript">
 
         // Create the charts
-        createChart("Rack Data", rack_channel);
-        createChart("Germ Data", germ_channel);
+        createChart("Rack Data", rack_channel, weather_channel);
+        createChart("Germ Data", germ_channel, weather_channel);
     </script>
     <div id="chart-container-{{ rack_channel_no }}" style="height: 400px; min-width: 700px">
     </div>
