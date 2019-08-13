@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Barcodes To Slots{% endblock %}
+
+{% block content %}
+    <div class="col-10 col-lg-6 col-xl-4">
+        <h1>Add Barcodes to Slots</h1>
+        <form id="form-edit-crop" method="post">
+            {% csrf_token %}
+            {{ add_barcodes_to_slots_form.as_p }}
+            <ul>
+                {% for error in form.non_field_errors %}
+                    <li><strong>{{ error|escape }}</strong></li>
+                {% endfor %}
+            </ul>
+            <input id="form-add-barcodes-submit" type="submit" class="btn btn-primary" value="Update Barcodes">
+        </form>
+    </div>
+{% endblock %}

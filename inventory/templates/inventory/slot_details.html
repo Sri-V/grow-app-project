@@ -38,6 +38,14 @@
                             None
                         {% endif %}</h2>
                 </div>
+                <div id="current-slot-barcode">
+                    <h2>Barcode:
+                        {% if barcode %}
+                            {{ barcode }}
+                        {% else %}
+                            None
+                        {% endif %}</h2>
+                </div>
 
                 {% if crop %}
                     <form id="form-water-crop" action="/slot/{{ slot_id }}/action/water" method="post">

@@ -152,3 +152,18 @@ class EditCropForm(forms.Form):
 class HarvestCropForm(forms.Form):
     crop_yield = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the crop yield in cm'}))
     leaf_wingspan = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the leaf wingspan in cm'}))
+
+class AddBarcodesForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(AddBarcodesForm, self).__init__(*args, **kwargs)
+        for slot in Slot.objects.all():
+            field = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), required=False)
+            self.fields["Slot " + str(slot.id)] = field
+
+    def clean_barcode(self):
+        for field_name in self.cleaned_data:
+            barcode = self.cleaned_data[field_name]
+            # Check for duplicate barcode
+            if Slot.objects.filter(barcode=barcode).exists():
+                raise ValidationError(field_name+': A slot with barcode ' + barcode + ' already exists.', code="non-unique")
+        return self.cleaned_data
