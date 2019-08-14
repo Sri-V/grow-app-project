@@ -162,8 +162,9 @@ class AddBarcodesForm(forms.Form):
 
     def clean_barcode(self):
         for field_name in self.cleaned_data:
-            barcode = self.cleaned_data[field_name]
             # Check for duplicate barcode
-            if Slot.objects.filter(barcode=barcode).exists():
+            barcode = self.cleaned_data[field_name]
+            slot_id = int(field_name.lstrip("Slot "))  # Isolate the current slot id
+            if Slot.objects.filter(barcode=barcode).exclude(id=slot_id).exists():
                 raise ValidationError(field_name+': A slot with barcode ' + barcode + ' already exists.', code="non-unique")
         return self.cleaned_data
