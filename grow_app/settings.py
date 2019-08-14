@@ -66,16 +66,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'MYAPP': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-        },
     }
 }
 
 # Email Error Reporting
 
-ADMINS = [('Boston Microgreens', 'bostonmicrogreens@gmail.com'), ('BMG Slack', 'https://slack.com/apps/A0F81496D-email')]
+ADMINS = [('Rebecca Mendez', 'rebeccamendez99@gmail.com'), ('BMG DEV', 'bmg.growapp@gmail.com')]
 
 EMAIL_HOST = 'smtp.gmail.com'
 
@@ -83,7 +79,7 @@ SERVER_EMAIL = 'bmg.growapp@gmail.com'
 # these should be equal
 EMAIL_HOST_USER = 'bmg.growapp@gmail.com'
 
-EMAIL_HOST_PASSWORD = 'devsquad00'
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
 EMAIL_POST = 587  # 465 (SSL required) or 587 (TLS required)
 
