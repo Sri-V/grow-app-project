@@ -725,7 +725,7 @@ def add_barcodes(request):
         slot_list = Slot.objects.all()
         form = AddBarcodesForm(request.POST)
         if form.is_valid():
-            form = form.clean_barcode()
+            # form.cleaned_data = form.clean_barcode()
             for slot in slot_list:
                 slot.barcode = form.cleaned_data.pop('Slot '+str(slot.id))
                 slot.save()
