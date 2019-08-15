@@ -37,8 +37,8 @@ class Crop(models.Model):
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    germ_date = models.DateField()  # date seeded and placed in germ
-    grow_date = models.DateField()  # date placed on rack
+    germ_date = models.DateField(default=timezone.now())  # date seeded and placed in germ
+    grow_date = models.DateField(default=timezone.now())  # date placed on rack
     harvest_date = models.DateField(blank=True, null=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
