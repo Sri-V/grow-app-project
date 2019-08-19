@@ -12,21 +12,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='CropAttribute',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='CropAttributeOption',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('attribute_group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='options', to='inventory.CropAttribute')),
-            ],
-        ),
+        # migrations.CreateModel(
+        #     name='CropAttribute',
+        #     fields=[
+        #         ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('name', models.CharField(max_length=50)),
+        #     ],
+        # ),
+        # migrations.CreateModel(
+        #     name='CropAttributeOption',
+        #     fields=[
+        #         ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('name', models.CharField(max_length=50)),
+        #         ('attribute_group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='options', to='inventory.CropAttribute')),
+        #     ],
+        # ),
         migrations.CreateModel(
             name='InHouse',
             fields=[
