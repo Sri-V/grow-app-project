@@ -49,10 +49,14 @@ def set_total_slot_quantity(request):
 
     for ra in range(next_index, next_index + racks):
         print("Adding rack ", ra)
-        for ro in range(1, rows):
-            for sl in range(1,slots):
+        for ro in range(1, rows + 1):
+            for sl in range(1, slots + 1):
                 barcode = phase + str(ra).zfill(3) + str(ro).zfill(2) + str(sl).zfill(2)
-                Slot.objects.create(barcode=barcode)
+                # Create slot object.
+                slot = Slot.objects.create()
+                # Add slot id to make barcode unique.
+                slot.barcode = barcode + str(slot.id).zfill(2)
+                slot.save()
 
     return redirect(growhouse_settings)
 
