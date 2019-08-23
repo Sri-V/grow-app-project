@@ -131,7 +131,7 @@ def create_crop(request):
             if slot.current_crop is not None:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
 
-            new_crop = Crop.objects.create(variety=variety, germ_date=(date_seeded - timedelta(days_germinated)), grow_date=date_seeded, seeding_density=seeding_density, notes=notes)
+            new_crop = Crop.objects.create(variety=variety, germ_date=date_seeded, grow_date=(date_seeded + timedelta(days_germinated)), seeding_density=seeding_density, notes=notes)
 
             form_attributes = form.cleaned_data
             for attribute in form_attributes.keys():
@@ -147,7 +147,7 @@ def create_crop(request):
             germ_date = date_seeded
             CropRecord.objects.create(crop=new_crop, record_type='GERM', date=germ_date)
             # Create a CropRecord to record when germination phase started
-            CropRecord.objects.create(crop=new_crop, record_type='GROW', date=date_seeded)
+            CropRecord.objects.create(crop=new_crop, record_type='GROW', date=(date_seeded + timedelta(days_germinated)))
 
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
