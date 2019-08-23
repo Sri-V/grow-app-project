@@ -64,6 +64,25 @@
             </form>
         </div>
         <br/>
+        {% include 'inventory/highchart.html' %}
+        <script language="JavaScript">
+            germ_date = new Date('{{ crop.germ_date }}').getTime()
+            grow_date = new Date('{{ crop.grow_date }}').getTime()
+            window.console && console.log("grow date: " + new Date(grow_date));
+            window.console && console.log("germ date: " + new Date(germ_date));
+                {% if harvest %}
+                    window.console && console.log("Harvest date exists!");
+                    harvest_date = new Date('{{ crop.harvest_date }}').getTime()
+                    window.console && console.log("Harvest date: " + harvest_date);
+                {% else %}
+                    // Crop has not been harvested, so set upper bound to today's date.
+                    window.console && console.log("Crop has not been harvested yet, so no harvest_date exists!");
+                    harvest_date = new Date().getTime()
+                {% endif %}
+            createChart("Germ Data", germ_channel, weather_channel, germ_date, grow_date);
+            createChart("Rack Data", rack_channel, weather_channel, grow_date, harvest_date);
+        </script>
+        <br/>
         <div id="add-crop-record" class="col-12">
             <h1>Add Crop Record</h1>
             <form id="form-add-crop-record" action="/crop/{{ crop.id }}/record" method="POST">

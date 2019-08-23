@@ -1,0 +1,49 @@
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+
+<script>
+    var rack_channel = {
+        channel_no: {{ rack_channel_no }},
+        channel_name: 'rack-arduino-1',
+        read_key: '{{ rack_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+
+    var germ_channel = {
+        channel_no: {{ germ_channel_no }},
+        channel_name: 'germ-arduino-1',
+        read_key: '{{ germ_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+
+    var weather_channel = {
+        channel_no: {{ weather_channel_no }},
+        channel_name:  'outside-weather-1',
+        read_key: '{{ weather_api_key }}',
+        field_list: ['field1', 'field2']
+    };
+
+    // TODO: create new Thingspeak channels & fill in info
+    /*
+    var inlet_channel = {
+        channel_no: xxxxx,
+        channel_name: 'xxxxxx',
+        read_key: 'xxxxxxxxxxxxxxx'
+    }
+
+    var other_channel = {
+        channel_no: xxxxxxxxxx,
+        channel_name: 'xxxxxxxxxx',
+        read_key: 'xxxxxxxxxxxxxx'
+    }
+    */
+</script>
+<script src="/static/farm_enviromental_data/environment_data.js"></script>
+<div id="chart-container-{{ germ_channel_no }}" style="max-height: 400px; min-width: 700px">
+</div>
+<br/>
+<div id="chart-container-{{ rack_channel_no }}" style="max-height: 400px; min-width: 700px">
+</div>

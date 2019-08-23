@@ -297,9 +297,18 @@ def crop_detail(request, crop_id):
     notes_form = CropNotesForm(initial={'notes': crop.notes})
     crop_attributes = get_crop_attributes_list(crop)
 
+    rack_channel_no = os.environ.get('RACK_CHANNEL_NO')
+    germ_channel_no = os.environ.get('GERM_CHANNEL_NO')
+    weather_channel_no = os.environ.get('WEATHER_CHANNEL_NO')
+    rack_api_key = os.environ.get('RACK_API_KEY')
+    germ_api_key = os.environ.get('GERM_API_KEY')
+    weather_api_key = os.environ.get('WEATHER_API_KEY')
+
     return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
                            "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
-                                                                   "crop_record_form": crop_record_form, "notes_form": notes_form})
+                                                                   "crop_record_form": crop_record_form, "notes_form": notes_form, "rack_channel_no": rack_channel_no,
+                                                                   "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key,
+                                                                   "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
 
 
 @login_required
