@@ -65,6 +65,13 @@ class Crop(models.Model):
         else:
             return 0
 
+    def get_germ_date(self):
+        try:
+            germ_record = self.crop_records.get(record_type='GERM')
+            return germ_record.date
+        except:
+            return None
+
 
 class CropRecord(models.Model):
     """Represents a data point about a Crop at a particular moment in time. Has the property that a sorted
@@ -76,7 +83,7 @@ class CropRecord(models.Model):
         ('HARVEST', 'Harvested'),
         ('TRASH', 'Trashed'),
     )
-    crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name='crop_records')
     date = models.DateField(default=timezone.now)
     record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
 
