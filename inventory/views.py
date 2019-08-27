@@ -198,13 +198,16 @@ def edit_crop(request, crop_id):
             crop_notes = form.cleaned_data.pop('notes')
             slot_barcode = request.POST["slot-barcode"]
             slot = get_object_or_404(Slot, barcode=slot_barcode)
-            if slot.current_crop != crop and slot.current_crop is not None:
+            if slot.current_crop is not None and slot.current_crop != crop:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a different crop!')
+            # If the slot to move this crop to is empty
             elif slot.current_crop is None:
-                current_slot = crop.current_slot
-                current_slot.current_crop = None
+                # Remove crop from it's previous slot if exists
+                if Slot.objects.filter(current_crop=crop).exists():
+                    prev_slot = Slot.objects.filter(current_crop=crop)
+                    prev_slot.current_crop = None
+                    prev_slot.save()
                 slot.current_crop = crop
-                current_slot.save()
                 slot.save()
 
 
