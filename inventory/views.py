@@ -122,7 +122,7 @@ def create_crop(request):
         print(form.errors)
         if form.is_valid():
             variety = form.cleaned_data.pop('variety')
-            date_seeded = form.cleaned_data.pop('date_seeded')
+            germ_date = form.cleaned_data.pop('date_seeded')
             days_germinated = form.cleaned_data.pop('days_germinated')
             seeding_density = form.cleaned_data.pop('seeding_density')
             notes = form.cleaned_data.pop('notes')
@@ -131,7 +131,7 @@ def create_crop(request):
             if slot.current_crop is not None:
                 return HttpResponseBadRequest(f'Slot {slot.id} already contains a crop!')
 
-            new_crop = Crop.objects.create(variety=variety, germ_date=date_seeded, grow_date=(date_seeded + timedelta(days_germinated)), seeding_density=seeding_density, notes=notes)
+            new_crop = Crop.objects.create(variety=variety, seeding_density=seeding_density, notes=notes)
 
             form_attributes = form.cleaned_data
             for attribute in form_attributes.keys():
@@ -144,10 +144,9 @@ def create_crop(request):
             slot.save()
 
             # Create a CropRecord to record when germination phase started
-            germ_date = date_seeded
             CropRecord.objects.create(crop=new_crop, record_type='GERM', date=germ_date)
             # Create a CropRecord to record when germination phase started
-            CropRecord.objects.create(crop=new_crop, record_type='GROW', date=(date_seeded + timedelta(days_germinated)))
+            CropRecord.objects.create(crop=new_crop, record_type='GROW', date=(germ_date + timedelta(days_germinated)))
 
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
@@ -169,7 +168,7 @@ def edit_crop(request, crop_id):
 
         initial_dict = {}
 
-        initial_dict['date_seeded'] = current_crop.germ_date
+        initial_dict['date_seeded'] = current_crop.germ_date()
         initial_dict['variety'] = current_crop.variety
         initial_dict['days_germinated'] = current_crop.days_in_germ()
         initial_dict['seeding_density'] = current_crop.seeding_density
@@ -193,8 +192,8 @@ def edit_crop(request, crop_id):
         form = EditCropForm(request.POST)
         if form.is_valid():
             variety = form.cleaned_data.pop('variety')
-            date_seeded = form.cleaned_data.pop('date_seeded')
-            days_germinated = form.cleaned_data.pop('days_germinated')
+            # date_seeded = form.cleaned_data.pop('date_seeded')
+            # days_germinated = form.cleaned_data.pop('days_germinated')
             seeding_density = form.cleaned_data.pop('seeding_density')
             crop_notes = form.cleaned_data.pop('notes')
             slot_barcode = request.POST["slot-barcode"]
@@ -211,8 +210,8 @@ def edit_crop(request, crop_id):
 
             # Edit the crop fields that aren't the CropAttributes
             crop.variety = variety
-            crop.germ_date = date_seeded
-            crop.grow_date = date_seeded + timedelta(days_germinated)
+            # crop.germ_date = date_seeded
+            # crop.grow_date = date_seeded + timedelta(days_germinated)
             crop.seeding_density = seeding_density
             crop.notes = crop_notes
 
@@ -376,7 +375,7 @@ def harvest_crop(request, slot_id):
         current_crop = slot.current_crop
         current_crop.crop_yield = crop_yield
         current_crop.leaf_wingspan = leaf_wingspan
-        current_crop.harvest_date = date.today()
+        # current_crop.harvest_date = date.today()
         current_crop.save()
         # Upload it to google sheets
         upload_data_to_sheets(current_crop)

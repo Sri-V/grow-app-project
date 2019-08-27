@@ -37,9 +37,9 @@ class Crop(models.Model):
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    germ_date = models.DateField(default=timezone.now)  # date seeded and placed in germ
-    grow_date = models.DateField(default=timezone.now)  # date placed on rack
-    harvest_date = models.DateField(blank=True, null=True)
+    #germ_date = models.DateField(default=timezone.now)  # date seeded and placed in germ
+    #grow_date = models.DateField(default=timezone.now)  # date placed on rack
+    #harvest_date = models.DateField(blank=True, null=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     seeding_density = models.FloatField(null=True, blank=True)  # measured in g/tray
@@ -55,20 +55,34 @@ class Crop(models.Model):
         super().save(*args, **kwargs)  # Call the "real" save() method.
 
     def days_in_germ(self):
-        delta = self.grow_date - self.germ_date
+        delta = self.grow_date() - self.germ_date()
         return delta.days
 
     def days_in_grow(self):
-        if self.harvest_date is not None:
-            delta = self.harvest_date - self.grow_date
+        if self.harvest_date() is not None:
+            delta = self.harvest_date() - self.grow_date()
             return delta.days
         else:
             return 0
 
-    def get_germ_date(self):
+    def germ_date(self):
         try:
             germ_record = self.crop_records.get(record_type='GERM')
             return germ_record.date
+        except:
+            return None
+
+    def grow_date(self):
+        try:
+            grow_record = self.crop_records.get(record_type='GROW')
+            return grow_record.date
+        except:
+            return None
+
+    def harvest_date(self):
+        try:
+            harvest_record = self.crop_records.get(record_type='HARVEST')
+            return harvest_record.date
         except:
             return None
 
