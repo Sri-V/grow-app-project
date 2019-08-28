@@ -487,14 +487,19 @@ def inventory_overview(request):
 
 @login_required
 def inventory_seed(request):
-    today = datetime.today().weekday()
     if request.method == 'GET':
+        try:
+            # Try to get the date from the form
+            day = parser.parse(request.GET.get('form-seed-date'))
+        except TypeError:
+            day = datetime.today()
+            pass
         for v in Variety.objects.all():
-            if len(WeekdayRequirement.objects.filter(plant_day=today).filter(variety=v)) == 0:
-                WeekdayRequirement.objects.create(variety=v, plant_day=today, num_small=0, num_medium=0, num_big=0)
+            if len(WeekdayRequirement.objects.filter(plant_day=day.weekday()).filter(variety=v)) == 0:
+                WeekdayRequirement.objects.create(variety=v, plant_day=day.weekday(), num_small=0, num_medium=0, num_big=0)
 
-        to_do = WeekdayRequirement.objects.filter(plant_day=today).order_by('num_big')
-        return render(request, 'inventory/inventory_seed.html', context={'to_do':to_do})
+        to_do = WeekdayRequirement.objects.filter(plant_day=day.weekday()).order_by('num_big')
+        return render(request, 'inventory/inventory_seed.html', context={'to_do':to_do, 'day': day.strftime("%m/%d/%y")})
     
     if request.method == 'POST':
         for v in Variety.objects.all():

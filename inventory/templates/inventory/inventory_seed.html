@@ -4,7 +4,11 @@
 
 {% block content %}
     <div>
-        <h1>Seeding: <script> document.write(new Date().toLocaleDateString()); </script></h1>
+        <h1>Seeding:
+            <form id="form-get-day" method="GET">
+            {% csrf_token %}
+                <input id="form-seed-date" name="form-seed-date" value="{{ day }}" class="form-control">
+            </form> </h1>
     </div>
     <div id="greenhouse_inventory">
         <form id="form-seed" method="post">
