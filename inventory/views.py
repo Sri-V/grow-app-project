@@ -510,7 +510,10 @@ def inventory_seed(request):
                 big = 0 if len(big) == 0 else int(big)
                 medium = 0 if len(medium) == 0 else int(medium)
                 small = 0 if len(small) == 0 else int(small)
-                in_house = InHouse.objects.get(variety=v)
+                try:
+                    in_house = InHouse.objects.get(variety=v)
+                except InHouse.DoesNotExist:
+                    in_house = InHouse.objects.create(variety=v.name)
                 in_house.num_big += big
                 in_house.num_medium += medium
                 in_house.num_small += small
