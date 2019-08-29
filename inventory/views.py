@@ -571,19 +571,22 @@ def inventory_plan(request, plant_day=None):
         (6, 'Sunday'),
     )
     if request.method == 'GET':
+        variety_list = []
         for v in Variety.objects.all():
             if len(WeekdayRequirement.objects.filter(plant_day=plant_day).filter(variety=v)) == 0:
                 WeekdayRequirement.objects.create(variety=v, plant_day=plant_day, num_small=0, num_medium=0, num_big=0)
-
-        return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list':Variety.objects.all()})
+            variety_name_no_spaces = v.name.replace(" ", "_").replace(":", "").replace(",", "")
+            variety_list.append((v, variety_name_no_spaces))
+            print(variety_name_no_spaces)
+        return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
     
     if request.method == 'POST':
         for v in Variety.objects.all():
             try:
                 day = int(request.POST['day'])
-                big = int(request.POST['form-plan-' + v.name + '-big'])
-                medium = int(request.POST['form-plan-' + v.name + '-medium'])
-                small = int(request.POST['form-plan-' + v.name + '-small'])
+                big = int(request.POST['form-plan-' + v.name.replace(" ", "_").replace(":","").replace(",", "") + '-big'])
+                medium = int(request.POST['form-plan-' + v.name.replace(" ", "_").replace(":","").replace(",", "") + '-medium'])
+                small = int(request.POST['form-plan-' + v.name.replace(" ", "_").replace(":","").replace(",", "") + '-small'])
                 plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
                 plan.num_big = big
                 plan.num_medium = medium
@@ -591,9 +594,8 @@ def inventory_plan(request, plant_day=None):
                 plan.save()
             except KeyError:
                 pass # In case there's a variety inconsistency
-        
         # Redirect the user to the weekly planning page
-        return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list':Variety.objects.all()})
+        return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list': Variety.objects.all()})
 
 @login_required
 def inventory_harvest_bulk(request): # numbers of trays for multiple varieties

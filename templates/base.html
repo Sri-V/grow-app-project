@@ -62,7 +62,8 @@
                 dataType: 'json',
                 success: function (data) {
                     for (const [key, value] of Object.entries(data)) {
-                        $("#form-plan-" + key).val(value);
+                        window.console && console.log("Key:" +  key.replace(/ /g, "_").replace(/,/g, "").replace(/:/g, "") + "value: " + value)
+                        $("#form-plan-" + key.replace(/ /g, "_").replace(/,/g, "").replace(/:/g, "")).val(value);
                     }
                 },
                 fail: function (data) {
