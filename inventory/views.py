@@ -513,7 +513,7 @@ def inventory_seed(request):
                 try:
                     in_house = InHouse.objects.get(variety=v)
                 except InHouse.DoesNotExist:
-                    in_house = InHouse.objects.create(variety=v.name)
+                    in_house = InHouse.objects.create(variety=v)
                 in_house.num_big += big
                 in_house.num_medium += medium
                 in_house.num_small += small
