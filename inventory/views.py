@@ -410,6 +410,19 @@ def water_crop(request, slot_id):
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=date.today())
     return redirect(slot_detail, slot_id=slot_id)
 
+@login_required
+def search_crop(request):
+    """GET: Go to the crop page based on the input of crop id or barcode"""
+    search_method = request.GET.get('search-method')
+    if search_method == 'form-search-by-id':
+        crop_id = request.GET.get('form-search-crop-id-or-barcode')
+        crop = get_object_or_404(Crop, id=crop_id)
+    elif search_method == 'form-search-by-barcode':
+        barcode = request.GET.get('form-search-crop-id-or-barcode')
+        slot = get_object_or_404(Slot, barcode=barcode)
+        crop = get_object_or_404(Crop, current_slot=slot)
+
+    return redirect(crop_detail, crop_id=crop.id)
 
 @login_required
 def delete_record(request, record_id):
