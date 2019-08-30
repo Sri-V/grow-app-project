@@ -55,11 +55,24 @@ class Crop(models.Model):
         super().save(*args, **kwargs)  # Call the "real" save() method.
 
     def days_in_germ(self):
-        delta = self.grow_date() - self.germ_date()
-        return delta.days
+        # If germ_date exists, but grow_date does not => it has not been taken out of germ
+        if self.germ_date() is not None and self.grow_date() is None:
+            days_in_germ = timezone.now().date() - self.germ_date()
+            return days_in_germ.days
+        # If both dates exist, get the difference between them
+        elif self.germ_date() is not None and self.grow_date() is not None:
+            delta = self.grow_date() - self.germ_date()
+            return delta.days
+        else:
+            return 0
 
     def days_in_grow(self):
-        if self.harvest_date() is not None:
+        # If grow_date exists, but harvest_date does not => it has not been harvested
+        if self.grow_date() is not None and self.harvest_date() is None:
+            days_in_grow = timezone.now().date() - self.grow_date()
+            return days_in_grow.days
+        # If both dates exist, get the difference between them
+        elif self.harvest_date() is not None and self.grow_date() is not None:
             delta = self.harvest_date() - self.grow_date()
             return delta.days
         else:
