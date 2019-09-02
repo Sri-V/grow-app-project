@@ -15,18 +15,12 @@
             <table id="inventory" class="table">
                 <tr>
                     <th>Variety</th>
-                    <th>B</th>
-                    <th>M</th>
-                    <th>S</th>
+                    <th># Trays or Punnets</th>
                 </tr>
                 {% for variety in variety_list %}
                 <tr>
                     <td width='40%'>{{ variety.name }}</td>
-                    <td width='20%'><input id="form-harvest-{{variety.name}}-big" name="form-harvest-{{variety.name}}-big" class="form-control" 
-                        type="number"  min=0></td>
-                    <td width='20%'><input id="form-harvest-{{variety.name}}-medium" name="form-harvest-{{variety.name}}-medium" class="form-control" 
-                        type="number"  min=0></td>
-                    <td width='20%'><input id="form-harvest-{{variety.name}}-small" name="form-harvest-{{variety.name}}-small" class="form-control" 
+                    <td width='20%'><input id="form-harvest-{{variety.name}}-quantity" name="form-harvest-{{variety.name}}-quantity" class="form-control"
                         type="number"  min=0></td>
                 </tr>
                 {% endfor %}

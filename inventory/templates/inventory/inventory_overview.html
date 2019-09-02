@@ -9,17 +9,13 @@
     <div id="greenhouse_inventory">
         <table id="inventory" class="table">
             <tr>
-                <th></th>
-                <th>B</th>
-                <th>M</th>
-                <th>S</th>
+                <th>Variety</th>
+                <th># Trays</th>
             </tr>
             {% for variety in in_house %}
             <tr>
                 <td width='40%'>{{ variety.variety }}</td>
-                <td width='20%'>{{ variety.num_big }}</td>
-                <td width='20%'>{{ variety.num_medium }}</td>
-                <td width='20%'>{{ variety.num_small }}</td>
+                <td width='20%'>{{ variety.quantity }}</td>
             </tr>
             {% endfor %}
         </table>

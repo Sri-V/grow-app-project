@@ -131,9 +131,7 @@ class SanitationRecord(models.Model):
 
 class InHouse(models.Model):
     variety = models.OneToOneField(Variety, on_delete=models.PROTECT, primary_key=True)
-    num_small = models.IntegerField(default=0)
-    num_medium = models.IntegerField(default=0)
-    num_big = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
     
 class WeekdayRequirement(models.Model):
     DAYS_OF_WEEK = (
@@ -148,9 +146,7 @@ class WeekdayRequirement(models.Model):
 
     plant_day = models.CharField(max_length=1, choices=DAYS_OF_WEEK)
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    num_small = models.IntegerField(default=0)
-    num_medium = models.IntegerField(default=0)
-    num_big = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
 
     class Meta:
         unique_together = ['plant_day', 'variety']

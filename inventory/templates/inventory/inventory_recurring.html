@@ -24,18 +24,12 @@
             <table id="inventory" class="table">
                 <tr>
                     <th>Variety</th>
-                    <th>B</th>
-                    <th>M</th>
-                    <th>S</th>
+                    <th># Trays</th>
                 </tr>
                 {% for variety in variety_list %}
                 <tr>
                     <td width='40%'>{{ variety.0.name }}</td>
-                    <td width='20%'><input id="form-plan-{{variety.1}}-big" name="form-plan-{{variety.1}}-big" class="form-control"
-                        type="number"  ></td>
-                    <td width='20%'><input id="form-plan-{{variety.1}}-medium" name="form-plan-{{variety.1}}-medium" class="form-control"
-                        type="number"  ></td>
-                    <td width='20%'><input id="form-plan-{{variety.1}}-small" name="form-plan-{{variety.1}}-small" class="form-control"
+                    <td width='20%'><input id="form-plan-{{variety.1}}-quantity" name="form-plan-{{variety.1}}-quantity" class="form-control"
                         type="number"  ></td>
                 </tr>
                 {% endfor %}
