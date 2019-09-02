@@ -16,19 +16,13 @@
             <table id="inventory" class="table">
                 <tr>
                     <th></th>
-                    <th>B</th>
-                    <th>M</th>
-                    <th>S</th>
+                    <th># Trays or Punnets</th>
                 </tr>
                 {% for task in to_do %}
                 <tr>
                     <td width='40%'>{{ task.variety }}</td>
-                    <td width='20%'><input id="form-seed-big-{{task.variety.name}}" name="form-seed-big-{{task.variety.name}}" class="form-control" 
-                        type="number"  value="{{task.num_big}}"></td>
-                    <td width='20%'><input id="form-seed-medium-{{task.variety.name}}" name="form-seed-medium-{{task.variety.name}}" class="form-control" 
-                        type="number"  value="{{task.num_medium}}"></td>
-                    <td width='20%'><input id="form-seed-small-{{task.variety.name}}" name="form-seed-small-{{task.variety.name}}" class="form-control" 
-                        type="number"  value="{{task.num_small}}"></td>
+                    <td width='20%'><input id="form-seed-quantity-{{task.variety.name}}" name="form-seed-quantity-{{task.variety.name}}" class="form-control"
+                        type="number"  value="{{task.quantity}}"></td>
                 </tr>
                 {% endfor %}
             </table>
