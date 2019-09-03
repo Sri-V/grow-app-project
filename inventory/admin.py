@@ -1,5 +1,5 @@
 from django.contrib import admin
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, SanitationRecord, WeekdayRequirement
+from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, SanitationRecord, WeekdayRequirement, InventoryAction
 
 admin.site.register(Crop)
 admin.site.register(CropAttribute)
@@ -10,3 +10,4 @@ admin.site.register(Variety)
 admin.site.register(InHouse)
 admin.site.register(SanitationRecord)
 admin.site.register(WeekdayRequirement)
+admin.site.register(InventoryAction)
