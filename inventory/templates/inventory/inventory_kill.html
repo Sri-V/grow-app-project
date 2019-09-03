@@ -21,7 +21,12 @@
                 type="number" min=0>
             <label for="form-kill-reason">Reason</label>
             <br>
-            <textarea name="form-kill-reason" id="form-kill-reason" form="form-kill"></textarea>
+{#            <textarea name="form-kill-reason" id="form-kill-reason" form="form-kill"></textarea>#}
+            <select id="form-kill-reason" name="form-kill-reason" class="form-control" form="form-kill">
+                {% for reason in reason_list %}
+                    <option>{{ reason.name }}</option>
+                {% endfor %}
+            </select>
             <br>
             <input id="form-kill-submit" type="submit" class="btn btn-primary" value="Accept">
         </form>

@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction
+from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction, KillReason
 from inventory.forms import *
 from datetime import date, datetime, timedelta
 from dateutil import parser
@@ -534,23 +534,23 @@ def inventory_seed(request):
 
 @login_required
 def inventory_kill(request):
-    today = datetime.today().weekday()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all()})
+        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all()})
     
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
             quantity = request.POST['form-kill-quantity']
             quantity = 0 if len(quantity) == 0 else int(quantity)
-            note = request.POST['form-kill-reason']
+            reason = request.POST['form-kill-reason']
             var_obj = Variety.objects.get(name=variety)
+            reason_obj = KillReason.objects.get(name=reason)
             in_house = InHouse.objects.get(variety=var_obj)
             in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
             in_house.save()
             if quantity:
                 data = json.dumps({'quantity': quantity})
-                InventoryAction.objects.create(variety=var_obj, action_type='KILL', note=note, data=data)
+                InventoryAction.objects.create(variety=var_obj, action_type='KILL', kill_reason=reason_obj, data=data)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
