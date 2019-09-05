@@ -11,7 +11,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="form-plan-day">Weekday</label>
-                <select id="form-plan-day" name="day" class="form-control" onchange="autofill_weekday($(this).val())">
+                <select id="form-plan-day" name="day" class="form-control" onchange="autofill_weekday()">
                     {% for wd in weekdays %}
                         {% if wd.0 == day %}
                             <option value='{{ wd.0 }}' selected>{{ wd.1 }}</option>

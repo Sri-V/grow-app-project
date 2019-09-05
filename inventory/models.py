@@ -129,10 +129,12 @@ class SanitationRecord(models.Model):
     chemicals_used = models.CharField(max_length=100)
     note = models.CharField(max_length=200, blank=True)
 
-class InHouse(models.Model):
+class CropGroup(models.Model):
+    """Represents a group of crops of a particular variety that share a seed date."""
     variety = models.OneToOneField(Variety, on_delete=models.PROTECT, primary_key=True)
     quantity = models.IntegerField(default=0)
-    
+    seed_date = models.DateField()
+
 class WeekdayRequirement(models.Model):
     DAYS_OF_WEEK = (
         (0, 'Monday'),
@@ -151,6 +153,10 @@ class WeekdayRequirement(models.Model):
     class Meta:
         unique_together = ['plant_day', 'variety']
 
+class KillReason(models.Model):
+    """Represents a reason for trashing a crop."""
+    name = models.CharField(max_length=200)
+
 class InventoryAction(models.Model):
     ACTION_TYPES = (
         ('SEED', 'Seeded'),
@@ -163,3 +169,4 @@ class InventoryAction(models.Model):
     action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
     data = models.CharField(max_length=1000, null=True) # encode as a JSON with json.dumps({k:v,...})
     note = models.CharField(max_length=200, null=True)
+    kill_reason = models.ForeignKey(KillReason, null=True, on_delete=models.CASCADE)

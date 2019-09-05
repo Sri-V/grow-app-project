@@ -16,12 +16,23 @@
                 {% endfor %}
             </select>
         <br>
+            <label for="form-kill-date"># Date Killed </label>
+            <input id="form-kill-date" name="form-kill-date" value="{{ day }}" class="form-control" type="date" >
+        <br>
+            <label for="form-kill-seed-date"># Date Seeded </label>
+            <input id="form-kill-seed-date" name="form-kill-seed-date" class="form-control" type="date" >
+        <br>
             <label for="form-kill-quantity"># Trays or Punnets</label>
             <input id="form-kill-quantity" name="form-kill-quantity" class="form-control"
                 type="number" min=0>
             <label for="form-kill-reason">Reason</label>
             <br>
-            <textarea name="form-kill-reason" id="form-kill-reason" form="form-kill"></textarea>
+{#            <textarea name="form-kill-reason" id="form-kill-reason" form="form-kill"></textarea>#}
+            <select id="form-kill-reason" name="form-kill-reason" class="form-control" form="form-kill">
+                {% for reason in reason_list %}
+                    <option>{{ reason.name }}</option>
+                {% endfor %}
+            </select>
             <br>
             <input id="form-kill-submit" type="submit" class="btn btn-primary" value="Accept">
         </form>

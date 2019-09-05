@@ -54,7 +54,7 @@
             });
         }
 
-        function autofill_weekday(day) {
+        function autofill_weekday() {
             var form = $("#form-plan");
             $.ajax({
                 url: form.attr("data-weekday-autofill-url"),
@@ -62,8 +62,8 @@
                 dataType: 'json',
                 success: function (data) {
                     for (const [key, value] of Object.entries(data)) {
-                        window.console && console.log("Key:" +  key.replace(/ /g, "_").replace(/,/g, "").replace(/:/g, "") + "value: " + value)
-                        $("#form-plan-" + key.replace(/ /g, "_").replace(/,/g, "").replace(/:/g, "")).val(value);
+                        window.console && console.log("Key:" +  key.replace(/ /g, "-").replace(/,/g, "").replace(/:/g, "") + " value: " + value)
+                        $("#form-plan-" + key.replace(/ /g, "-").replace(/,/g, "").replace(/:/g, "")).val(value);
                     }
                 },
                 fail: function (data) {
