@@ -16,12 +16,15 @@
                 <tr>
                     <th>Variety</th>
                     <th># Trays or Punnets</th>
+                    <th>Seed Date</th>
                 </tr>
                 {% for variety in variety_list %}
                 <tr>
                     <td width='40%'>{{ variety.name }}</td>
                     <td width='20%'><input id="form-harvest-{{variety.name}}-quantity" name="form-harvest-{{variety.name}}-quantity" class="form-control"
                         type="number"  min=0></td>
+                    <td width='20%'><input id="form-harvest-{{variety.name}}-seed-date" name="form-harvest-{{variety.name}}-seed-date" class="form-control"
+                        type="date"></td>
                 </tr>
                 {% endfor %}
             </table>

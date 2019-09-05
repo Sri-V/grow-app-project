@@ -129,10 +129,12 @@ class SanitationRecord(models.Model):
     chemicals_used = models.CharField(max_length=100)
     note = models.CharField(max_length=200, blank=True)
 
-class InHouse(models.Model):
+class CropGroup(models.Model):
+    """Represents a group of crops of a particular variety that share a seed date."""
     variety = models.OneToOneField(Variety, on_delete=models.PROTECT, primary_key=True)
     quantity = models.IntegerField(default=0)
-    
+    seed_date = models.DateField()
+
 class WeekdayRequirement(models.Model):
     DAYS_OF_WEEK = (
         (0, 'Monday'),

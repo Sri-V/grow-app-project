@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, InHouse, WeekdayRequirement, InventoryAction, KillReason
+from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup
 from inventory.forms import *
 from datetime import date, datetime, timedelta
 from dateutil import parser
@@ -488,44 +488,51 @@ def inventory_overview(request):
     varieties = Variety.objects.all()
     for v in varieties:
         try:
-            InHouse.objects.create(variety=v, quantity=0)
+            CropGroup.objects.create(variety=v, quantity=0, seed_date=datetime.today)
         except:
             pass
+    in_house = []
+    for variety in Variety.objects.all():
+        total_trays = 0
+        for crop_group in CropGroup.objects.filter(variety=variety):
+            total_trays += crop_group.quantity
+        in_house.append((variety, total_trays))
 
-    in_house = InHouse.objects.all()
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house})
 
 @login_required
 def inventory_seed(request):
     if request.method == 'GET':
-        try:
-            # Try to get the date from the form
-            day = parser.parse(request.GET.get('form-seed-date'))
-        except TypeError:
-            day = datetime.today()
-            pass
+        day = date.today()
+        variety_list = []
         for v in Variety.objects.all():
             if len(WeekdayRequirement.objects.filter(plant_day=day.weekday()).filter(variety=v)) == 0:
                 WeekdayRequirement.objects.create(variety=v, plant_day=day.weekday(), quantity=0)
-
-        to_do = WeekdayRequirement.objects.filter(plant_day=day.weekday()).order_by('quantity')
-        return render(request, 'inventory/inventory_seed.html', context={'to_do': to_do, 'day': day.strftime("%m/%d/%y")})
+            variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
+            variety_list.append((v, variety_name_no_spaces))
+        return render(request, 'inventory/inventory_seed.html', context={'variety_list': variety_list, 'day': day.isoformat()})
     
     if request.method == 'POST':
+        try:
+            # Try to get the date from the form
+            seed_date = parser.parse(request.POST.get('form-seed-date'))
+        except TypeError:
+            seed_date = datetime.today()
+            pass
         for v in Variety.objects.all():
             try:
-                quantity = request.POST['form-seed-quantity-' + v.name]
+                quantity = request.POST['form-seed-' + v.name + '-quantity']
                 quantity = 0 if len(quantity) == 0 else int(quantity)
                 try:
-                    in_house = InHouse.objects.get(variety=v)
-                except InHouse.DoesNotExist:
-                    in_house = InHouse.objects.create(variety=v)
+                    in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
+                except CropGroup.DoesNotExist:
+                    in_house = CropGroup.objects.create(variety=v, seed_date=seed_date)
                 in_house.quantity += quantity
                 in_house.save()
                 if quantity:
                     data = json.dumps({'quantity': quantity})
                     var_obj = Variety.objects.get(name=v)
-                    InventoryAction.objects.create(variety=var_obj, action_type='SEED', data=data)
+                    InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED', data=data)
             except KeyError:
                 pass # In case there's a variety inconsistency
         
@@ -535,22 +542,25 @@ def inventory_seed(request):
 @login_required
 def inventory_kill(request):
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all()})
+        day = date.today()
+        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all(), 'day':day.isoformat()})
     
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
             quantity = request.POST['form-kill-quantity']
+            day = parser.parse(request.POST['form-kill-date'])
+            date_seeded = parser.parse(request.POST['form-kill-seed-date'])
             quantity = 0 if len(quantity) == 0 else int(quantity)
             reason = request.POST['form-kill-reason']
             var_obj = Variety.objects.get(name=variety)
             reason_obj = KillReason.objects.get(name=reason)
-            in_house = InHouse.objects.get(variety=var_obj)
+            in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
             in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
             in_house.save()
             if quantity:
                 data = json.dumps({'quantity': quantity})
-                InventoryAction.objects.create(variety=var_obj, action_type='KILL', kill_reason=reason_obj, data=data)
+                InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, kill_reason=reason_obj, data=data)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
@@ -576,9 +586,8 @@ def inventory_plan(request, plant_day=None):
         for v in Variety.objects.all():
             if len(WeekdayRequirement.objects.filter(plant_day=plant_day).filter(variety=v)) == 0:
                 WeekdayRequirement.objects.create(variety=v, plant_day=plant_day, quantity=0)
-            variety_name_no_spaces = v.name.replace(" ", "_").replace(":", "").replace(",", "")
+            variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
             variety_list.append((v, variety_name_no_spaces))
-            print(variety_name_no_spaces)
         return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
     
     if request.method == 'POST':
@@ -586,11 +595,11 @@ def inventory_plan(request, plant_day=None):
         for v in Variety.objects.all():
             try:
                 day = int(request.POST['day'])
-                quantity = int(request.POST['form-plan-' + v.name.replace(" ", "_").replace(":","").replace(",", "") + '-quantity'])
+                quantity = int(request.POST['form-plan-' + v.name.replace(" ", "-").replace(":","").replace(",", "") + '-quantity'])
                 plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
                 plan.quantity = quantity
                 plan.save()
-                variety_name_no_spaces = v.name.replace(" ", "_").replace(":", "").replace(",", "")
+                variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
                 variety_list.append((v, variety_name_no_spaces))
             except KeyError:
                 pass # In case there's a variety inconsistency
@@ -608,13 +617,25 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
             try:
                 h_date = request.POST['form-harvest-date']
                 to_harvest = request.POST['form-harvest-' + v.name + '-quantity']
-                to_harvest = 0 if len(to_harvest) == 0 else int(to_harvest)
-                in_house = InHouse.objects.get(variety=v)
-                in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
-                in_house.save()
-                if to_harvest:
-                    data = json.dumps({'num_harvested':to_harvest})
-                    InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', data=data)
+                seed_date = request.POST['form-harvest-' + v.name + '-seed-date']
+                # TODO: Give error message if date was not given
+                # If a harvest number was given
+                if len(to_harvest) != 0:
+                    to_harvest = int(to_harvest)
+                    # If seed date was given
+                    if len(seed_date) != 0:
+                        # Update the CropGroup size
+                        in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
+                        in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
+                        in_house.save()
+                        # Create InventoryAction
+                        if to_harvest:
+                            data = json.dumps({'num_harvested': to_harvest})
+                            InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', data=data)
+                    # If seed_date was not given, throw error
+                    elif len(seed_date) == 0:
+                        raise ValidationError("A seed date must be provided!")
+                    # If harvest number was not given, skip this
             except KeyError:
                 pass # In case there's a variety inconsistency
         
@@ -633,10 +654,11 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
             h_date = request.POST['form-harvest-date']
             to_harvest = request.POST['form-harvest-quantity']
             h_yield = request.POST['form-harvest-yield']
+            seed_date = request.POST['form-harvest-seed-date']
             to_harvest = 0 if len(to_harvest) == 0 else int(to_harvest)
             h_yield = 0 if len(h_yield) == 0 else float(h_yield)
             var_obj = Variety.objects.get(name=variety)
-            in_house = InHouse.objects.get(variety=var_obj)
+            in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
             in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
             in_house.save()
             if to_harvest:
@@ -657,13 +679,13 @@ def inventory_harvest_single(request): # One tray, with detailed records
     
     if request.method == 'POST':
         try:
-            # tray_size = str(request.POST["form-harvest-tray-size"])
             h_date = request.POST['form-harvest-date']
             variety = request.POST['form-harvest-variety']
+            seed_date = request.POST['form-harvest-seed-date']
             h_yield = request.POST['form-harvest-yield']
             h_yield = 0 if len(h_yield) == 0 else float(h_yield)
             var_obj = Variety.objects.get(name=variety)
-            in_house = InHouse.objects.get(variety=var_obj)
+            in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
             in_house.quantity = in_house.quantity - 1 if 1 <= in_house.quantity else 0
             in_house.save()
             data = json.dumps({'num_harvested': 1, 'yield': h_yield})
@@ -678,13 +700,16 @@ def inventory_harvest_single(request): # One tray, with detailed records
 
 @login_required
 def weekday_autofill(request):
-    weekday = request.GET.get('day', None)
+    day = request.GET.get('day', None)
+    # check if day is not already weekday number
+    if day not in [0, 1, 2, 3, 4, 5, 6]:
+        day = parser.parse(day).weekday()
     data = {}
     for v in Variety.objects.all():
-        if len(WeekdayRequirement.objects.filter(plant_day=weekday).filter(variety=v)) == 0:
-                WeekdayRequirement.objects.create(variety=v, plant_day=weekday, quantity=0)
+        if len(WeekdayRequirement.objects.filter(plant_day=day).filter(variety=v)) == 0:
+                WeekdayRequirement.objects.create(variety=v, plant_day=day, quantity=0)
         try:
-            plan = WeekdayRequirement.objects.get(variety=v, plant_day=weekday)
+            plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
             data[v.name + '-quantity'] = plan.quantity
         except Exception as e:
             print (e)

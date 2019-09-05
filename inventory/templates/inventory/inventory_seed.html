@@ -4,25 +4,22 @@
 
 {% block content %}
     <div>
-        <h1>Seeding:
-            <form id="form-get-day" method="GET">
-            {% csrf_token %}
-                <input id="form-seed-date" name="form-seed-date" value="{{ day }}" class="form-control">
-            </form> </h1>
+        <h1>Seeding:</h1>
     </div>
     <div id="greenhouse_inventory">
-        <form id="form-seed" method="post">
+        <form id="form-plan" method="post" data-weekday-autofill-url="{% url 'weekday_autofill' %}">
                 {% csrf_token %}
+            <input id="form-seed-date" name="day" value="{{ day }}" class="form-control" type="date" onchange="autofill_weekday()" >
             <table id="inventory" class="table">
                 <tr>
                     <th></th>
                     <th># Trays or Punnets</th>
                 </tr>
-                {% for task in to_do %}
+                {% for variety in variety_list %}
                 <tr>
-                    <td width='40%'>{{ task.variety }}</td>
-                    <td width='20%'><input id="form-seed-quantity-{{task.variety.name}}" name="form-seed-quantity-{{task.variety.name}}" class="form-control"
-                        type="number"  value="{{task.quantity}}"></td>
+                    <td width='40%'>{{ variety.0.name }}</td>
+                    <td width='20%'><input id="form-plan-{{variety.1}}-quantity" name="form-plan-{{variety.1}}-quantity" class="form-control"
+                        type="number"></td>
                 </tr>
                 {% endfor %}
             </table>
