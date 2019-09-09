@@ -515,13 +515,13 @@ def inventory_seed(request):
     if request.method == 'POST':
         try:
             # Try to get the date from the form
-            seed_date = parser.parse(request.POST.get('form-seed-date'))
+            seed_date = parser.parse(request.POST.get('day'))
         except TypeError:
             seed_date = datetime.today()
             pass
         for v in Variety.objects.all():
             try:
-                quantity = request.POST['form-seed-' + v.name + '-quantity']
+                quantity = request.POST['form-plan-' + v.name.replace(" ", "-").replace(":", "").replace(",", "") + '-quantity']
                 quantity = 0 if len(quantity) == 0 else int(quantity)
                 try:
                     in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
@@ -555,12 +555,16 @@ def inventory_kill(request):
             reason = request.POST['form-kill-reason']
             var_obj = Variety.objects.get(name=variety)
             reason_obj = KillReason.objects.get(name=reason)
-            in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
-            in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
-            in_house.save()
-            if quantity:
-                data = json.dumps({'quantity': quantity})
-                InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, kill_reason=reason_obj, data=data)
+            try:
+                in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
+                in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
+                in_house.save()
+                if quantity:
+                    data = json.dumps({'quantity': quantity})
+                    InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day,
+                                                   kill_reason=reason_obj, data=data)
+            except CropGroup.DoesNotExist:
+                pass
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
@@ -591,6 +595,7 @@ def inventory_plan(request, plant_day=None):
         return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
     
     if request.method == 'POST':
+        print(str(request.POST))
         variety_list = []
         for v in Variety.objects.all():
             try:
@@ -702,12 +707,12 @@ def inventory_harvest_single(request): # One tray, with detailed records
 def weekday_autofill(request):
     day = request.GET.get('day', None)
     # check if day is not already weekday number
-    if day not in [0, 1, 2, 3, 4, 5, 6]:
+    if day not in ["0", "1", "2", "3", "4", "5", "6"]:
         day = parser.parse(day).weekday()
     data = {}
     for v in Variety.objects.all():
         if len(WeekdayRequirement.objects.filter(plant_day=day).filter(variety=v)) == 0:
-                WeekdayRequirement.objects.create(variety=v, plant_day=day, quantity=0)
+            WeekdayRequirement.objects.create(variety=v, plant_day=day, quantity=0)
         try:
             plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
             data[v.name + '-quantity'] = plan.quantity

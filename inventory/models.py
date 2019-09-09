@@ -131,7 +131,7 @@ class SanitationRecord(models.Model):
 
 class CropGroup(models.Model):
     """Represents a group of crops of a particular variety that share a seed date."""
-    variety = models.OneToOneField(Variety, on_delete=models.PROTECT, primary_key=True)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
     seed_date = models.DateField()
 
