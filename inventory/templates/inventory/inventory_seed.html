@@ -6,10 +6,12 @@
     <div>
         <h1>Seeding:</h1>
     </div>
-    <div id="greenhouse_inventory">
-        <form id="form-plan" method="post" data-weekday-autofill-url="{% url 'weekday_autofill' %}">
+    <div id="greenhouse_inventory" width='40%'>
+        <form id="form-plan" method="post" data-weekday-autofill-url="{% url 'weekday_autofill' %}" data-clear-seeding-url="{% url 'weekday_autofill' %}">
                 {% csrf_token %}
             <input id="form-seed-date" name="day" value="{{ day }}" class="form-control" type="date" onchange="autofill_weekday()" >
+        <br>
+            <input id="form-seed-clear" type="button" class="btn btn-primary" value="Clear Values" onclick="clear_seeding_values()">
             <table id="inventory" class="table">
                 <tr>
                     <th></th>
