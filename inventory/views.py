@@ -523,13 +523,13 @@ def inventory_seed(request):
             try:
                 quantity = request.POST['form-plan-' + v.name.replace(" ", "-").replace(":", "").replace(",", "") + '-quantity']
                 quantity = 0 if len(quantity) == 0 else int(quantity)
-                try:
-                    in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
-                except CropGroup.DoesNotExist:
-                    in_house = CropGroup.objects.create(variety=v, seed_date=seed_date)
-                in_house.quantity += quantity
-                in_house.save()
                 if quantity:
+                    try:
+                        in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
+                    except CropGroup.DoesNotExist:
+                        in_house = CropGroup.objects.create(variety=v, seed_date=seed_date)
+                    in_house.quantity += quantity
+                    in_house.save()
                     data = json.dumps({'quantity': quantity})
                     var_obj = Variety.objects.get(name=v)
                     InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED', data=data)
