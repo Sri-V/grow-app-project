@@ -702,6 +702,16 @@ def inventory_harvest_single(request): # One tray, with detailed records
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
+@login_required
+def inventory_crop_availability(request):
+    if request.method == 'GET':
+        return render(request, 'inventory/inventory_crop_availability.html', context={'variety_list': Variety.objects.all()})
+
+    if request.method == 'POST':
+        variety = request.POST['variety']
+        variety_obj = Variety.objects.get(name=variety)
+        crop_groups = CropGroup.objects.filter(variety=variety_obj)
+        return render(request, 'inventory/inventory_crop_availability.html', context={'crop_groups': crop_groups, 'variety_list': Variety.objects.all(), 'selected_variety': variety_obj})
 
 @login_required
 def weekday_autofill(request):

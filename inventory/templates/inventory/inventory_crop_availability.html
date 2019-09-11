@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Crop Availability{% endblock %}
+
+{% block content %}
+    <h1>Search Crop Availability</h1>
+    <div>
+        <form id="form-search-crops" method="post">
+        {% csrf_token %}
+                <label for="from-search-crops-variety">Variety</label>
+                <select id="from-search-crops-variety" name="variety" class="form-control">
+                    {% for v in variety_list %}
+                        {% if v == selected_variety %}
+                            <option selected>{{ v.name }}</option>
+                            {% else %}
+                            <option>{{ v.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Go" class="btn btn-primary">
+        </form>
+        {% if crop_groups %}
+            <table id="crop-availability-results">
+                <th>Seed Date</th>
+                <th># Trays or Punnets</th>
+                {% for crop_group in crop_groups %}
+                    <tr>
+                        <td width='40%'>{{ crop_group.seed_date }}</td>
+                        <td width='20%'>{{ crop_group.quantity }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
