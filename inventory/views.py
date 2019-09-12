@@ -485,20 +485,15 @@ def inventory_home(request):
 
 @login_required
 def inventory_overview(request):
-    varieties = Variety.objects.all()
-    for v in varieties:
-        try:
-            CropGroup.objects.create(variety=v, quantity=0, seed_date=datetime.today)
-        except:
-            pass
+    crop_availability_form = CropAvailabilityForm()
     in_house = []
-    for variety in Variety.objects.all():
+    for variety in Variety.objects.all().order_by('name'):
         total_trays = 0
         for crop_group in CropGroup.objects.filter(variety=variety):
             total_trays += crop_group.quantity
         in_house.append((variety, total_trays))
 
-    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house})
+    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house, 'crop_availability_form': crop_availability_form})
 
 @login_required
 def inventory_seed(request):
@@ -704,14 +699,19 @@ def inventory_harvest_single(request): # One tray, with detailed records
 
 @login_required
 def inventory_crop_availability(request):
-    if request.method == 'GET':
-        return render(request, 'inventory/inventory_crop_availability.html', context={'variety_list': Variety.objects.all()})
-
     if request.method == 'POST':
-        variety = request.POST['variety']
-        variety_obj = Variety.objects.get(name=variety)
-        crop_groups = CropGroup.objects.filter(variety=variety_obj)
-        return render(request, 'inventory/inventory_crop_availability.html', context={'crop_groups': crop_groups, 'variety_list': Variety.objects.all(), 'selected_variety': variety_obj})
+        form = CropAvailabilityForm(request.POST)
+        if form.is_valid():
+            variety = form.cleaned_data.pop('variety')
+            variety_obj = Variety.objects.get(name=variety)
+            crop_groups = CropGroup.objects.filter(variety=variety_obj).exclude(quantity=0)
+        in_house = []
+        for variety in Variety.objects.all():
+            total_trays = 0
+            for crop_group in CropGroup.objects.filter(variety=variety):
+                total_trays += crop_group.quantity
+            in_house.append((variety, total_trays))
+        return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house, 'crop_availability_form': form, 'crop_groups': crop_groups})
 
 @login_required
 def weekday_autofill(request):

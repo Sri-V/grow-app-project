@@ -3,22 +3,33 @@
 {% block title %}Greenhouse Inventory{% endblock %}
 
 {% block content %}
-    <div>
-        <h1>Overview</h1>
-    </div>
-    <div id="greenhouse_inventory">
-        <table id="inventory" class="table">
-            <tr>
-                <th>Variety</th>
-                <th># Trays</th>
-            </tr>
-            {% for variety in in_house %}
-            <tr>
-                <td width='40%'>{{ variety.0 }}</td>
-                <td width='20%'>{{ variety.1 }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+            <div class="jumbotron">
+                <div class="row">
+                    <h1>Overview</h1>
+                </div>
+                <div id="greenhouse_inventory" class="row">
+                    <table id="inventory" class="table">
+                        <tr>
+                            <th>Variety</th>
+                            <th># Trays</th>
+                        </tr>
+                        {% for variety in in_house %}
+                        <tr>
+                            <td width='40%'>{{ variety.0 }}</td>
+                            <td width='20%'>{{ variety.1 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            {% include 'inventory/inventory_crop_availability.html' %}
+        </div>
+        </div>
     </div>
 {% endblock %}
 
