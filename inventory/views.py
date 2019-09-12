@@ -706,7 +706,7 @@ def inventory_crop_availability(request):
             variety_obj = Variety.objects.get(name=variety)
             crop_groups = CropGroup.objects.filter(variety=variety_obj).exclude(quantity=0)
         in_house = []
-        for variety in Variety.objects.all():
+        for variety in Variety.objects.all().order_by('name'):
             total_trays = 0
             for crop_group in CropGroup.objects.filter(variety=variety):
                 total_trays += crop_group.quantity
