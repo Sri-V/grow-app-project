@@ -498,7 +498,7 @@ def inventory_overview(request):
         in_house[variety.name]['name'] = variety.name
         in_house[variety.name]['name_alphanumeric'] = variety_alphanumeric
         in_house[variety.name]['crop_groups'] = crop_groups
-    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house, 'crop_availability_form': crop_availability_form})
+    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house})
 
 @login_required
 def inventory_seed(request):
