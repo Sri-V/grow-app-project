@@ -31,7 +31,6 @@ urlpatterns = [
     path('inventory/plan/', views.inventory_plan, name='inventory_plan'),
     path('inventory/plan/autofill', views.weekday_autofill, name="weekday_autofill"),
     path('inventory/add_barcodes', views.add_barcodes, name="add_barcodes"),
-    path('inventory/crop_availability', views.inventory_crop_availability, name="inventory_crop_availability"),
     path('golden_trays/', views.golden_trays_home, name="golden_trays_home"),
     path('golden_trays/search_crop', views.search_crop, name="search_crop"),
     path('growhouse_settings/', views.growhouse_settings, name="growhouse_settings"),

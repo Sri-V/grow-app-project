@@ -485,14 +485,19 @@ def inventory_home(request):
 
 @login_required
 def inventory_overview(request):
-    crop_availability_form = CropAvailabilityForm()
-    in_house = []
+    in_house = {}
     for variety in Variety.objects.all().order_by('name'):
+        crop_groups = []
+        in_house[variety.name] = {}
+        variety_alphanumeric = variety.name.replace(" ", "-").replace(":", "").replace(",", "")
         total_trays = 0
-        for crop_group in CropGroup.objects.filter(variety=variety):
+        for crop_group in CropGroup.objects.filter(variety=variety).exclude(quantity=0).order_by('seed_date'):
+            crop_groups.append(crop_group)
             total_trays += crop_group.quantity
-        in_house.append((variety, total_trays))
-
+        in_house[variety.name]['total_trays'] = total_trays
+        in_house[variety.name]['name'] = variety.name
+        in_house[variety.name]['name_alphanumeric'] = variety_alphanumeric
+        in_house[variety.name]['crop_groups'] = crop_groups
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house, 'crop_availability_form': crop_availability_form})
 
 @login_required
@@ -696,22 +701,6 @@ def inventory_harvest_single(request): # One tray, with detailed records
         
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
-
-@login_required
-def inventory_crop_availability(request):
-    if request.method == 'POST':
-        form = CropAvailabilityForm(request.POST)
-        if form.is_valid():
-            variety = form.cleaned_data.pop('variety')
-            variety_obj = Variety.objects.get(name=variety)
-            crop_groups = CropGroup.objects.filter(variety=variety_obj).exclude(quantity=0)
-        in_house = []
-        for variety in Variety.objects.all().order_by('name'):
-            total_trays = 0
-            for crop_group in CropGroup.objects.filter(variety=variety):
-                total_trays += crop_group.quantity
-            in_house.append((variety, total_trays))
-        return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house, 'crop_availability_form': form, 'crop_groups': crop_groups})
 
 @login_required
 def weekday_autofill(request):
