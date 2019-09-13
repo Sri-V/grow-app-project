@@ -168,6 +168,3 @@ class AddBarcodesForm(forms.Form):
             if Slot.objects.filter(barcode=barcode).exclude(id=slot_id).exists():
                 raise ValidationError(field_name+': A slot with barcode ' + barcode + ' already exists.', code="non-unique")
         return self.cleaned_data
-
-class CropAvailabilityForm(forms.Form):
-    variety = forms.ModelChoiceField(queryset=Variety.objects.all().order_by('name'), widget=forms.Select(attrs={'class': 'form-control'}))

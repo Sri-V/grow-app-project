@@ -3,33 +3,48 @@
 {% block title %}Greenhouse Inventory{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col">
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="row">
+                <h1>Overview</h1>
+            </div>
             <div class="jumbotron">
-                <div class="row">
-                    <h1>Overview</h1>
-                </div>
                 <div id="greenhouse_inventory" class="row">
-                    <table id="inventory" class="table">
-                        <tr>
-                            <th>Variety</th>
-                            <th># Trays</th>
-                        </tr>
-                        {% for variety in in_house %}
-                        <tr>
-                            <td width='40%'>{{ variety.0 }}</td>
-                            <td width='20%'>{{ variety.1 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
+                    <div class="container">
+                            <div class="row">
+                                <div class="col-md"><h4>Variety </h4></div>
+                                <div class="col-md"><h4># Trays </h4></div>
+                            </div>
+                            {% for variety in in_house.values %}
+                            <div class="row">
+                                <div class="col-md">
+                                    <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#{{ variety.name_alphanumeric }}-collapse" aria-expanded="false" aria-controls="{{ variety.name_alphanumeric }}-collapse">
+                                        {{ variety.name }}
+                                    </button>
+                                </div>
+                                <div class="col-md">{{ variety.total_trays }}</div>
+                            </div>
+                            <div class="collapse" id='{{ variety.name_alphanumeric }}-collapse'>
+                                <div class="card card-body">
+                                    <table id="crop-availability-results">
+                                        <th>Seed Date</th>
+                                        <th># Trays or Punnets</th>
+                                        {% for crop_group in variety.crop_groups %}
+                                            <tr>
+                                                <td>{{ crop_group.seed_date }}</td>
+                                                <td>{{ crop_group.quantity }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                            {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col">
-            {% include 'inventory/inventory_crop_availability.html' %}
-        </div>
-        </div>
     </div>
+    </div>
+</div>
 {% endblock %}
 
