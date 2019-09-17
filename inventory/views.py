@@ -486,9 +486,11 @@ def inventory_home(request):
 @login_required
 def inventory_overview(request):
     in_house = {}
+    variety_list = []
     for variety in Variety.objects.all().order_by('name'):
         crop_groups = []
         in_house[variety.name] = {}
+        variety_list.append(variety.name)
         variety_alphanumeric = variety.name.replace(" ", "-").replace(":", "").replace(",", "")
         total_trays = 0
         for crop_group in CropGroup.objects.filter(variety=variety).exclude(quantity=0).order_by('seed_date'):
@@ -498,7 +500,37 @@ def inventory_overview(request):
         in_house[variety.name]['name'] = variety.name
         in_house[variety.name]['name_alphanumeric'] = variety_alphanumeric
         in_house[variety.name]['crop_groups'] = crop_groups
-    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house})
+
+    # Date range breakdown [d1, d2, ... dn]
+    # Break into dn+1 groups of crops < di days old
+    # eg. [0, 4 d/o), [4, 14 d/o), [14, inf d/o)
+    breakdown = [4, 14, 30]
+    chart_series = []
+    start_date = date.today()
+    for x in range(0, len(breakdown) + 1):
+        data = []
+        category_dict = {}
+        if x != len(breakdown):
+            end_date = start_date # set end date to previous start date
+            start_date = date.today() - timedelta(days=breakdown[x]-1)
+            category_dict['name'] = "< " + str(breakdown[x]) + " days"
+        else:
+            end_date = start_date
+            category_dict = {'name': str(breakdown[len(breakdown) - 1]) + "+ days", 'data': []}
+        for v in Variety.objects.all().order_by('name'):
+            count = 0
+            if x == len(breakdown):
+                for cg in CropGroup.objects.filter(variety=v, seed_date__lte=end_date):
+                    count += cg.quantity
+            else:
+                for cg in CropGroup.objects.filter(variety=v, seed_date__range=[start_date, end_date]):
+                    count += cg.quantity
+            data.append(count)
+        category_dict['data'] = data
+        chart_series.append(category_dict)
+    return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house,
+                                                                         'chart_series': chart_series,
+                                                                         'variety_list': variety_list})
 
 @login_required
 def inventory_seed(request):

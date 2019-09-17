@@ -5,10 +5,10 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col">
-            <div class="row">
-                <h1>Overview</h1>
-            </div>
+        <h1>Overview</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
             <div class="jumbotron">
                 <div id="greenhouse_inventory" class="row">
                     <div class="container">
@@ -44,6 +44,11 @@
                 </div>
             </div>
     </div>
+    <div class="col">
+        {% include 'inventory/inventory_chart.html' %}
+    </div>
+    <script src="/static/highcharts/inventory_chart.js"></script>
+    <script>createInventoryChart({{ chart_series|safe }}, {{ variety_list|safe }})</script>
     </div>
 </div>
 {% endblock %}
