@@ -1,4 +1,4 @@
-from inventory.models import Crop, CropAttribute, CropAttributeOption, Slot, Variety, SanitationRecord, CropRecord
+from inventory.models import Crop, CropAttribute, CropAttributeOption, Slot, Variety, SanitationRecord, CropRecord, KillReason
 from django import forms
 from django.forms import ModelForm, Textarea, TextInput
 from django.core.exceptions import ValidationError
@@ -168,3 +168,23 @@ class AddBarcodesForm(forms.Form):
             if Slot.objects.filter(barcode=barcode).exclude(id=slot_id).exists():
                 raise ValidationError(field_name+': A slot with barcode ' + barcode + ' already exists.', code="non-unique")
         return self.cleaned_data
+
+class InventoryKillCropForm(forms.Form):
+    variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                     widget=forms.Select(attrs={'class': 'form-control'}))
+    date_killed = forms.DateField(widget=DatePickerInput(
+        options={
+            "format": "MM/DD/YYYY",
+        },
+        attrs={'class': 'form-control'}))
+    date_seeded = forms.DateField(widget=DatePickerInput(
+        options={
+            "format": "MM/DD/YYYY",
+        },
+        attrs={'class': 'form-control'}))
+    num_trays = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        super(InventoryKillCropForm, self).__init__(*args, **kwargs)
+        for reason in KillReason.objects.all():
+            self.fields[reason.name] = forms.BooleanField()
