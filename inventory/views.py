@@ -580,23 +580,27 @@ def inventory_kill(request):
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
+            var_obj = Variety.objects.get(name=variety)
             quantity = request.POST['form-kill-quantity']
             day = parser.parse(request.POST['form-kill-date'])
             date_seeded = parser.parse(request.POST['form-kill-seed-date'])
             quantity = 0 if len(quantity) == 0 else int(quantity)
-            reason = request.POST['form-kill-reason']
-            var_obj = Variety.objects.get(name=variety)
-            reason_obj = KillReason.objects.get(name=reason)
             try:
                 in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
                 in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
                 in_house.save()
                 if quantity:
                     data = json.dumps({'quantity': quantity})
-                    InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day,
-                                                   kill_reason=reason_obj, data=data)
+                    inventory_action = InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, data=data)
+                    reasons = []
+                    for kill_reason in KillReason.objects.all():
+                        if request.POST.get(kill_reason.name + '-checkbox') == 'on':
+                            reasons.append(kill_reason)
+                            inventory_action.kill_reasons.add(kill_reason)
+                    inventory_action.save()
             except CropGroup.DoesNotExist:
-                pass
+                message = "The crop(s) you were trying to kill don't exist in your database. Check your Inventory Overview."
+                return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all(), 'day':day, 'error': message})
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
