@@ -599,7 +599,7 @@ def inventory_kill(request):
                             inventory_action.kill_reasons.add(kill_reason)
                     inventory_action.save()
             except CropGroup.DoesNotExist:
-                message = "The crop(s) you were trying to kill don't exist in your database. Check your Inventory Overview."
+                message = "The crop(s) you were trying to kill don't exist in your database. Check your "
                 return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all(), 'day':day, 'error': message})
         except KeyError as e:
             print (e)
