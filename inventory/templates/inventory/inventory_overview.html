@@ -48,7 +48,7 @@
         {% include 'inventory/inventory_chart.html' %}
     </div>
     <script src="/static/highcharts/inventory_chart.js"></script>
-    <script>createInventoryChart({{ chart_series|safe }}, {{ variety_list|safe }})</script>
+    <script>createInventoryChart({{ chart_series|safe }}, {{ variety_list|safe }}, {{ chart_colors|safe }})</script>
     </div>
 </div>
 {% endblock %}

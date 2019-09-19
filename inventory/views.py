@@ -504,7 +504,8 @@ def inventory_overview(request):
     # Date range breakdown [d1, d2, ... dn]
     # Break into dn+1 groups of crops < di days old
     # eg. [0, 4 d/o), [4, 14 d/o), [14, inf d/o)
-    breakdown = [4, 14, 30]
+    breakdown = [10, 20, 30]
+    colors = ['#70ef94', '#efdc70', '#f4a802', '#f43a02'] # getChartColors((0, 255, 0), (255, 0, 0) ,len(breakdown) + 1)
     chart_series = []
     start_date = date.today()
     for x in range(0, len(breakdown) + 1):
@@ -530,7 +531,24 @@ def inventory_overview(request):
         chart_series.append(category_dict)
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house,
                                                                          'chart_series': chart_series,
-                                                                         'variety_list': variety_list})
+                                                                         'variety_list': variety_list,
+                                                                         'chart_colors': colors})
+
+# Interpolate between start and end color (rgb tuples) with n increments and return a list of hex colors
+def getChartColors(start_color, end_color, n):
+    colors = []
+    red_init = start_color[0]
+    green_init = start_color[1]
+    blue_init = start_color[2]
+    red_final = end_color[0]
+    green_final = end_color[1]
+    blue_final = end_color[2]
+    for i in range(0, n):
+        red = red_init + int(((red_final - red_init) / n) * i)
+        green = green_init + int(((green_final - green_init) / n) * i)
+        blue = blue_init + int(((blue_final - blue_init) / n) * i)
+        colors.append("#{0:02x}{1:02x}{2:02x}".format(red, green, blue))
+    return colors
 
 @login_required
 def inventory_seed(request):
