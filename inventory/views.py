@@ -529,10 +529,25 @@ def inventory_overview(request):
             data.append(count)
         category_dict['data'] = data
         chart_series.append(category_dict)
+    # Recent Inventory Actions
+    recent_actions = InventoryAction.objects.all().order_by('-date')[:5]
+    actions_display = []
+    for action in recent_actions:
+        if action.action_type == 'SEED':
+            text = "Seeded: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + "."
+        if action.action_type == 'HARVEST':
+            text = "Harvested: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + "."
+        if action.action_type == 'KILL':
+            reasons = ", ".join(list(action.kill_reasons.values_list('name', flat=True)))
+            print(reasons)
+            text = "Killed: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + " because of " + reasons + "."
+        actions_display.append((action, text))
+
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house,
                                                                          'chart_series': chart_series,
                                                                          'variety_list': variety_list,
-                                                                         'chart_colors': colors})
+                                                                         'chart_colors': colors,
+                                                                         'recent_actions': actions_display})
 
 # Interpolate between start and end color (rgb tuples) with n increments and return a list of hex colors
 def getChartColors(start_color, end_color, n):
