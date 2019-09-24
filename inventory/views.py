@@ -485,6 +485,7 @@ def inventory_home(request):
 
 @login_required
 def inventory_overview(request):
+    fix_quantity()
     in_house = {}
     variety_list = []
     for variety in Variety.objects.all().order_by('name'):
@@ -534,13 +535,13 @@ def inventory_overview(request):
     actions_display = []
     for action in recent_actions:
         if action.action_type == 'SEED':
-            text = "Seeded: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + "."
+            text = "Seeded: " + str(action.quantity) + " trays of " + action.variety.name + "."
         if action.action_type == 'HARVEST':
-            text = "Harvested: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + "."
+            text = "Harvested: " + str(action.quantity) + " trays of " + action.variety.name + "."
         if action.action_type == 'KILL':
             reasons = ", ".join(list(action.kill_reasons.values_list('name', flat=True)))
             print(reasons)
-            text = "Killed: " + str(json.loads(action.data)['quantity']) + " trays of " + action.variety.name + " because of " + reasons + "."
+            text = "Killed: " + str(action.quantity) + " trays of " + action.variety.name + " because of " + reasons + "."
         actions_display.append((action, text))
 
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house,
@@ -595,9 +596,9 @@ def inventory_seed(request):
                         in_house = CropGroup.objects.create(variety=v, seed_date=seed_date)
                     in_house.quantity += quantity
                     in_house.save()
-                    data = json.dumps({'quantity': quantity})
+                    # data = json.dumps({'quantity': quantity})
                     var_obj = Variety.objects.get(name=v)
-                    InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED', data=data)
+                    InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED', quantity=quantity)
             except KeyError:
                 pass # In case there's a variety inconsistency
         
@@ -623,8 +624,8 @@ def inventory_kill(request):
                 in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
                 in_house.save()
                 if quantity:
-                    data = json.dumps({'quantity': quantity})
-                    inventory_action = InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, data=data)
+                    # data = json.dumps({'quantity': quantity})
+                    inventory_action = InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, quantity=quantity)
                     reasons = []
                     for kill_reason in KillReason.objects.all():
                         if request.POST.get(kill_reason.name + '-checkbox') == 'on':
@@ -640,6 +641,23 @@ def inventory_kill(request):
         
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
+
+# One time fix for switching from JSON data to model field
+def fix_quantity():
+    print("Fixing quantities...")
+    for action in InventoryAction.objects.all():
+        try:
+            quantity = json.loads(action.data)['quantity']
+            action.quantity = quantity
+        except KeyError:
+            try:
+                quantity = json.loads(action.data)['num_harvested']
+                action.quantity = quantity
+            except KeyError:
+                print("Could not fix quantity for action #" + str(action.id))
+                pass
+
+        action.save()
 
 @login_required
 def inventory_plan(request, plant_day=None):
@@ -690,22 +708,22 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
         for v in Variety.objects.all():
             try:
                 h_date = request.POST['form-harvest-date']
-                to_harvest = request.POST['form-harvest-' + v.name + '-quantity']
+                quantity = request.POST['form-harvest-' + v.name + '-quantity']
                 seed_date = request.POST['form-harvest-' + v.name + '-seed-date']
                 # TODO: Give error message if date was not given
                 # If a harvest number was given
-                if len(to_harvest) != 0:
-                    to_harvest = int(to_harvest)
+                if len(quantity) != 0:
+                    quantity = int(quantity)
                     # If seed date was given
                     if len(seed_date) != 0:
                         # Update the CropGroup size
                         in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
-                        in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
+                        in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
                         in_house.save()
                         # Create InventoryAction
-                        if to_harvest:
-                            data = json.dumps({'quantity': to_harvest})
-                            InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', data=data)
+                        if quantity:
+                            # data = json.dumps({'quantity': quantity})
+                            InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', quantity=quantity)
                     # If seed_date was not given, throw error
                     elif len(seed_date) == 0:
                         raise ValidationError("A seed date must be provided!")
@@ -726,18 +744,18 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
         try:
             variety = request.POST['form-harvest-variety']
             h_date = request.POST['form-harvest-date']
-            to_harvest = request.POST['form-harvest-quantity']
+            quantity = request.POST['form-harvest-quantity']
             h_yield = request.POST['form-harvest-yield']
             seed_date = request.POST['form-harvest-seed-date']
-            to_harvest = 0 if len(to_harvest) == 0 else int(to_harvest)
+            quantity = 0 if len(quantity) == 0 else int(quantity)
             h_yield = 0 if len(h_yield) == 0 else float(h_yield)
             var_obj = Variety.objects.get(name=variety)
             in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
-            in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
+            in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
             in_house.save()
-            if to_harvest:
-                data = json.dumps({'quantity': to_harvest, 'yield': h_yield})
-                InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
+            if quantity:
+                # data = json.dumps({'quantity': quantity, 'yield': h_yield})
+                InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
@@ -762,8 +780,8 @@ def inventory_harvest_single(request): # One tray, with detailed records
             in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
             in_house.quantity = in_house.quantity - 1 if 1 <= in_house.quantity else 0
             in_house.save()
-            data = json.dumps({'quantity': 1, 'yield': h_yield})
-            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
+            # data = json.dumps({'quantity': 1, 'yield': h_yield})
+            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=1, date=h_date)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency

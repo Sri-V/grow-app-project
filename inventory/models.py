@@ -167,6 +167,7 @@ class InventoryAction(models.Model):
     variety = models.ForeignKey(Variety, on_delete=models.DO_NOTHING)
     date = models.DateField(auto_now_add=True)
     action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
+    quantity = models.IntegerField(default=0, null=True)
     data = models.CharField(max_length=1000, null=True) # encode as a JSON with json.dumps({k:v,...})
     note = models.CharField(max_length=200, null=True)
     kill_reasons = models.ManyToManyField(KillReason, null=True) # on_delete=models.CASCADE
