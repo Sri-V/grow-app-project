@@ -704,7 +704,7 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
                         in_house.save()
                         # Create InventoryAction
                         if to_harvest:
-                            data = json.dumps({'num_harvested': to_harvest})
+                            data = json.dumps({'quantity': to_harvest})
                             InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', data=data)
                     # If seed_date was not given, throw error
                     elif len(seed_date) == 0:
@@ -736,7 +736,7 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
             in_house.quantity = in_house.quantity - to_harvest if to_harvest <= in_house.quantity else 0
             in_house.save()
             if to_harvest:
-                data = json.dumps({'num_harvested': to_harvest, 'yield': h_yield})
+                data = json.dumps({'quantity': to_harvest, 'yield': h_yield})
                 InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
         except KeyError as e:
             print (e)
@@ -762,7 +762,7 @@ def inventory_harvest_single(request): # One tray, with detailed records
             in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
             in_house.quantity = in_house.quantity - 1 if 1 <= in_house.quantity else 0
             in_house.save()
-            data = json.dumps({'num_harvested': 1, 'yield': h_yield})
+            data = json.dumps({'quantity': 1, 'yield': h_yield})
             InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', data=data, date=h_date)
         except KeyError as e:
             print (e)
