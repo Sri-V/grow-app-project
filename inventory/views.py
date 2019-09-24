@@ -485,7 +485,6 @@ def inventory_home(request):
 
 @login_required
 def inventory_overview(request):
-    fix_quantity()
     in_house = {}
     variety_list = []
     for variety in Variety.objects.all().order_by('name'):
@@ -641,23 +640,6 @@ def inventory_kill(request):
         
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
-
-# One time fix for switching from JSON data to model field
-def fix_quantity():
-    print("Fixing quantities...")
-    for action in InventoryAction.objects.all():
-        try:
-            quantity = json.loads(action.data)['quantity']
-            action.quantity = quantity
-        except KeyError:
-            try:
-                quantity = json.loads(action.data)['num_harvested']
-                action.quantity = quantity
-            except KeyError:
-                print("Could not fix quantity for action #" + str(action.id))
-                pass
-
-        action.save()
 
 @login_required
 def inventory_plan(request, plant_day=None):
