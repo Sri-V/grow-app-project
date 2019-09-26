@@ -15,12 +15,15 @@
         <div id="kill-form">
             <form id="form-kill" method="post">
                 {% csrf_token %}
-{#                {{ kill_form.as_p }}#}
                 <div class="form-group">
                     <label for="form-kill-variety">Variety</label>
                     <select id="form-kill-variety" name="form-kill-variety" class="form-control">
                         {% for variety in variety_list %}
-                            <option>{{ variety.name }}</option>
+                            {% if variety.name == selected_variety %}
+                                <option selected>{{ variety.name }}</option>
+                            {% else %}
+                                <option>{{ variety.name }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -30,19 +33,25 @@
                 </div>
                 <div class="form-group">
                     <label for="form-kill-seed-date"># Date Seeded </label>
-                    <input id="form-kill-seed-date" name="form-kill-seed-date" class="form-control" type="date" >
+                    <input id="form-kill-seed-date" name="form-kill-seed-date" class="form-control" type="date" value={{ date_seeded }}>
                 </div>
                 <div class="form-group">
                     <label for="form-kill-quantity"># Trays or Punnets</label>
                     <input id="form-kill-quantity" name="form-kill-quantity" class="form-control"
-                        type="number" min=0>
+                        type="number" value={{ quantity }} min=0>
                 </div>
                 <div class="form-group">
                     <label for="form-kill-reason">Reason</label>
                     {% for reason in reason_list %}
-                        <div class="checkbox">
-                            <label><input id="{{ reason.name }}-checkbox" name="{{ reason.name }}-checkbox" type="checkbox"> {{ reason.name }}</label>
-                        </div>
+                        {% if reason in selected_reasons %}
+                            <div class="checkbox">
+                                <label><input id="{{ reason.name }}-checkbox" name="{{ reason.name }}-checkbox" type="checkbox" checked> {{ reason.name }}</label>
+                            </div>
+                        {% else %}
+                            <div class="checkbox">
+                                <label><input id="{{ reason.name }}-checkbox" name="{{ reason.name }}-checkbox" type="checkbox"> {{ reason.name }}</label>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <div class="form-group">

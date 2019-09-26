@@ -608,36 +608,64 @@ def inventory_seed(request):
 def inventory_kill(request):
     if request.method == 'GET':
         day = date.today()
-        return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all(), 'day':day.isoformat()})
+        return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'), 'reason_list':KillReason.objects.all(), 'day':day.isoformat()})
     
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
             var_obj = Variety.objects.get(name=variety)
             quantity = request.POST['form-kill-quantity']
-            day = parser.parse(request.POST['form-kill-date'])
-            date_seeded = parser.parse(request.POST['form-kill-seed-date'])
-            quantity = 0 if len(quantity) == 0 else int(quantity)
-            try:
-                in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
-                in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
-                in_house.save()
-                if quantity:
-                    # data = json.dumps({'quantity': quantity})
-                    inventory_action = InventoryAction.objects.create(variety=var_obj, action_type='KILL', date=day, quantity=quantity)
-                    reasons = []
-                    for kill_reason in KillReason.objects.all():
-                        if request.POST.get(kill_reason.name + '-checkbox') == 'on':
-                            reasons.append(kill_reason)
+            day = request.POST['form-kill-date']
+            date_seeded = request.POST['form-kill-seed-date']
+            reasons = []
+            for kill_reason in KillReason.objects.all():
+                if request.POST.get(kill_reason.name + '-checkbox') == 'on':
+                    reasons.append(kill_reason)
+            if len(quantity) != 0 and int(quantity) > 0:
+                quantity = int(quantity)
+                try:
+                    in_house = CropGroup.objects.get(variety=var_obj, seed_date=date_seeded)
+                    if quantity <= in_house.quantity:
+                        in_house.quantity = in_house.quantity - quantity
+                        in_house.save()
+                        inventory_action = InventoryAction.objects.create(variety=var_obj, action_type='KILL',
+                                                                          date=day, quantity=quantity)
+                        for kill_reason in reasons:
                             inventory_action.kill_reasons.add(kill_reason)
-                    inventory_action.save()
-            except CropGroup.DoesNotExist:
-                message = "The crop(s) you were trying to kill don't exist in your database. Check your "
-                return render(request, 'inventory/inventory_kill.html', context={'variety_list':Variety.objects.all(), 'reason_list':KillReason.objects.all(), 'day':day, 'error': message})
+                        inventory_action.save()
+                    else:
+                        message = "There are only " + str(in_house.quantity) + " " + variety + "s for " \
+                                  + date_seeded \
+                                  + " in your database and you were trying to harvest " + str(quantity) \
+                                  + ". Check your "
+                        return render(request, 'inventory/inventory_kill.html',
+                                      context={'variety_list': Variety.objects.all().order_by('name'),
+                                               'reason_list': KillReason.objects.all(), 'day': day,
+                                               'date_seeded': date_seeded, 'quantity': quantity,
+                                               'selected_variety': variety,
+                                               'selected_reasons': reasons, 'error': message})
+                except CropGroup.DoesNotExist:
+                    message = "The crop(s) you were trying to kill don't exist in your database. Check your "
+                    return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'),
+                                                                                     'reason_list': KillReason.objects.all(),
+                                                                                     'day': day, 'date_seeded': date_seeded,
+                                                                                     'quantity': quantity,
+                                                                                     'selected_variety': variety,
+                                                                                     'selected_reasons': reasons,
+                                                                                    'error': message})
+            else:
+                message = "Please enter a positive, non-zero quantity. Check your "
+                return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'),
+                                                                                 'reason_list': KillReason.objects.all(),
+                                                                                 'day': day, 'date_seeded': date_seeded,
+                                                                                 'quantity': quantity,
+                                                                                 'selected_variety': variety,
+                                                                                 'selected_reasons': reasons,
+                                                                                 'error': message})
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
-        
+
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
@@ -684,32 +712,55 @@ def inventory_plan(request, plant_day=None):
 def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
     today = date.today().isoformat()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_harvest_bulk.html', context={'variety_list':Variety.objects.all(), 'today':today})
+        variety_list = []
+        for v in Variety.objects.all().order_by('name'):
+            variety_list.append({'name': v.name, 'quantity': None, 'date': None})
+        return render(request, 'inventory/inventory_harvest_bulk.html', context={'variety_list': variety_list, 'date':today})
     
     if request.method == 'POST':
-        for v in Variety.objects.all():
+        # Save the current state of the form in case of error later on
+        variety_list = []
+        for v in Variety.objects.all().order_by('name'):
+            try:
+                quantity = request.POST['form-harvest-' + v.name + '-quantity']
+                seed_date = request.POST['form-harvest-' + v.name + '-seed-date']
+                variety_list.append({'name': v.name, 'quantity': quantity, 'date': seed_date})
+            except KeyError:
+                pass  # In case there's a variety inconsistency
+
+        for v in Variety.objects.all().order_by('name'):
             try:
                 h_date = request.POST['form-harvest-date']
                 quantity = request.POST['form-harvest-' + v.name + '-quantity']
                 seed_date = request.POST['form-harvest-' + v.name + '-seed-date']
-                # TODO: Give error message if date was not given
-                # If a harvest number was given
-                if len(quantity) != 0:
+                # If a harvest quantity was given and its not zero
+                if len(quantity) != 0 and int(quantity) > 0 and len(seed_date) != 0:
                     quantity = int(quantity)
-                    # If seed date was given
-                    if len(seed_date) != 0:
+                    try:
                         # Update the CropGroup size
                         in_house = CropGroup.objects.get(variety=v, seed_date=seed_date)
-                        in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
-                        in_house.save()
-                        # Create InventoryAction
-                        if quantity:
-                            # data = json.dumps({'quantity': quantity})
+                        if quantity <= in_house.quantity:
+                            in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
+                            in_house.save()
+                            # Create InventoryAction, only if quantity != 0
                             InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', quantity=quantity)
-                    # If seed_date was not given, throw error
-                    elif len(seed_date) == 0:
-                        raise ValidationError("A seed date must be provided!")
-                    # If harvest number was not given, skip this
+                        else:
+                            message = "There are only " + str(in_house.quantity) + " " + v.name + "s for " + seed_date \
+                                      + " in your database and you were trying to harvest " + str(quantity) \
+                                      + ". Check your "
+                            return render(request, 'inventory/inventory_harvest_bulk.html',
+                                          context={'variety_list': variety_list, 'date': h_date,
+                                                   'error': message})
+                    except CropGroup.DoesNotExist:
+                        message = "The crop(s) you were trying to harvest don't exist in your database. Check your "
+                        return render(request, 'inventory/inventory_harvest_bulk.html',
+                                      context={'variety_list': variety_list, 'date': h_date, 'error': message})
+
+                # If seed_date was not given, throw error
+                elif len(seed_date) == 0:
+                    message = "A seed date must be provided for " + v.name + ". Check your "
+                    return render(request, 'inventory/inventory_harvest_bulk.html',
+                                  context={'variety_list': variety_list, 'date': h_date, 'error': message})
             except KeyError:
                 pass # In case there's a variety inconsistency
         
@@ -720,7 +771,7 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
 def inventory_harvest_variety(request): # Numbers of trays and yield for a single variety
     today = date.today().isoformat()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_harvest_variety.html', context={'variety_list':Variety.objects.all(), 'today':today})
+        return render(request, 'inventory/inventory_harvest_variety.html', context={'variety_list':Variety.objects.all().order_by('name'), 'date':today})
     
     if request.method == 'POST':
         try:
@@ -729,15 +780,35 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
             quantity = request.POST['form-harvest-quantity']
             h_yield = request.POST['form-harvest-yield']
             seed_date = request.POST['form-harvest-seed-date']
-            quantity = 0 if len(quantity) == 0 else int(quantity)
             h_yield = 0 if len(h_yield) == 0 else float(h_yield)
             var_obj = Variety.objects.get(name=variety)
-            in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
-            in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
-            in_house.save()
-            if quantity:
-                # data = json.dumps({'quantity': quantity, 'yield': h_yield})
-                InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date)
+            if len(quantity) != 0 and int(quantity) > 0:
+                quantity = int(quantity)
+                try:
+                    in_house = CropGroup.objects.get(variety=var_obj, seed_date=seed_date)
+                    if quantity <= in_house.quantity:
+                        in_house.quantity = in_house.quantity - quantity
+                        in_house.save()
+                        if quantity:
+                            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date)
+                    else:
+                        message = "There are only " + str(in_house.quantity) + " " + variety + "s for " + seed_date \
+                                  + " in your database and you were trying to harvest " + str(quantity) + ". Check your "
+                        return render(request, 'inventory/inventory_harvest_variety.html',
+                                      context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date,
+                                               'seed_date': seed_date, 'yield': h_yield, 'quantity': quantity,
+                                               'selected_variety': variety, 'error': message})
+                except CropGroup.DoesNotExist:
+                    message = "The crop(s) you were trying to harvest don't exist in your database. Check your "
+                    return render(request, 'inventory/inventory_harvest_variety.html',
+                                  context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date,
+                                           'seed_date': seed_date, 'yield': h_yield, 'quantity': quantity,
+                                           'selected_variety': variety, 'error': message})
+            else:
+                message = "Please enter a positive, non-zero quantity. Check your "
+                return render(request, 'inventory/inventory_harvest_variety.html',
+                              context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date, 'seed_date': seed_date,
+                                       'yield': h_yield, 'quantity': quantity,  'selected_variety': variety, 'error': message})
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
@@ -749,7 +820,7 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
 def inventory_harvest_single(request): # One tray, with detailed records
     today = date.today().isoformat()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_harvest_single.html', context={'variety_list':Variety.objects.all(), 'today':today})
+        return render(request, 'inventory/inventory_harvest_single.html', context={'variety_list':Variety.objects.all().order_by('name'), 'today':today})
     
     if request.method == 'POST':
         try:
