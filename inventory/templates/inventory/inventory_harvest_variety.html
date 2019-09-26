@@ -7,27 +7,36 @@
         <h1>Harvest: Single Variety</h1>
     </div>
     <div id="inventory_form">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}<a href="/inventory/overview" class="alert-link">Inventory Overview.</a>
+            </div>
+        {% endif %}
         <form id="form-harvest" method="post">
             {% csrf_token %}
             <label for="form-harvest-date">Date</label>
             <input id="form-harvest-date" name="form-harvest-date" class="form-control" 
-                type="date" value='{{ today }}'>
+                type="date" value='{{ date }}'>
             <label for="form-harvest-variety">Variety</label>
             <select id="form-harvest-variety" name="form-harvest-variety" class="form-control">
                 {% for variety in variety_list %}
-                    <option>{{ variety.name }}</option>
+                    {% if variety.name == selected_variety %}
+                        <option selected>{{ variety.name }}</option>
+                    {% else %}
+                        <option>{{ variety.name }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
             <br>
             <label for="form-harvest-seed-date"># Date Seeded </label>
-            <input id="form-harvest-seed-date" name="form-harvest-seed-date" class="form-control" type="date" >
+            <input id="form-harvest-seed-date" name="form-harvest-seed-date" class="form-control" type="date" value={{ seed_date }} >
             <br>
             <label for="form-harvest-quantity"># Trays or Punnets</label>
             <input id="form-harvest-quantity" name="form-harvest-quantity" class="form-control"
-                type="number" min=0>
+                type="number" value={{ quantity }} min=0>
             <label for="form-harvest-yield">Yield (oz)</label>
             <input id="form-harvest-yield" name="form-harvest-yield" class="form-control" 
-                type="number" step="0.01" min=0>
+                type="number" step="0.01" value={{ yield }} min=0>
             <br>
             <input id="form-harvest-submit" type="submit" class="btn btn-primary" value="Accept">
         </form>

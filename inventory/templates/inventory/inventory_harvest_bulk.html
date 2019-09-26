@@ -7,11 +7,16 @@
         <h1>Harvest: Bulk</h1>
     </div>
     <div id="greenhouse_inventory">
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}<a href="/inventory/overview" class="alert-link">Inventory Overview.</a>
+        </div>
+    {% endif %}
         <form id="form-harvest" method="post">
             {% csrf_token %}
             <label for="form-harvest-date">Date</label>
             <input id="form-harvest-date" name="form-harvest-date" class="form-control" 
-                type="date" value='{{ today }}'>
+                type="date" value='{{ date }}'>
             <table id="inventory" class="table">
                 <tr>
                     <th>Variety</th>
@@ -21,9 +26,9 @@
                 {% for variety in variety_list %}
                 <tr>
                     <td width='40%'>{{ variety.name }}</td>
-                    <td width='20%'><input id="form-harvest-{{variety.name}}-quantity" name="form-harvest-{{variety.name}}-quantity" class="form-control"
+                    <td width='20%'><input id="form-harvest-{{variety.name}}-quantity" name="form-harvest-{{variety.name}}-quantity" value="{{ variety.quantity }}" class="form-control"
                         type="number"  min=0></td>
-                    <td width='20%'><input id="form-harvest-{{variety.name}}-seed-date" name="form-harvest-{{variety.name}}-seed-date" class="form-control"
+                    <td width='20%'><input id="form-harvest-{{variety.name}}-seed-date" name="form-harvest-{{variety.name}}-seed-date" value="{{ variety.date }}" class="form-control"
                         type="date"></td>
                 </tr>
                 {% endfor %}
