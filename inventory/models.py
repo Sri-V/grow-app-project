@@ -5,7 +5,7 @@ from django.utils import timezone
 class Variety(models.Model):
     """Represents the types of plants that can be grown."""
     name = models.CharField(max_length=50)
-
+    lead_time = models.IntegerField(null=True)  # Standard number of days to grow.
     def __str__(self):
         return self.name
 
