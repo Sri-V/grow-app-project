@@ -37,9 +37,6 @@ class Crop(models.Model):
     """
 
     variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
-    #germ_date = models.DateField(default=timezone.now)  # date seeded and placed in germ
-    #grow_date = models.DateField(default=timezone.now)  # date placed on rack
-    #harvest_date = models.DateField(blank=True, null=True)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     seeding_density = models.FloatField(null=True, blank=True)  # measured in g/tray
@@ -129,11 +126,24 @@ class SanitationRecord(models.Model):
     chemicals_used = models.CharField(max_length=100)
     note = models.CharField(max_length=200, blank=True)
 
+
+class ProductInventory(models.Model):
+    """Represents the inventory of a type of product."""
+    product = models.ForeignKey("orders.Product", on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+
+class LiveCropInventory(ProductInventory):
+    """Represents the inventory of a type of live microgreen crop"""
+    seed_date = models.DateField()
+
+
 class CropGroup(models.Model):
     """Represents a group of crops of a particular variety that share a seed date."""
     variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
     seed_date = models.DateField()
+
 
 class WeekdayRequirement(models.Model):
     DAYS_OF_WEEK = (
