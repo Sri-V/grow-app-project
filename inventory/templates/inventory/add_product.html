@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+    <script>
+        function getFormFields() {
+            var productType = document.getElementById("select-product-type");
+            if (productType.value == 'Live Crop Product') {
+                variety_input = document.createElement('SELECT')
+                for (let v in {{ varieties|safe }}) {
+                    variety_input.append("<option>v['name']</option>")
+                }
+                size_input = document.createElement('SELECT')
+                size_input.class = "form-control"
+                size_input.options = {{ sizes|safe }}
+                tray_type_input = document.createElement('SELECT')
+                tray_type.options = {{ tray_types|safe }}
+                document.getElementById("extra-form-fields").append(variety_input)
+                document.getElementById("extra-form-fields").append(size_input)
+                document.getElementById("extra-form-fields").append(tray_type_input)
+            }
+            else if (productType.value == 'Harvested Crop Product') {
+                variety_input = document.createElement('SELECT')
+                variety_input.class = "form-control"
+                var varieties_list = {{ varieties|safe }};
+                for (let v in varieties_list) {
+                    variety_input.append("<option>v['name']</option>")
+                }
+                size_input = document.createElement('SELECT')
+                size_input.class = "form-control"
+                weight_input = document.createElement('INPUT')
+                weight_input.type = "number"
+                weight_input.class = "form-control"
+                document.getElementById("extra-form-fields").append(variety_input)
+                document.getElementById("extra-form-fields").append(size_input)
+                document.getElementById("extra-form-fields").append(size_input)
+            }
+            else {
+                document.getElementById("extra-form-fields").hidden
+            }
+        }
+    </script>
+    <form id="form-add-product" method="post">
+        {% csrf_token %}
+        {{ product_form.as_p }}
+        <select id="select-product-type" class="form-control" onchange="getFormFields()">
+            <option>Live Crop Product</option>
+            <option>Harvested Crop Product</option>
+            <option>Other Product</option>
+        </select>
+    <div id="extra-form-fields"></div>
+    </form>
+{% endblock %}

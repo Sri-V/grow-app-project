@@ -1,4 +1,5 @@
 from inventory.models import Crop, CropAttribute, CropAttributeOption, Slot, Variety, SanitationRecord, CropRecord, KillReason
+from orders.models import MicrogreenSize, TrayType
 from django import forms
 from django.forms import ModelForm, Textarea, TextInput
 from django.core.exceptions import ValidationError
@@ -188,3 +189,29 @@ class InventoryKillCropForm(forms.Form):
         super(InventoryKillCropForm, self).__init__(*args, **kwargs)
         for reason in KillReason.objects.all():
             self.fields[reason.name] = forms.BooleanField()
+
+
+class AddProductForm(forms.Form):
+    product_name = forms.CharField(max_length=200)
+    price = forms.FloatField(min_value=0.0)
+
+
+class AddLiveCropProductForm(forms.Form):
+    product_name = forms.CharField(max_length=200)
+    variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                     widget=forms.Select(attrs={'class': 'form-control'}))
+    price = forms.FloatField(min_value=0.0)
+    size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                  widget=forms.Select(attrs={'class': 'form-control'}))
+    tray_type = forms.ModelChoiceField(queryset=TrayType.objects.all(),
+                                  widget=forms.Select(attrs={'class': 'form-control'}))
+
+
+class AddHarvestCropProductForm(forms.Form):
+    product_name = forms.CharField(max_length=200)
+    variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                     widget=forms.Select(attrs={'class': 'form-control'}))
+    price = forms.FloatField(min_value=0.0)
+    size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                  widget=forms.Select(attrs={'class': 'form-control'}))
+    weight = forms.FloatField(min_value=0.0)

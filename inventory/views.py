@@ -1,7 +1,8 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup
+from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup, LiveCropInventory
 from inventory.forms import *
+from orders.models import LiveCropProduct, MicrogreenSize, TrayType
 from datetime import date, datetime, timedelta
 from dateutil import parser
 from google_sheets.upload_to_sheet import upload_data_to_sheets
@@ -549,6 +550,13 @@ def inventory_overview(request):
                                                                          'chart_colors': colors,
                                                                          'recent_actions': actions_display})
 
+
+# One-time function to make all LiveCropInventories from LiveCropProducts
+def make_live_crop_inventory():
+    for lcp in LiveCropProduct.objects.all():
+        LiveCropInventory.objects.create(product=lcp, quantity=0)
+
+
 # Interpolate between start and end color (rgb tuples) with n increments and return a list of hex colors
 def getChartColors(start_color, end_color, n):
     colors = []
@@ -893,3 +901,14 @@ def add_barcodes(request):
                 slot.barcode = form.cleaned_data.pop('Slot '+str(slot.id))
                 slot.save()
         return redirect(golden_trays_home)
+
+
+@login_required
+def add_product(request):
+    if request.method == 'GET':
+        variety_list = Variety.objects.values('name')
+        sizes = MicrogreenSize.objects.all()
+        product_form = AddProductForm()
+        product_types = ['Live Crop', 'Harvested Crop', 'Other']
+        return render(request, "inventory/add_product.html", context={"product_form": product_form, "varieties": list(variety_list),
+                                                                      "sizes": list(sizes), "product_types": list(product_types)})
