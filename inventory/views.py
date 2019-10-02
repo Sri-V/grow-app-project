@@ -765,7 +765,7 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
                                       context={'variety_list': variety_list, 'date': h_date, 'error': message})
 
                 # If seed_date was not given, throw error
-                elif len(seed_date) == 0:
+                elif len(quantity) != 0 and int(quantity) > 0 and len(seed_date) == 0:
                     message = "A seed date must be provided for " + v.name + ". Check your "
                     return render(request, 'inventory/inventory_harvest_bulk.html',
                                   context={'variety_list': variety_list, 'date': h_date, 'error': message})
