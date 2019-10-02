@@ -906,9 +906,22 @@ def add_barcodes(request):
 @login_required
 def add_product(request):
     if request.method == 'GET':
-        variety_list = Variety.objects.values('name')
-        sizes = MicrogreenSize.objects.all()
+        variety_list = []
+        for v in Variety.objects.all().order_by('name'):
+            variety_list.append(v.name)
+        # variety_list = Variety.objects.values('name')
+        sizes = []
+        for s in MicrogreenSize.objects.all().order_by('name'):
+            sizes.append(s.name)
+        # sizes = MicrogreenSize.objects.values('name')
+        tray_types = []
+        for t in TrayType.objects.all().order_by('name'):
+            tray_types.append(t.name)
+        # tray_types = TrayType.objects.values('name')
         product_form = AddProductForm()
         product_types = ['Live Crop', 'Harvested Crop', 'Other']
-        return render(request, "inventory/add_product.html", context={"product_form": product_form, "varieties": list(variety_list),
-                                                                      "sizes": list(sizes), "product_types": list(product_types)})
+        return render(request, "inventory/add_product.html", context={"product_form": product_form,
+                                                                      "varieties": variety_list,
+                                                                      "tray_types": tray_types,
+                                                                      "sizes": sizes,
+                                                                      "product_types": product_types})
