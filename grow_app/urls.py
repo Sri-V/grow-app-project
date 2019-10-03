@@ -55,7 +55,8 @@ urlpatterns = [
     path('record/<int:record_id>/edit', views.update_crop_record, name="update_crop_record"),
     path('record/<int:record_id>/delete', views.delete_record, name="delete_record"),
     path('environment_data', views.environment_data, name="environment_data"),
-    path('inventory/add_product', views.add_product, name="add_product")
+    path('inventory/add_product', views.add_product, name="add_product"),
+    path('inventory/catalog', views.catalog, name="catalog")
 ]
 
 urlpatterns += [

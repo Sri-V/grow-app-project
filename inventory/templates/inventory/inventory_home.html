@@ -20,6 +20,14 @@
                 <td width='30%' style='text-align: center'><a href="{% url "inventory_overview" %}" class="btn btn-default">OVERVIEW</a></td>
                 <td width='30%' style='text-align: center'><a href="{% url "inventory_plan" %}" class="btn btn-default">WEEKDAY SEEDING PLAN</a></td>
             </tr>
+            <tr>
+                <td width='30%' style='text-align: center'>
+                    <a href="{% url "catalog" %}" class="btn btn-default">PRODUCT CATALOG</a>
+                </td>
+                <td width='30%' style='text-align: center'>
+                    <a href="{% url "add_product" %}" class="btn btn-default">ADD PRODUCT</a>
+                </td>
+            </tr>
         </table>
     </div>
 {% endblock %}
