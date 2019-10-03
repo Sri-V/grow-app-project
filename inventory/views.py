@@ -969,3 +969,22 @@ def add_product(request):
                                                                           "tray_types": tray_types,
                                                                           "sizes": sizes,
                                                                           "error": message})
+
+@login_required
+def catalog(request):
+    if request.method == 'GET':
+        other_products = []
+        for product in Product.objects.all():
+            if not LiveCropProduct.objects.filter(id=product.id).exists() \
+                    and not HarvestedCropProduct.objects.filter(id=product.id).exists():
+                other_products.append(product)
+        return render(request, "inventory/catalog.html", context={"live_crop_products": LiveCropProduct.objects.all(),
+                                                                  "harvested_crop_products": HarvestedCropProduct.objects.all(),
+                                                                  "other_products": other_products})
+    # if request.method == 'POST':
+    #     live_crop_products = []
+    #     harvested_crop_products = []
+    #     other_products = []
+    #     return render(request, "inventory/catalog.html", context={"live_crop_products": live_crop_products,
+    #                                                               "harvested_crop_products": harvested_crop_products,
+    #                                                               "other_products": other_products})
