@@ -9,9 +9,9 @@
             $("#extra-form-fields").empty()
             var productType = document.getElementById("select-product-type");
             if (productType.value == 'Live Crop Product') {
-                var variety_input = "<select id=\"variety-input\" class=\"form-control\"></select>"
-                var size_input = "<select id=\"size-input\" class=\"form-control\"></select>"
-                var tray_type_input ="<select id=\"tray-input\" class=\"form-control\"></select>"
+                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
+                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
+                var tray_type_input ="<select id=\"tray-input\" name=\"tray-type\" class=\"form-control\"></select>"
                 $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
                 $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
                 $("#extra-form-fields").append("<label for=\"#tray-input\">Tray Type: </label>", tray_type_input)
@@ -26,9 +26,9 @@
                     }
             }
             else if (productType.value == 'Harvested Crop Product') {
-                var variety_input = "<select id=\"variety-input\" class=\"form-control\"></select>"
-                var size_input = "<select id=\"size-input\" class=\"form-control\"></select>"
-                var weight_input = "<input id=\"weight-input\" class=\"form-control\" type=\"number\" placeholder=\"3oz\">"
+                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
+                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
+                var weight_input = "<input id=\"weight-input\" name=\"weight\" class=\"form-control\" type=\"number\" placeholder=\"3oz\">"
                 $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
                 $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
                 $("#extra-form-fields").append("<label for=\"#weight-input\">Weight: </label>", weight_input)
@@ -42,15 +42,26 @@
         }
     </script>
     <h1>Add Product</h1>
-    <form id="form-add-product" method="post">
+    {% if success %}
+        <div class="alert alert-success" role="alert">
+            {{ success }}<a href="#" class="alert-link">catalog</a>
+        </div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}<a href="#" class="alert-link">catalog</a>
+        </div>
+    {% endif %}
+    <form id="form-add-product" method="POST">
         {% csrf_token %}
         {{ product_form.as_p }}
-        <select id="select-product-type" class="form-control" onchange="getFormFields()">
+        <select id="select-product-type" name="select-product-type" class="form-control" onchange="getFormFields()">
             <option selected>Other Product</option>
             <option>Live Crop Product</option>
             <option>Harvested Crop Product</option>
         </select>
         <br>
         <div id="extra-form-fields"></div>
+        <input id="form-add-product-submit" type="submit" class="btn btn-primary" value="Add Product"/>
     </form>
 {% endblock %}

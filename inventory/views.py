@@ -2,7 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup, LiveCropInventory
 from inventory.forms import *
-from orders.models import LiveCropProduct, MicrogreenSize, TrayType
+from orders.models import LiveCropProduct, MicrogreenSize, TrayType, Product, HarvestedCropProduct
 from datetime import date, datetime, timedelta
 from dateutil import parser
 from google_sheets.upload_to_sheet import upload_data_to_sheets
@@ -909,19 +909,63 @@ def add_product(request):
         variety_list = []
         for v in Variety.objects.all().order_by('name'):
             variety_list.append(v.name)
-        # variety_list = Variety.objects.values('name')
         sizes = []
         for s in MicrogreenSize.objects.all().order_by('name'):
             sizes.append(s.name)
-        # sizes = MicrogreenSize.objects.values('name')
         tray_types = []
         for t in TrayType.objects.all().order_by('name'):
             tray_types.append(t.name)
-        # tray_types = TrayType.objects.values('name')
         product_form = AddProductForm()
-        product_types = ['Live Crop', 'Harvested Crop', 'Other']
         return render(request, "inventory/add_product.html", context={"product_form": product_form,
                                                                       "varieties": variety_list,
                                                                       "tray_types": tray_types,
-                                                                      "sizes": sizes,
-                                                                      "product_types": product_types})
+                                                                      "sizes": sizes})
+    if request.method == 'POST':
+        variety_list = []
+        for v in Variety.objects.all().order_by('name'):
+            variety_list.append(v.name)
+        sizes = []
+        for s in MicrogreenSize.objects.all().order_by('name'):
+            sizes.append(s.name)
+        tray_types = []
+        for t in TrayType.objects.all().order_by('name'):
+            tray_types.append(t.name)
+        product_form = AddProductForm()
+        form = AddProductForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+            fields = request.POST
+            product_name = fields['product_name']
+            price = fields['price']
+            try:
+                if fields['select-product-type'] == 'Live Crop Product':
+                    print("Live crop product!")
+                    variety = Variety.objects.get(name=fields['variety'])
+                    size = MicrogreenSize.objects.get(name=fields['size'])
+                    tray_type = TrayType.objects.get(name=fields['tray-type'])
+                    LiveCropProduct.objects.create(name=product_name, price=price, variety=variety,
+                                                   size=size, tray_type=tray_type)
+                elif fields['select-product-type'] == 'Harvested Crop Product':
+                    variety = Variety.objects.get(name=fields['variety'])
+                    size = MicrogreenSize.objects.get(name=fields['size'])
+                    weight = int(fields['weight'])
+                    HarvestedCropProduct.objects.create(name=product_name, price=price, variety=variety,
+                                                   size=size, weight=weight)
+            except KeyError:
+                Product.objects.create(name=product_name, price=price)
+                pass
+            message = "Successfully added " + product_name + " to your "
+            # TODO: option to pre-fill previous form's values
+            return render(request, "inventory/add_product.html", context={"product_form": product_form,
+                                                                          "varieties": variety_list,
+                                                                          "tray_types": tray_types,
+                                                                          "sizes": sizes,
+                                                                          "success": message})
+        else:
+            message = "Something went wrong."
+            print(message)
+            return render(request, "inventory/add_product.html", context={"product_form": product_form,
+                                                                          "varieties": variety_list,
+                                                                          "tray_types": tray_types,
+                                                                          "sizes": sizes,
+                                                                          "error": message})
