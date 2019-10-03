@@ -3,52 +3,65 @@
 {% block title %}Add Product{% endblock %}
 
 {% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
         function getFormFields() {
+            $("#extra-form-fields").empty()
             var productType = document.getElementById("select-product-type");
             if (productType.value == 'Live Crop Product') {
-                variety_input = document.createElement('SELECT')
-                for (let v in {{ varieties|safe }}) {
-                    variety_input.append("<option>v['name']</option>")
+                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
+                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
+                var tray_type_input ="<select id=\"tray-input\" name=\"tray-type\" class=\"form-control\"></select>"
+                $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
+                $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
+                $("#extra-form-fields").append("<label for=\"#tray-input\">Tray Type: </label>", tray_type_input)
+                for (let v of {{ varieties|safe }}) {
+                    $("#variety-input").append("<option>"+ v +"</option>")
                 }
-                size_input = document.createElement('SELECT')
-                size_input.class = "form-control"
-                size_input.options = {{ sizes|safe }}
-                tray_type_input = document.createElement('SELECT')
-                tray_type.options = {{ tray_types|safe }}
-                document.getElementById("extra-form-fields").append(variety_input)
-                document.getElementById("extra-form-fields").append(size_input)
-                document.getElementById("extra-form-fields").append(tray_type_input)
+                for (let v of {{ tray_types|safe }}) {
+                        $("#tray-input").append("<option>"+ v +"</option>")
+                    }
+                for (let v of {{ sizes|safe }}) {
+                        $("#size-input").append("<option>"+ v +"</option>")
+                    }
             }
             else if (productType.value == 'Harvested Crop Product') {
-                variety_input = document.createElement('SELECT')
-                variety_input.class = "form-control"
-                var varieties_list = {{ varieties|safe }};
-                for (let v in varieties_list) {
-                    variety_input.append("<option>v['name']</option>")
+                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
+                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
+                var weight_input = "<input id=\"weight-input\" name=\"weight\" class=\"form-control\" type=\"number\" placeholder=\"3oz\">"
+                $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
+                $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
+                $("#extra-form-fields").append("<label for=\"#weight-input\">Weight: </label>", weight_input)
+                for (let v of {{ varieties|safe }}) {
+                    $("#variety-input").append("<option>" + v + "</option>")
                 }
-                size_input = document.createElement('SELECT')
-                size_input.class = "form-control"
-                weight_input = document.createElement('INPUT')
-                weight_input.type = "number"
-                weight_input.class = "form-control"
-                document.getElementById("extra-form-fields").append(variety_input)
-                document.getElementById("extra-form-fields").append(size_input)
-                document.getElementById("extra-form-fields").append(size_input)
-            }
-            else {
-                document.getElementById("extra-form-fields").hidden
+                for (let v of {{ sizes|safe }}) {
+                    $("#size-input").append("<option>" + v + "</option>")
+                }
             }
         }
     </script>
-    <form id="form-add-product" method="post">
+    <h1>Add Product</h1>
+    {% if success %}
+        <div class="alert alert-success" role="alert">
+            {{ success }}<a href="#" class="alert-link">catalog</a>
+        </div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}<a href="#" class="alert-link">catalog</a>
+        </div>
+    {% endif %}
+    <form id="form-add-product" method="POST">
         {% csrf_token %}
         {{ product_form.as_p }}
-        <select id="select-product-type" class="form-control" onchange="getFormFields()">
+        <select id="select-product-type" name="select-product-type" class="form-control" onchange="getFormFields()">
+            <option selected>Other Product</option>
             <option>Live Crop Product</option>
             <option>Harvested Crop Product</option>
-            <option>Other Product</option>
         </select>
-    <div id="extra-form-fields"></div>
+        <br>
+        <div id="extra-form-fields"></div>
+        <input id="form-add-product-submit" type="submit" class="btn btn-primary" value="Add Product"/>
     </form>
 {% endblock %}

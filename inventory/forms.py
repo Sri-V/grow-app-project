@@ -195,12 +195,29 @@ class AddProductForm(forms.Form):
     product_name = forms.CharField(max_length=200)
     price = forms.FloatField(min_value=0.0)
 
+    def get_live_crop_fields(self):
+        variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                         widget=forms.Select(attrs={'class': 'form-control'}))
+        size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+        tray_type = forms.ModelChoiceField(queryset=TrayType.objects.all(),
+                                           widget=forms.Select(attrs={'class': 'form-control'}))
+        return [variety, size, tray_type]
+
+    def get_harvested_crop_fields(self):
+        variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                         widget=forms.Select(attrs={'class': 'form-control'}))
+        size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+        weight = forms.FloatField(min_value=0.0)
+        return [variety, size, weight]
+
 
 class AddLiveCropProductForm(forms.Form):
     product_name = forms.CharField(max_length=200)
+    price = forms.FloatField(min_value=0.0)
     variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    price = forms.FloatField(min_value=0.0)
     size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
                                   widget=forms.Select(attrs={'class': 'form-control'}))
     tray_type = forms.ModelChoiceField(queryset=TrayType.objects.all(),
@@ -209,9 +226,9 @@ class AddLiveCropProductForm(forms.Form):
 
 class AddHarvestCropProductForm(forms.Form):
     product_name = forms.CharField(max_length=200)
+    price = forms.FloatField(min_value=0.0)
     variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    price = forms.FloatField(min_value=0.0)
     size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
                                   widget=forms.Select(attrs={'class': 'form-control'}))
     weight = forms.FloatField(min_value=0.0)
