@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from inventory import views
+from orders import views as orders_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -56,7 +57,8 @@ urlpatterns = [
     path('record/<int:record_id>/delete', views.delete_record, name="delete_record"),
     path('environment_data', views.environment_data, name="environment_data"),
     path('inventory/add_product', views.add_product, name="add_product"),
-    path('inventory/catalog', views.catalog, name="catalog")
+    path('inventory/catalog', views.catalog, name="catalog"),
+    path('orders/shop', orders_views.shop, name="shop")
 ]
 
 urlpatterns += [
