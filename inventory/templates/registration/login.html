@@ -1,22 +1,126 @@
-{% extends 'base.html' %}
+{% extends 'orders_base.html' %}
 
 {% block title %}Login{% endblock %}
+{% block extrahead %}
+    <style>
+        body {
+            background: #f3f2f2;
+        }
 
+        .row {
+            height: 100vh;
+        }
+
+        .form {
+            background: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0px 2px 6px -1px rgba(0, 0, 0, .12);
+        }
+
+        .image img {
+            width: 220px;
+            height: auto;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .my-form {
+            padding: 2.5rem;
+        }
+
+        .my-form h4 {
+            color: #92aad0;
+        }
+
+        .my-form p {
+            font-size: .875rem;
+            font-weight: 400;
+        }
+
+        .btn {
+            background-color: #92aad0;
+            right: 0;
+        }
+
+        .btn:hover, .btn:active, .btn:focus {
+            color: #fff;
+        }
+
+        a {
+            bottom: 0;
+        }
+
+        .space {
+            padding-bottom: 4rem;
+        }
+
+        .link {
+            font-size: .875rem;
+            float: right;
+            color: #6582B0;
+        }
+
+        .link:hover, .link:active {
+            color: #426193;
+        }
+
+        @-webkit-keyframes autofill {
+            to {
+                color: #666;
+                background: transparent;
+            }
+        }
+
+        @keyframes autofill {
+            to {
+                color: #666;
+                background: transparent;
+            }
+        }
+
+        input:-webkit-autofill {
+            -webkit-animation-name: autofill;
+            animation-name: autofill;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+        }
+    </style>
+{% endblock %}
 {% block content %}
-    <div class="col-10 col-lg-7 col-xl-6">
-        <h2>Welcome to Boston Microgreens</h2>
-
-        <form method="post" action="{% url 'login' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="form-login-username">Username</label>
-                <input type="text" name="username" id="form-login-username" class="form-control">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-md-7">
+                <div class="form d-flex justify-content-between">
+                    <div class="image">
+                        <img src="https://mdbootstrap.com/img/Photos/Others/sidenav2.jpg">
+                    </div>
+                    <form method="post" action="{% url 'login' %}" class="my-form">
+                        {% csrf_token %}
+                        <h4 class="font-weight-bold mb-3">Log in to your account</h4>
+                        <p class="mdb-color-text">To log in, please fill in these text fields with your username
+                            and password.</p>
+                        <!-- Username -->
+                        <div class="md-form md-outline">
+                            <i class="fas fa-envelope prefix"></i>
+                            <input type="text" id="form-login-username" name="username" class="form-control">
+                            <label for="form-login-username">Username</label>
+                        </div>
+                        <!-- Password -->
+                        <div class="md-form md-outline">
+                            <i class="fas fa-lock prefix"></i>
+                            <input type="password" id="form-login-password" name="password" class="form-control">
+                            <label for="form-login-password">Password</label>
+                        </div>
+                        <div class="space">
+                            <div class="float-right">
+                                <button id="form-login-submit" class="btn btn-rounded" type="submit">Log in</button>
+                            </div>
+                        </div>
+                        <hr>
+                        <a class="link" href="#!">Forgot password? Click here.</a>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="form-login-password">Password</label>
-                <input type="password" name="password" id="form-login-password" class="form-control">
-            </div>
-            <input id="form-login-submit" type="submit" class="btn btn-primary" value="Log In">
-        </form>
+        </div>
     </div>
 {% endblock %}
