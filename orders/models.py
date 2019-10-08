@@ -1,12 +1,13 @@
 from django.db import models
 from inventory.models import Variety
+from django.contrib.auth.models import User
 
 
-class Account(models.Model):
-    """Represents a customer of Boston Microgreens."""
-    name = models.CharField(max_length=200)
-    date_created = models.DateField(auto_now=True)
-    active = models.BooleanField()
+class RestaurantAccount(models.Model):
+    """Represents a restaurant customer of Boston Microgreens."""
+    phone = models.CharField(max_length=20)
+    restaurant_name = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
 class Product(models.Model):
@@ -18,7 +19,7 @@ class Product(models.Model):
 class Order(models.Model):
     """Represents an sales order of product."""
     product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
-    account = models.ForeignKey(Account, on_delete=models.DO_NOTHING)
+    account = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     delivery_date = models.DateField()
 
 

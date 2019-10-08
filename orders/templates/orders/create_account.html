@@ -1,0 +1,134 @@
+{% extends 'orders_base.html' %}
+
+{% block title %}Create Account{% endblock %}
+{% block extrahead %}
+    <style>
+        body {
+            background: #f3f2f2;
+        }
+
+        .row {
+            height: 40%;
+        }
+
+        .form {
+            background: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0px 2px 6px -1px rgba(0, 0, 0, .12);
+        }
+
+        .my-form {
+            padding: 2.5rem;
+        }
+
+        .my-form h4 {
+            color: #92aad0;
+        }
+
+        .my-form p {
+            font-size: .875rem;
+            font-weight: 400;
+        }
+
+        .btn {
+            background-color: #92aad0;
+            right: 0;
+        }
+
+        .btn:hover, .btn:active, .btn:focus {
+            color: #fff;
+        }
+
+        a {
+            bottom: 0;
+        }
+
+        .space {
+            padding-bottom: 4rem;
+        }
+
+        .link {
+            font-size: .875rem;
+            float: right;
+            color: #6582B0;
+        }
+
+        .link:hover, .link:active {
+            color: #426193;
+        }
+
+        @-webkit-keyframes autofill {
+            to {
+                color: #666;
+                background: transparent;
+            }
+        }
+
+        @keyframes autofill {
+            to {
+                color: #666;
+                background: transparent;
+            }
+        }
+
+        input:-webkit-autofill {
+            -webkit-animation-name: autofill;
+            animation-name: autofill;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+        }
+    </style>
+
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>#}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if error %}
+            <div class="alert alert-secondary" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+    </div>
+    <div class="form d-flex justify-content-between">
+        <form method="post" class="my-form">
+            {% csrf_token %}
+            <h4 class="font-weight-bold mb-3">Create your restaurant account</h4>
+            {#        <p class="mdb-color-text">Please create an account.</p>#}
+            <!-- Restaurant Name -->
+            <div class="md-form md-outline">
+                <i class="fas fa-carrot prefix"></i>
+                <input type="text" id="form-login-rest-name" name="rest-name" class="form-control"
+                       placeholder="Business Name eg. Popeyes">
+            </div>
+            <!-- Username -->
+            <div class="md-form md-outline">
+                <i class="fas fa-user prefix"></i>
+                <input type="text" id="form-login-username" name="username" class="form-control" placeholder="Username">
+            </div>
+            <!-- Email -->
+            <div class="md-form md-outline">
+                <i class="fas fa-envelope prefix"></i>
+                <input type="email" id="form-login-email" name="email" class="form-control"
+                       placeholder="popeyes@gmail.com">
+            </div>
+            <!-- Phone -->
+            <div class="md-form md-outline">
+                <i class="fas fa-phone prefix"></i>
+                <input type="number" id="form-login-phone" name="phone" class="form-control" placeholder="5551234">
+            </div>
+            <!-- Password -->
+            <div class="md-form md-outline">
+                <i class="fas fa-lock prefix"></i>
+                <input type="password" id="form-login-password" name="password" class="form-control"
+                       placeholder="Password">
+            </div>
+            <div class="space">
+                <div class="float-right">
+                    <button id="form-login-submit" class="btn btn-rounded" type="submit">Create Account</button>
+                </div>
+            </div>
+            <hr>
+            <a class="link" href="/">Already have an account? Sign in.</a>
+        </form>
+    </div>
+{% endblock %}

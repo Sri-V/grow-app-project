@@ -85,9 +85,39 @@
             animation-fill-mode: both;
         }
     </style>
+    <style type="text/css">
+        /* Chart.js */
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
 {% endblock %}
 {% block content %}
     <div class="container">
+        {% if account_creation_success %}
+            <div class="row alert alert-light" role="alert">
+                Account created! Please log in.
+            </div>
+        {% endif %}
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-md-7">
                 <div class="form d-flex justify-content-between">
@@ -102,14 +132,14 @@
                         <!-- Username -->
                         <div class="md-form md-outline">
                             <i class="fas fa-envelope prefix"></i>
-                            <input type="text" id="form-login-username" name="username" class="form-control">
-                            <label for="form-login-username">Username</label>
+                            <input type="text" id="form-login-username" name="username" class="form-control"
+                                   placeholder="Username">
                         </div>
                         <!-- Password -->
                         <div class="md-form md-outline">
                             <i class="fas fa-lock prefix"></i>
-                            <input type="password" id="form-login-password" name="password" class="form-control">
-                            <label for="form-login-password">Password</label>
+                            <input type="password" id="form-login-password" name="password" class="form-control"
+                                   placeholder="Password">
                         </div>
                         <div class="space">
                             <div class="float-right">
