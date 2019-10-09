@@ -8,11 +8,12 @@ from orders.models import RestaurantAccount
 # from google_sheets.upload_to_sheet import upload_data_to_sheets
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
-
 # from django.shortcuts import get_object_or_404
 # import os
 # import json
+
+def orders_home(request):
+    return render(request, "orders/index.html", context={})
 
 def create_account(request):
     if request.method == "GET":
@@ -40,3 +41,4 @@ def create_account(request):
 @login_required
 def shop(request):
     return render(request, "orders/shop.html", context={})
+

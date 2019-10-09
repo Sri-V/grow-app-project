@@ -1,8 +1,9 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup, LiveCropInventory
+from inventory.models import WeekdayRequirement, InventoryAction, CropGroup, LiveCropInventory
 from inventory.forms import *
 from orders.models import LiveCropProduct, MicrogreenSize, TrayType, Product, HarvestedCropProduct
+from orders.views import orders_home
 from datetime import date, datetime, timedelta
 from dateutil import parser
 from google_sheets.upload_to_sheet import upload_data_to_sheets
@@ -11,17 +12,21 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 import os
 import json
+# Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety,
+
 
 @staff_member_required
 def golden_trays_home(request):
     """GET: Display the homepage for the golden trays"""
     return render(request, "inventory/golden_trays_home.html")
 
-@staff_member_required
+@login_required
 def homepage(request):
-    """GET: Display a homepage that offers links to detail pages for crops and slots."""
+    """GET: Display inventory home page if user is staff, else display customer view homepage."""
     total_slot_count = Slot.objects.count()
-    return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
+    if request.user.is_staff:
+        return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
+    return redirect(orders_home)
 
 @staff_member_required
 def growhouse_settings(request):
