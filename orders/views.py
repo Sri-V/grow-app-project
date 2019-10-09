@@ -38,7 +38,6 @@ def create_account(request):
         return render(request, "registration/login.html", context={"account_creation_success": success_message})
 
 
-@login_required
 def shop(request):
     return render(request, "orders/shop.html", context={})
 
