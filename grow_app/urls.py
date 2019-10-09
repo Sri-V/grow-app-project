@@ -61,6 +61,9 @@ urlpatterns = [
     path('orders/shop', orders_views.shop, name="shop"),
     path('orders/create_account', orders_views.create_account, name="create_account"),
     path('orders/', orders_views.orders_home, name="orders_home"),
+    path('orders/account', orders_views.account, name="account"),
+    path('orders/schedule', orders_views.schedule, name="customer_schedule"),
+    path('orders/cart', orders_views.cart, name="cart"),
 ]
 
 urlpatterns += [

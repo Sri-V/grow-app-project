@@ -42,3 +42,15 @@ def create_account(request):
 def shop(request):
     return render(request, "orders/shop.html", context={})
 
+@login_required
+def schedule(request):
+    return render(request, "orders/schedule.html", context={})
+
+@login_required
+def account(request):
+    return render(request, "orders/account.html", context={})
+
+@login_required
+def cart(request):
+    return render(request, "orders/cart.html", context={})
+
