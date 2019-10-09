@@ -1,28 +1,34 @@
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from inventory.models import Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety, WeekdayRequirement, InventoryAction, KillReason, CropGroup, LiveCropInventory
+from inventory.models import WeekdayRequirement, InventoryAction, CropGroup, LiveCropInventory
 from inventory.forms import *
 from orders.models import LiveCropProduct, MicrogreenSize, TrayType, Product, HarvestedCropProduct
+from orders.views import orders_home
 from datetime import date, datetime, timedelta
 from dateutil import parser
 from google_sheets.upload_to_sheet import upload_data_to_sheets
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 import os
 import json
+# Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety,
 
-@login_required
+
+@staff_member_required
 def golden_trays_home(request):
     """GET: Display the homepage for the golden trays"""
     return render(request, "inventory/golden_trays_home.html")
 
 @login_required
 def homepage(request):
-    """GET: Display a homepage that offers links to detail pages for crops and slots."""
+    """GET: Display inventory home page if user is staff, else display customer view homepage."""
     total_slot_count = Slot.objects.count()
-    return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
+    if request.user.is_staff:
+        return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
+    return redirect(orders_home)
 
-@login_required
+@staff_member_required
 def growhouse_settings(request):
     """GET: Shows the setup page which contains forms for the inital setup of the grow space including
     allowing a user to set the original number of slots and adding varieties"""
@@ -31,7 +37,7 @@ def growhouse_settings(request):
     add_variety_form = AddVarietyForm()
     return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "free_slot_count": free_slot_count, "form": add_variety_form})
 
-@login_required
+@staff_member_required
 def set_total_slot_quantity(request):
     """POST: Update the number of total Slot objects, redirect to homepage."""
     phase = "G"  # Phase will always be grow since we are on tracking golden trays in grow
@@ -62,7 +68,7 @@ def set_total_slot_quantity(request):
     return redirect(growhouse_settings)
 
 
-@login_required
+@staff_member_required
 def add_variety(request):
     """POST: Adds Variety Objects"""
     form = AddVarietyForm(request.POST)
@@ -75,7 +81,7 @@ def add_variety(request):
     total_slot_count = Slot.objects.count()
     return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": form})
 
-@login_required
+@staff_member_required
 def record_notes(request, crop_id):
     """POST: Adds or updates notes for a given crop"""
     form = CropNotesForm(request.POST)
@@ -89,7 +95,7 @@ def record_notes(request, crop_id):
     return HttpResponseRedirect(next)
 
 
-@login_required
+@staff_member_required
 def create_crop(request):
     """GET: Display a form for new crop data.
     POST: Accept form submission for new crop data, redirect to the new crop's detail page."""
@@ -152,6 +158,7 @@ def create_crop(request):
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
 
+@staff_member_required
 def edit_crop(request, crop_id):
     """GET: Display a form for editing crop data.
     POST: Accept form submission for editing crop data."""
@@ -228,14 +235,14 @@ def edit_crop(request, crop_id):
             crop.save()
             return redirect(crop_detail, crop_id=crop.id)
 
-@login_required
+@staff_member_required
 def add_crop_attributes(request):
     add_attributes_form = AddCropAttributesForm()
     add_attribute_options_form = AddAttributeOptionsForm()
     return render(request, "inventory/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form, "add_attribute_options_form": add_attribute_options_form})
 
 
-@login_required
+@staff_member_required
 def add_crop_attribute(request):
     form = AddCropAttributesForm(request.POST)
     if form.is_valid():
@@ -244,7 +251,7 @@ def add_crop_attribute(request):
         return add_crop_attributes(request)
 
 
-@login_required
+@staff_member_required
 def add_attribute_option(request):
     form = AddAttributeOptionsForm(request.POST)
     if form.is_valid():
@@ -267,7 +274,7 @@ def get_crop_attributes_list(crop):
             crop_attributes_list.append((attribute_name, option_name))
         return crop_attributes_list
 
-@login_required
+@staff_member_required
 def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
     delivered live, ect. Page also provides a link to the crop's slot."""
@@ -310,7 +317,7 @@ def crop_detail(request, crop_id):
                                                                    "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
 
 
-@login_required
+@staff_member_required
 def record_crop_info(request, crop_id):
     """POST: Record a timestampped CropRecord event into the history of this crop's life."""
     form = CropRecordForm(request.POST)
@@ -322,7 +329,7 @@ def record_crop_info(request, crop_id):
         return redirect(crop_detail, crop_id=current_crop.id)
 
 
-@login_required
+@staff_member_required
 def slot_detail(request, slot_id):
     """GET: Displays the details of current crop in the slot and all the buttons used to control a tray in the greenhouse.
     Provides buttons and forms to perform tray actions.This is the page that people using the barcode scanner are going to
@@ -356,14 +363,14 @@ def slot_detail(request, slot_id):
                                                                    "history": all_records })
 
 
-@login_required
+@staff_member_required
 def slot_action():
     """GET: Display a form for a user to record an action on a tray.
     POST: Update the state of the Tray and make a CropRecord of whatever was done."""
     return None
 
 
-@login_required
+@staff_member_required
 def harvest_crop(request, slot_id):
     """POST: Remove the crop from its tray, record crop history as harvest, and redirect to crop detail page."""
     form = HarvestCropForm(request.POST)
@@ -386,7 +393,7 @@ def harvest_crop(request, slot_id):
         return redirect(crop_detail, crop_id=current_crop.id)
 
 
-@login_required
+@staff_member_required
 def trash_crop(request, slot_id):
     """POST: Record that the crop has been trashed and redirect user to homepage."""
     reason_for_trash = request.POST["reason-for-trash-text"]
@@ -401,7 +408,7 @@ def trash_crop(request, slot_id):
     return redirect(slot_detail, slot_id=slot_id)
 
 
-@login_required
+@staff_member_required
 def water_crop(request, slot_id):
     """POST: Record that the crop has been watered and redirect user to homepage."""
     slot = Slot.objects.get(id=slot_id)
@@ -409,7 +416,7 @@ def water_crop(request, slot_id):
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=date.today())
     return redirect(slot_detail, slot_id=slot_id)
 
-@login_required
+@staff_member_required
 def search_crop(request):
     """GET: Go to the crop page based on the input of crop id or barcode"""
     search_method = request.GET.get('search-method')
@@ -423,7 +430,7 @@ def search_crop(request):
 
     return redirect(crop_detail, crop_id=crop.id)
 
-@login_required
+@staff_member_required
 def delete_record(request, record_id):
     """GET: Deletes the crop record with the specified record id"""
     crop_record = CropRecord.objects.get(id=record_id)
@@ -431,7 +438,7 @@ def delete_record(request, record_id):
     crop = crop_record.crop
     return redirect(crop_detail, crop_id=crop.id)
 
-@login_required
+@staff_member_required
 def update_crop_record(request, record_id):
     """POST: Updates the specified record"""
     crop_record = CropRecord.objects.get(id=record_id)
@@ -442,12 +449,12 @@ def update_crop_record(request, record_id):
     crop = crop_record.crop
     return redirect(crop_detail, crop_id=crop.id)
 
-@login_required
+@staff_member_required
 def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
 
-@login_required
+@staff_member_required
 def sanitation_records(request):
     """GET: Displays the page with the current sanitation records
     POST: Records the new sanitation record"""
@@ -471,7 +478,7 @@ def sanitation_records(request):
             return redirect(sanitation_records)
 
 
-@login_required
+@staff_member_required
 def variety_autofill(request):
     variety = request.GET.get('variety', None)
     data = {
@@ -480,11 +487,11 @@ def variety_autofill(request):
     }
     return JsonResponse(data)
 
-@login_required
+@staff_member_required
 def inventory_home(request):
     return render(request, "inventory/inventory_home.html")
 
-@login_required
+@staff_member_required
 def inventory_overview(request):
     in_house = {}
     variety_list = []
@@ -573,7 +580,7 @@ def getChartColors(start_color, end_color, n):
         colors.append("#{0:02x}{1:02x}{2:02x}".format(red, green, blue))
     return colors
 
-@login_required
+@staff_member_required
 def inventory_seed(request):
     if request.method == 'GET':
         day = date.today()
@@ -612,7 +619,7 @@ def inventory_seed(request):
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
-@login_required
+@staff_member_required
 def inventory_kill(request):
     if request.method == 'GET':
         day = date.today()
@@ -677,7 +684,7 @@ def inventory_kill(request):
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
-@login_required
+@staff_member_required
 def inventory_plan(request, plant_day=None):
     if plant_day == None:
         plant_day = datetime.today().weekday()
@@ -716,7 +723,7 @@ def inventory_plan(request, plant_day=None):
         # Redirect the user to the weekly planning page
         return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
 
-@login_required
+@staff_member_required
 def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
     today = date.today().isoformat()
     if request.method == 'GET':
@@ -775,7 +782,7 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
-@login_required
+@staff_member_required
 def inventory_harvest_variety(request): # Numbers of trays and yield for a single variety
     today = date.today().isoformat()
     if request.method == 'GET':
@@ -824,7 +831,7 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
-@login_required
+@staff_member_required
 def inventory_harvest_single(request): # One tray, with detailed records
     today = date.today().isoformat()
     if request.method == 'GET':
@@ -850,7 +857,7 @@ def inventory_harvest_single(request): # One tray, with detailed records
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
-@login_required
+@staff_member_required
 def weekday_autofill(request):
     day = request.GET.get('day', None)
     # check if day is not already weekday number
@@ -868,7 +875,7 @@ def weekday_autofill(request):
             pass
     return JsonResponse(data)
 
-@login_required
+@staff_member_required
 def environment_data(request):
     """GET: Display a page that shows temperature and humidity data from the farm."""
     rack_channel_no = os.environ.get('RACK_CHANNEL_NO')
@@ -880,7 +887,7 @@ def environment_data(request):
 
     return render(request, "inventory/environment_data.html", context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key, "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
 
-@login_required
+@staff_member_required
 def add_barcodes(request):
     """GET: All slots """
     if request.method == 'GET':
@@ -903,7 +910,7 @@ def add_barcodes(request):
         return redirect(golden_trays_home)
 
 
-@login_required
+@staff_member_required
 def add_product(request):
     if request.method == 'GET':
         variety_list = []
@@ -970,7 +977,7 @@ def add_product(request):
                                                                           "sizes": sizes,
                                                                           "error": message})
 
-@login_required
+@staff_member_required
 def catalog(request):
     if request.method == 'GET':
         other_products = []
