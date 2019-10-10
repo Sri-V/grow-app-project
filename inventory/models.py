@@ -36,7 +36,7 @@ class Crop(models.Model):
     -> History recorded as a CropRecord, but linked by the crop's ID.
     """
 
-    variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     seeding_density = models.FloatField(null=True, blank=True)  # measured in g/tray

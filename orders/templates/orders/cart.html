@@ -3,7 +3,31 @@
 {% block title %}Cart{% endblock %}
 
 {% block content %}
-    <h1>
-    This is your cart...
-    </h1>
+    <div class="container">
+        <div class="row">
+            <div class="container">
+                <h1 class="display-5">
+                    Cart
+                </h1>
+                <h4>
+                    Orders in Cart are Not Confirmed
+                </h4>
+                {% for order in cart_orders %}
+                    <div class="row">
+                        <div class="card" style="width: 80%">
+                            <div class="card-header">
+                                {{ order.delivery_date }}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title"></h5>
+                                <p class="card-text">{{ order.product.name }}</p>
+                                <a href="#" class="btn btn-primary">Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
