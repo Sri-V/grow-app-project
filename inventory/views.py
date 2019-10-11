@@ -2,7 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import redirect, render
 from inventory.models import WeekdayRequirement, InventoryAction, CropGroup, LiveCropInventory
 from inventory.forms import *
-from orders.models import LiveCropProduct, MicrogreenSize, TrayType, Product, HarvestedCropProduct
+from orders.models import LiveCropProduct, MicrogreenSize, TrayType, Product, HarvestedCropProduct, Setting
 from orders.views import orders_home
 from datetime import date, datetime, timedelta
 from dateutil import parser
@@ -12,6 +12,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 import os
 import json
+
+
 # Crop, CropAttribute, CropAttributeOption, CropRecord, Slot, Variety,
 
 
@@ -19,6 +21,7 @@ import json
 def golden_trays_home(request):
     """GET: Display the homepage for the golden trays"""
     return render(request, "inventory/golden_trays_home.html")
+
 
 @login_required
 def homepage(request):
@@ -28,6 +31,7 @@ def homepage(request):
         return render(request, "inventory/index.html", context={"total_slot_count": total_slot_count})
     return redirect(orders_home)
 
+
 @staff_member_required
 def growhouse_settings(request):
     """GET: Shows the setup page which contains forms for the inital setup of the grow space including
@@ -35,7 +39,10 @@ def growhouse_settings(request):
     total_slot_count = Slot.objects.count()
     free_slot_count = Slot.objects.filter(current_crop__isnull=True).count()
     add_variety_form = AddVarietyForm()
-    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "free_slot_count": free_slot_count, "form": add_variety_form})
+    return render(request, "inventory/growhouse_settings.html",
+                  context={"total_slot_count": total_slot_count, "free_slot_count": free_slot_count,
+                           "form": add_variety_form})
+
 
 @staff_member_required
 def set_total_slot_quantity(request):
@@ -44,7 +51,7 @@ def set_total_slot_quantity(request):
     racks = int(request.POST["racks"])
     rows = int(request.POST["rows"])
     slots = int(request.POST["slots"])
-    #current_slot_count = Slot.objects.count()
+    # current_slot_count = Slot.objects.count()
     if Slot.objects.count() > 0:
         try:
             last_slot = Slot.objects.filter(barcode__startswith=phase).order_by("-barcode")[0]
@@ -79,7 +86,9 @@ def add_variety(request):
         return redirect(growhouse_settings)
 
     total_slot_count = Slot.objects.count()
-    return render(request, "inventory/growhouse_settings.html", context={"total_slot_count": total_slot_count, "form": form})
+    return render(request, "inventory/growhouse_settings.html",
+                  context={"total_slot_count": total_slot_count, "form": form})
+
 
 @staff_member_required
 def record_notes(request, crop_id):
@@ -121,7 +130,8 @@ def create_crop(request):
             pass
         new_crop_form = NewCropForm(initial=initial_dict)
         return render(request, "inventory/new_crop.html",
-                      context={"variety_list": variety_list, "barcode": new_crop_barcode, "new_crop_form": new_crop_form})
+                      context={"variety_list": variety_list, "barcode": new_crop_barcode,
+                               "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
         form = NewCropForm(request.POST)
@@ -158,6 +168,7 @@ def create_crop(request):
             # Redirect the user to the slot details page
             return redirect(slot_detail, slot_id=slot.id)
 
+
 @staff_member_required
 def edit_crop(request, crop_id):
     """GET: Display a form for editing crop data.
@@ -193,7 +204,8 @@ def edit_crop(request, crop_id):
         form = EditCropForm(initial=initial_dict)
 
         return render(request, "inventory/edit_crop.html",
-                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": empty_slot_list, "edit_crop_form": form})
+                      context={"variety_list": variety_list, "barcode": barcode, "slot_list": empty_slot_list,
+                               "edit_crop_form": form})
 
     if request.method == 'POST':
         crop = get_object_or_404(Crop, id=crop_id)
@@ -216,7 +228,6 @@ def edit_crop(request, crop_id):
                 slot.current_crop = crop
                 slot.save()
 
-
             # Edit the crop fields that aren't the CropAttributes
             crop.variety = variety
             crop.seeding_density = seeding_density
@@ -235,11 +246,13 @@ def edit_crop(request, crop_id):
             crop.save()
             return redirect(crop_detail, crop_id=crop.id)
 
+
 @staff_member_required
 def add_crop_attributes(request):
     add_attributes_form = AddCropAttributesForm()
     add_attribute_options_form = AddAttributeOptionsForm()
-    return render(request, "inventory/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form, "add_attribute_options_form": add_attribute_options_form})
+    return render(request, "inventory/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form,
+                                                                          "add_attribute_options_form": add_attribute_options_form})
 
 
 @staff_member_required
@@ -274,6 +287,7 @@ def get_crop_attributes_list(crop):
             crop_attributes_list.append((attribute_name, option_name))
         return crop_attributes_list
 
+
 @staff_member_required
 def crop_detail(request, crop_id):
     """GET: Display the crop's details and history. The details include the type of crop, tray size,
@@ -298,7 +312,8 @@ def crop_detail(request, crop_id):
     except Exception:
         trash = None
 
-    record_types = [record[1] for record in CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
+    record_types = [record[1] for record in
+                    CropRecord.RECORD_TYPES]  # This returns a list of all the readable crop record types
     crop_record_form = CropRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
     notes_form = CropNotesForm(initial={'notes': crop.notes})
     crop_attributes = get_crop_attributes_list(crop)
@@ -310,11 +325,15 @@ def crop_detail(request, crop_id):
     germ_api_key = os.environ.get('GERM_API_KEY')
     weather_api_key = os.environ.get('WEATHER_API_KEY')
 
-    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
-                           "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
-                                                                   "crop_record_form": crop_record_form, "notes_form": notes_form, "rack_channel_no": rack_channel_no,
-                                                                   "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key,
-                                                                   "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
+    return render(request, "inventory/crop_details.html",
+                  context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
+                           "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit,
+                           "record_id": record_id,
+                           "crop_record_form": crop_record_form, "notes_form": notes_form,
+                           "rack_channel_no": rack_channel_no,
+                           "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key,
+                           "germ_api_key": germ_api_key,
+                           "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
 
 
 @staff_member_required
@@ -360,7 +379,7 @@ def slot_detail(request, slot_id):
                                                                    "harvest_crop_form": harvest_crop_form,
                                                                    "edit_crop_form": edit_crop_form,
                                                                    "water": water,
-                                                                   "history": all_records })
+                                                                   "history": all_records})
 
 
 @staff_member_required
@@ -416,6 +435,7 @@ def water_crop(request, slot_id):
     rec = CropRecord.objects.create(crop=crop, record_type='WATER', date=date.today())
     return redirect(slot_detail, slot_id=slot_id)
 
+
 @staff_member_required
 def search_crop(request):
     """GET: Go to the crop page based on the input of crop id or barcode"""
@@ -430,6 +450,7 @@ def search_crop(request):
 
     return redirect(crop_detail, crop_id=crop.id)
 
+
 @staff_member_required
 def delete_record(request, record_id):
     """GET: Deletes the crop record with the specified record id"""
@@ -437,6 +458,7 @@ def delete_record(request, record_id):
     crop_record.delete()
     crop = crop_record.crop
     return redirect(crop_detail, crop_id=crop.id)
+
 
 @staff_member_required
 def update_crop_record(request, record_id):
@@ -449,10 +471,12 @@ def update_crop_record(request, record_id):
     crop = crop_record.crop
     return redirect(crop_detail, crop_id=crop.id)
 
+
 @staff_member_required
 def parse_barcode(request, barcode_text):
     slot = get_object_or_404(Slot, barcode=barcode_text)
     return redirect(slot_detail, slot_id=slot.id)
+
 
 @staff_member_required
 def sanitation_records(request):
@@ -460,9 +484,9 @@ def sanitation_records(request):
     POST: Records the new sanitation record"""
     if request.method == 'GET':
         sanitation_record_list = SanitationRecord.objects.all().order_by('-date')
-        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y") })
+        form = SanitationRecordForm(initial={'date': datetime.now().strftime("%m/%d/%Y")})
         return render(request, "inventory/sanitation_records.html",
-                      context={"record_list": sanitation_record_list, "form": form })
+                      context={"record_list": sanitation_record_list, "form": form})
 
     if request.method == 'POST':
         form = SanitationRecordForm(request.POST)
@@ -473,7 +497,9 @@ def sanitation_records(request):
             chemicals_used = form.cleaned_data['chemicals_used']
             note = form.cleaned_data['note']
 
-            SanitationRecord.objects.create(date=date, employee_name=employee_name, equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used, note=note)
+            SanitationRecord.objects.create(date=date, employee_name=employee_name,
+                                            equipment_sanitized=equipment_sanitized, chemicals_used=chemicals_used,
+                                            note=note)
 
             return redirect(sanitation_records)
 
@@ -487,9 +513,11 @@ def variety_autofill(request):
     }
     return JsonResponse(data)
 
+
 @staff_member_required
 def inventory_home(request):
     return render(request, "inventory/inventory_home.html")
+
 
 @staff_member_required
 def inventory_overview(request):
@@ -513,15 +541,16 @@ def inventory_overview(request):
     # Break into dn+1 groups of crops < di days old
     # eg. [0, 4 d/o), [4, 14 d/o), [14, inf d/o)
     breakdown = [10, 20, 30]
-    colors = ['#70ef94', '#efdc70', '#f4a802', '#f43a02'] # getChartColors((0, 255, 0), (255, 0, 0) ,len(breakdown) + 1)
+    colors = ['#70ef94', '#efdc70', '#f4a802',
+              '#f43a02']  # getChartColors((0, 255, 0), (255, 0, 0) ,len(breakdown) + 1)
     chart_series = []
     start_date = date.today()
     for x in range(0, len(breakdown) + 1):
         data = []
         category_dict = {}
         if x != len(breakdown):
-            end_date = start_date # set end date to previous start date
-            start_date = date.today() - timedelta(days=breakdown[x]-1)
+            end_date = start_date  # set end date to previous start date
+            start_date = date.today() - timedelta(days=breakdown[x] - 1)
             category_dict['name'] = "< " + str(breakdown[x]) + " days"
         else:
             end_date = start_date
@@ -548,7 +577,8 @@ def inventory_overview(request):
         if action.action_type == 'KILL':
             reasons = ", ".join(list(action.kill_reasons.values_list('name', flat=True)))
             print(reasons)
-            text = "Killed: " + str(action.quantity) + " trays of " + action.variety.name + " because of " + reasons + "."
+            text = "Killed: " + str(
+                action.quantity) + " trays of " + action.variety.name + " because of " + reasons + "."
         actions_display.append((action, text))
 
     return render(request, 'inventory/inventory_overview.html', context={'in_house': in_house,
@@ -580,6 +610,7 @@ def getChartColors(start_color, end_color, n):
         colors.append("#{0:02x}{1:02x}{2:02x}".format(red, green, blue))
     return colors
 
+
 @staff_member_required
 def inventory_seed(request):
     if request.method == 'GET':
@@ -590,8 +621,9 @@ def inventory_seed(request):
                 WeekdayRequirement.objects.create(variety=v, plant_day=day.weekday(), quantity=0)
             variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
             variety_list.append((v, variety_name_no_spaces))
-        return render(request, 'inventory/inventory_seed.html', context={'variety_list': variety_list, 'day': day.isoformat()})
-    
+        return render(request, 'inventory/inventory_seed.html',
+                      context={'variety_list': variety_list, 'day': day.isoformat()})
+
     if request.method == 'POST':
         try:
             # Try to get the date from the form
@@ -601,7 +633,8 @@ def inventory_seed(request):
             pass
         for v in Variety.objects.all():
             try:
-                quantity = request.POST['form-plan-' + v.name.replace(" ", "-").replace(":", "").replace(",", "") + '-quantity']
+                quantity = request.POST[
+                    'form-plan-' + v.name.replace(" ", "-").replace(":", "").replace(",", "") + '-quantity']
                 quantity = 0 if len(quantity) == 0 else int(quantity)
                 if quantity:
                     try:
@@ -612,19 +645,23 @@ def inventory_seed(request):
                     in_house.save()
                     # data = json.dumps({'quantity': quantity})
                     var_obj = Variety.objects.get(name=v)
-                    InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED', quantity=quantity)
+                    InventoryAction.objects.create(variety=var_obj, date=seed_date, action_type='SEED',
+                                                   quantity=quantity)
             except KeyError:
-                pass # In case there's a variety inconsistency
-        
+                pass  # In case there's a variety inconsistency
+
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
+
 
 @staff_member_required
 def inventory_kill(request):
     if request.method == 'GET':
         day = date.today()
-        return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'), 'reason_list':KillReason.objects.all(), 'day':day.isoformat()})
-    
+        return render(request, 'inventory/inventory_kill.html',
+                      context={'variety_list': Variety.objects.all().order_by('name'),
+                               'reason_list': KillReason.objects.all(), 'day': day.isoformat()})
+
     if request.method == 'POST':
         try:
             variety = request.POST['form-kill-variety']
@@ -661,28 +698,31 @@ def inventory_kill(request):
                                                'selected_reasons': reasons, 'error': message})
                 except CropGroup.DoesNotExist:
                     message = "The crop(s) you were trying to kill don't exist in your database. Check your "
-                    return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'),
-                                                                                     'reason_list': KillReason.objects.all(),
-                                                                                     'day': day, 'date_seeded': date_seeded,
-                                                                                     'quantity': quantity,
-                                                                                     'selected_variety': variety,
-                                                                                     'selected_reasons': reasons,
-                                                                                    'error': message})
+                    return render(request, 'inventory/inventory_kill.html',
+                                  context={'variety_list': Variety.objects.all().order_by('name'),
+                                           'reason_list': KillReason.objects.all(),
+                                           'day': day, 'date_seeded': date_seeded,
+                                           'quantity': quantity,
+                                           'selected_variety': variety,
+                                           'selected_reasons': reasons,
+                                           'error': message})
             else:
                 message = "Please enter a positive, non-zero quantity. Check your "
-                return render(request, 'inventory/inventory_kill.html', context={'variety_list': Variety.objects.all().order_by('name'),
-                                                                                 'reason_list': KillReason.objects.all(),
-                                                                                 'day': day, 'date_seeded': date_seeded,
-                                                                                 'quantity': quantity,
-                                                                                 'selected_variety': variety,
-                                                                                 'selected_reasons': reasons,
-                                                                                 'error': message})
+                return render(request, 'inventory/inventory_kill.html',
+                              context={'variety_list': Variety.objects.all().order_by('name'),
+                                       'reason_list': KillReason.objects.all(),
+                                       'day': day, 'date_seeded': date_seeded,
+                                       'quantity': quantity,
+                                       'selected_variety': variety,
+                                       'selected_reasons': reasons,
+                                       'error': message})
         except KeyError as e:
-            print (e)
-            pass # In case there's a variety inconsistency
+            print(e)
+            pass  # In case there's a variety inconsistency
 
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
+
 
 @staff_member_required
 def inventory_plan(request, plant_day=None):
@@ -704,34 +744,39 @@ def inventory_plan(request, plant_day=None):
                 WeekdayRequirement.objects.create(variety=v, plant_day=plant_day, quantity=0)
             variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
             variety_list.append((v, variety_name_no_spaces))
-        return render(request, 'inventory/inventory_recurring.html', context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
-    
+        return render(request, 'inventory/inventory_recurring.html',
+                      context={'day': plant_day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
+
     if request.method == 'POST':
         print(str(request.POST))
         variety_list = []
         for v in Variety.objects.all():
             try:
                 day = int(request.POST['day'])
-                quantity = int(request.POST['form-plan-' + v.name.replace(" ", "-").replace(":","").replace(",", "") + '-quantity'])
+                quantity = int(request.POST['form-plan-' + v.name.replace(" ", "-").replace(":", "").replace(",",
+                                                                                                             "") + '-quantity'])
                 plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
                 plan.quantity = quantity
                 plan.save()
                 variety_name_no_spaces = v.name.replace(" ", "-").replace(":", "").replace(",", "")
                 variety_list.append((v, variety_name_no_spaces))
             except KeyError:
-                pass # In case there's a variety inconsistency
+                pass  # In case there's a variety inconsistency
         # Redirect the user to the weekly planning page
-        return render(request, 'inventory/inventory_recurring.html', context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
+        return render(request, 'inventory/inventory_recurring.html',
+                      context={'day': day, 'weekdays': DAYS_OF_WEEK, 'variety_list': variety_list})
+
 
 @staff_member_required
-def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
+def inventory_harvest_bulk(request):  # numbers of trays for multiple varieties
     today = date.today().isoformat()
     if request.method == 'GET':
         variety_list = []
         for v in Variety.objects.all().order_by('name'):
             variety_list.append({'name': v.name, 'quantity': None, 'date': None})
-        return render(request, 'inventory/inventory_harvest_bulk.html', context={'variety_list': variety_list, 'date':today})
-    
+        return render(request, 'inventory/inventory_harvest_bulk.html',
+                      context={'variety_list': variety_list, 'date': today})
+
     if request.method == 'POST':
         # Save the current state of the form in case of error later on
         variety_list = []
@@ -758,7 +803,8 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
                             in_house.quantity = in_house.quantity - quantity if quantity <= in_house.quantity else 0
                             in_house.save()
                             # Create InventoryAction, only if quantity != 0
-                            InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST', quantity=quantity)
+                            InventoryAction.objects.create(variety=v, date=h_date, action_type='HARVEST',
+                                                           quantity=quantity)
                         else:
                             message = "There are only " + str(in_house.quantity) + " " + v.name + "s for " + seed_date \
                                       + " in your database and you were trying to harvest " + str(quantity) \
@@ -777,17 +823,19 @@ def inventory_harvest_bulk(request): # numbers of trays for multiple varieties
                     return render(request, 'inventory/inventory_harvest_bulk.html',
                                   context={'variety_list': variety_list, 'date': h_date, 'error': message})
             except KeyError:
-                pass # In case there's a variety inconsistency
-        
+                pass  # In case there's a variety inconsistency
+
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
+
 @staff_member_required
-def inventory_harvest_variety(request): # Numbers of trays and yield for a single variety
+def inventory_harvest_variety(request):  # Numbers of trays and yield for a single variety
     today = date.today().isoformat()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_harvest_variety.html', context={'variety_list':Variety.objects.all().order_by('name'), 'date':today})
-    
+        return render(request, 'inventory/inventory_harvest_variety.html',
+                      context={'variety_list': Variety.objects.all().order_by('name'), 'date': today})
+
     if request.method == 'POST':
         try:
             variety = request.POST['form-harvest-variety']
@@ -805,10 +853,12 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
                         in_house.quantity = in_house.quantity - quantity
                         in_house.save()
                         if quantity:
-                            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date)
+                            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity,
+                                                           date=h_date)
                     else:
                         message = "There are only " + str(in_house.quantity) + " " + variety + "s for " + seed_date \
-                                  + " in your database and you were trying to harvest " + str(quantity) + ". Check your "
+                                  + " in your database and you were trying to harvest " + str(
+                            quantity) + ". Check your "
                         return render(request, 'inventory/inventory_harvest_variety.html',
                                       context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date,
                                                'seed_date': seed_date, 'yield': h_yield, 'quantity': quantity,
@@ -822,21 +872,25 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
             else:
                 message = "Please enter a positive, non-zero quantity. Check your "
                 return render(request, 'inventory/inventory_harvest_variety.html',
-                              context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date, 'seed_date': seed_date,
-                                       'yield': h_yield, 'quantity': quantity,  'selected_variety': variety, 'error': message})
+                              context={'variety_list': Variety.objects.all().order_by('name'), 'date': h_date,
+                                       'seed_date': seed_date,
+                                       'yield': h_yield, 'quantity': quantity, 'selected_variety': variety,
+                                       'error': message})
         except KeyError as e:
-            print (e)
-            pass # In case there's a variety inconsistency
-        
+            print(e)
+            pass  # In case there's a variety inconsistency
+
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
 
+
 @staff_member_required
-def inventory_harvest_single(request): # One tray, with detailed records
+def inventory_harvest_single(request):  # One tray, with detailed records
     today = date.today().isoformat()
     if request.method == 'GET':
-        return render(request, 'inventory/inventory_harvest_single.html', context={'variety_list':Variety.objects.all().order_by('name'), 'today':today})
-    
+        return render(request, 'inventory/inventory_harvest_single.html',
+                      context={'variety_list': Variety.objects.all().order_by('name'), 'today': today})
+
     if request.method == 'POST':
         try:
             h_date = request.POST['form-harvest-date']
@@ -851,11 +905,12 @@ def inventory_harvest_single(request): # One tray, with detailed records
             # data = json.dumps({'quantity': 1, 'yield': h_yield})
             InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=1, date=h_date)
         except KeyError as e:
-            print (e)
-            pass # In case there's a variety inconsistency
-        
+            print(e)
+            pass  # In case there's a variety inconsistency
+
         # Redirect the user to the inventory overview page
         return redirect(inventory_overview)
+
 
 @staff_member_required
 def weekday_autofill(request):
@@ -871,9 +926,10 @@ def weekday_autofill(request):
             plan = WeekdayRequirement.objects.get(variety=v, plant_day=day)
             data[v.name + '-quantity'] = plan.quantity
         except Exception as e:
-            print (e)
+            print(e)
             pass
     return JsonResponse(data)
+
 
 @staff_member_required
 def environment_data(request):
@@ -885,7 +941,11 @@ def environment_data(request):
     germ_api_key = os.environ.get('GERM_API_KEY')
     weather_api_key = os.environ.get('WEATHER_API_KEY')
 
-    return render(request, "inventory/environment_data.html", context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key, "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
+    return render(request, "inventory/environment_data.html",
+                  context={"rack_channel_no": rack_channel_no, "germ_channel_no": germ_channel_no,
+                           "rack_api_key": rack_api_key, "germ_api_key": germ_api_key,
+                           "weather_channel_no": weather_channel_no, "weather_api_key": weather_api_key})
+
 
 @staff_member_required
 def add_barcodes(request):
@@ -905,7 +965,7 @@ def add_barcodes(request):
         if form.is_valid():
             # form.cleaned_data = form.clean_barcode()
             for slot in slot_list:
-                slot.barcode = form.cleaned_data.pop('Slot '+str(slot.id))
+                slot.barcode = form.cleaned_data.pop('Slot ' + str(slot.id))
                 slot.save()
         return redirect(golden_trays_home)
 
@@ -957,7 +1017,7 @@ def add_product(request):
                     size = MicrogreenSize.objects.get(name=fields['size'])
                     weight = int(fields['weight'])
                     HarvestedCropProduct.objects.create(name=product_name, price=price, variety=variety,
-                                                   size=size, weight=weight)
+                                                        size=size, weight=weight)
             except KeyError:
                 Product.objects.create(name=product_name, price=price)
                 pass
@@ -977,6 +1037,7 @@ def add_product(request):
                                                                           "sizes": sizes,
                                                                           "error": message})
 
+
 @staff_member_required
 def catalog(request):
     if request.method == 'GET':
@@ -995,3 +1056,38 @@ def catalog(request):
     #     return render(request, "inventory/catalog.html", context={"live_crop_products": live_crop_products,
     #                                                               "harvested_crop_products": harvested_crop_products,
     #                                                               "other_products": other_products})
+
+
+@staff_member_required
+def orders_settings(request):
+    DAYS_OF_WEEK = (
+        (0, 'Sunday'),
+        (1, 'Monday'),
+        (2, 'Tuesday'),
+        (3, 'Wednesday'),
+        (4, 'Thursday'),
+        (5, 'Friday'),
+        (6, 'Saturday'),
+    )
+
+
+    if request.method == "GET":
+        delivery_days = eval(Setting.objects.get(name='DELIVERY_DAYS').value)
+        seeding_days = eval(Setting.objects.get(name='SEEDING_DAYS').value)
+        lead_time = eval(Setting.objects.get(name='CONSTANT_LEAD_DAYS').value)
+        return render(request, "inventory/orders_settings.html",
+                      context={"delivery_days": delivery_days, "seeding_days": seeding_days, "weekdays": DAYS_OF_WEEK, "lead_time": lead_time})
+    if request.method == "POST":
+        delivery_days = [int(i) for i in request.POST.getlist('delivery')]
+        seeding_days = [int(i) for i in request.POST.getlist('seeding')]
+        constant_lead = request.POST.get('constant-lead')
+        delivery_setting = Setting.objects.get(name='DELIVERY_DAYS')
+        seeding_setting = Setting.objects.get(name='SEEDING_DAYS')
+        constant_lead_setting = Setting.objects.get(name='CONSTANT_LEAD_DAYS')
+        delivery_setting.value = delivery_days
+        seeding_setting.value = seeding_days
+        constant_lead_setting.value = constant_lead if int(constant_lead) >= 0 else "0"
+        delivery_setting.save()
+        seeding_setting.save()
+        constant_lead_setting.save()
+        return redirect(orders_settings)

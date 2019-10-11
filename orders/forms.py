@@ -10,7 +10,6 @@ from datetime import date, datetime, timedelta
 
 
 def getNonDeliveryDays():
-    # Tuesday, Friday are delivery days
     return [0, 1, 3, 4, 6]
 
 

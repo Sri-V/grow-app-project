@@ -58,3 +58,12 @@ class HarvestedCropProduct(Product):
     variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     size = models.ForeignKey(MicrogreenSize, models.CASCADE)
     weight = models.FloatField()
+
+
+class Setting(models.Model):
+    """Represents setting for orders app."""
+    name = models.CharField(max_length=200)
+    value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
