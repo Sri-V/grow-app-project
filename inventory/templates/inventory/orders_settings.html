@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Order App Settings{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <h1>Order App Settings</h1>
+        </div>
+        <form id="form-order-settings-change" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <h4>Delivery Days</h4>
+                <div class="btn-group btn-group-toggle d-flex flex-column flex-md-row py-1" data-toggle="buttons">
+                    {% for wd in weekdays %}
+                        {% if wd.0 in delivery_days %}
+                            <label class="btn btn-primary waves-effect waves-light active">
+                                <input type="checkbox" value='{{ wd.0 }}' name="delivery" checked
+                                       autocomplete="off">{{ wd.1 }}
+                            </label>
+                        {% else %}
+                            <label class="btn btn-primary waves-effect waves-light">
+                                <input type="checkbox" value='{{ wd.0 }}' name="delivery" autocomplete="off">{{ wd.1 }}
+                            </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row">
+                <h4>Seeding Days</h4>
+                <div class="btn-group btn-group-toggle d-flex flex-column flex-md-row py-1" data-toggle="buttons">
+                    {% for wd in weekdays %}
+                        {% if wd.0 in seeding_days %}
+                            <label class="btn btn-primary waves-effect waves-light active">
+                                <input type="checkbox" value='{{ wd.0 }}' name="seeding" checked=""
+                                       autocomplete="off">{{ wd.1 }}
+                            </label>
+                        {% else %}
+                            <label class="btn btn-primary waves-effect waves-light">
+                                <input type="checkbox" value='{{ wd.0 }}' name="seeding" autocomplete="off">{{ wd.1 }}
+                            </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row">
+                <h4>Constant Lead Time (days)</h4>
+                <h6>This is the number of days added to every variety's lead time to allow a buffer.
+                    (For ordering seeds, extra equipment etc.)</h6>
+                <input type="number" class="form-control" name="constant-lead" value={{ lead_time }}>
+            </div>
+            <div class="row">
+                <input type="submit" value="Save" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+{% endblock %}

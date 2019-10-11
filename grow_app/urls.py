@@ -58,6 +58,7 @@ urlpatterns = [
     path('environment_data', views.environment_data, name="environment_data"),
     path('inventory/add_product', views.add_product, name="add_product"),
     path('inventory/catalog', views.catalog, name="catalog"),
+    path('inventory/orders_settings', views.orders_settings, name="orders_settings"),
     path('orders/shop', orders_views.shop, name="shop"),
     path('orders/create_account', orders_views.create_account, name="create_account"),
     path('orders/', orders_views.orders_home, name="orders_home"),
