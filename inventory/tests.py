@@ -1,5 +1,6 @@
 from django.test import TestCase
-from inventory.models import Crop, Slot, Variety, CropRecord
+from golden_trays.models import Crop, Slot, CropRecord
+from inventory.models import Variety
 from django.contrib.auth.models import User
 from django.test import Client
 
