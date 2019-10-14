@@ -15,7 +15,7 @@ import json
 @login_required
 def golden_trays_home(request):
     """GET: Display the homepage for the golden trays"""
-    return render(request, "golden_tryas/golden_trays_home.html")
+    return render(request, "golden_trays/golden_trays_home.html")
 
 
 @login_required
