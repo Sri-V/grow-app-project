@@ -65,6 +65,7 @@ urlpatterns = [
     path('orders/create_order', orders_views.create_order, name="create_order"),
     path('orders/dashboard', orders_views.dashboard, name="dashboard"),
     path('orders/orders', orders_views.orders, name="orders"),
+    path('orders/customers', orders_views.customers, name="customers"),
     path('orders/add_product', orders_views.add_product, name="add_product"),
     path('orders/products', orders_views.products, name="products"),
     path('orders/orders_settings', orders_views.orders_settings, name="orders_settings"),

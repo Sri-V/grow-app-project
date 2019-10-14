@@ -229,3 +229,7 @@ def orders_settings(request):
 @staff_member_required
 def orders(request):
     return render(request, "orders/orders.html", context={})
+
+@staff_member_required
+def customers(request):
+    return render(request, "orders/customers.html", context={'customers': RestaurantAccount.objects.all()})
