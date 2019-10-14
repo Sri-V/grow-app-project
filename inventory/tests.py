@@ -50,7 +50,7 @@ class NewCropTest(TestCase):
 
     def test_uses_correct_template(self):
         response = self.client.get("/crop/new/")
-        self.assertTemplateUsed(response, "inventory/new_crop.html")
+        self.assertTemplateUsed(response, "golden_trays/new_crop.html")
 
     def test_model_is_updated_correctly(self):
         # And two different plant varieties

@@ -15,7 +15,7 @@ import json
 @login_required
 def golden_trays_home(request):
     """GET: Display the homepage for the golden trays"""
-    return render(request, "inventory/golden_trays_home.html")
+    return render(request, "golden_tryas/golden_trays_home.html")
 
 
 @login_required
@@ -57,7 +57,7 @@ def create_crop(request):
             print(initial_dict)
             pass
         new_crop_form = NewCropForm(initial=initial_dict)
-        return render(request, "inventory/new_crop.html",
+        return render(request, "golden_trays/new_crop.html",
                       context={"variety_list": variety_list, "barcode": new_crop_barcode, "new_crop_form": new_crop_form})
 
     if request.method == 'POST':
@@ -129,7 +129,7 @@ def edit_crop(request, crop_id):
 
         form = EditCropForm(initial=initial_dict)
 
-        return render(request, "inventory/edit_crop.html",
+        return render(request, "golden_trays/edit_crop.html",
                       context={"variety_list": variety_list, "barcode": barcode, "slot_list": empty_slot_list, "edit_crop_form": form})
 
     if request.method == 'POST':
@@ -177,7 +177,7 @@ def edit_crop(request, crop_id):
 def add_crop_attributes(request):
     add_attributes_form = AddCropAttributesForm()
     add_attribute_options_form = AddAttributeOptionsForm()
-    return render(request, "inventory/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form, "add_attribute_options_form": add_attribute_options_form})
+    return render(request, "golden_trays/add_crop_attributes.html", context={"add_attributes_form": add_attributes_form, "add_attribute_options_form": add_attribute_options_form})
 
 
 @login_required
@@ -249,7 +249,7 @@ def crop_detail(request, crop_id):
     germ_api_key = os.environ.get('GERM_API_KEY')
     weather_api_key = os.environ.get('WEATHER_API_KEY')
 
-    return render(request, "inventory/crop_details.html", context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
+    return render(request, "golden_trays/crop_details.html", context={"history": all_records, "crop": crop, "crop_attributes": crop_attributes, "seed": seed,
                            "harvest": harvest, "trash": trash, "record_types": record_types, "edit": edit, "record_id": record_id,
                                                                    "crop_record_form": crop_record_form, "notes_form": notes_form, "rack_channel_no": rack_channel_no,
                                                                    "germ_channel_no": germ_channel_no, "rack_api_key": rack_api_key, "germ_api_key": germ_api_key,
@@ -290,7 +290,7 @@ def slot_detail(request, slot_id):
     notes_form = CropNotesForm(initial={'notes': notes})
     harvest_crop_form = HarvestCropForm()
     edit_crop_form = EditCropForm()
-    return render(request, "inventory/slot_details.html", context={"slot_id": slot_id,
+    return render(request, "golden_trays/slot_details.html", context={"slot_id": slot_id,
                                                                    "barcode": barcode,
                                                                    "crop": current_crop,
                                                                    "open_slots": open_slots,
@@ -400,7 +400,7 @@ def add_barcodes(request):
         for slot in slot_list:
             initial_dict["Slot " + str(slot.id)] = slot.barcode
         form = AddBarcodesForm(initial=initial_dict)
-        return render(request, "inventory/add_barcodes.html",
+        return render(request, "golden_trays/add_barcodes.html",
                       context={"slot_list": slot_list,
                                "add_barcodes_to_slots_form": form})
     if request.method == 'POST':
