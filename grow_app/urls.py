@@ -56,9 +56,6 @@ urlpatterns = [
     path('record/<int:record_id>/edit', views.update_crop_record, name="update_crop_record"),
     path('record/<int:record_id>/delete', views.delete_record, name="delete_record"),
     path('environment_data', views.environment_data, name="environment_data"),
-    path('inventory/add_product', views.add_product, name="add_product"),
-    path('inventory/catalog', views.catalog, name="catalog"),
-    path('inventory/orders_settings', views.orders_settings, name="orders_settings"),
     path('orders/shop', orders_views.shop, name="shop"),
     path('orders/create_account', orders_views.create_account, name="create_account"),
     path('orders/', orders_views.orders_home, name="orders_home"),
@@ -66,6 +63,11 @@ urlpatterns = [
     path('orders/schedule', orders_views.schedule, name="customer_schedule"),
     path('orders/cart', orders_views.cart, name="cart"),
     path('orders/create_order', orders_views.create_order, name="create_order"),
+    path('orders/dashboard', orders_views.dashboard, name="dashboard"),
+    path('orders/orders', orders_views.orders, name="orders"),
+    path('orders/add_product', orders_views.add_product, name="add_product"),
+    path('orders/products', orders_views.products, name="products"),
+    path('orders/orders_settings', orders_views.orders_settings, name="orders_settings"),
 ]
 
 urlpatterns += [
