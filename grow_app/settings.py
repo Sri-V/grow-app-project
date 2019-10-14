@@ -79,7 +79,7 @@ SERVER_EMAIL = 'bmg.growapp@gmail.com'
 # these should be equal
 EMAIL_HOST_USER = 'bmg.growapp@gmail.com'
 
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
 
 EMAIL_POST = 587  # 465 (SSL required) or 587 (TLS required)
 
@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap_datepicker_plus',
+    'golden_trays',
     'inventory',
     'orders',
 ]
