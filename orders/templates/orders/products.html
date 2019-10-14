@@ -1,0 +1,49 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+    <h2>Products</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Type</th>
+                <th>Variety</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for lcp in live_crop_products %}
+                <tr>
+                    <td>{{ lcp.id }}</td>
+                    <td>{{ lcp.name }}</td>
+                    <td>{{ lcp.price }}</td>
+                    <td>Live Crop</td>
+                    <td>{{ lcp.variety.name }}</td>
+                </tr>
+            {% endfor %}
+            {% for hcp in harvested_crop_products %}
+                <tr>
+                    <td>{{ hcp.id }}</td>
+                    <td>{{ hcp.name }}</td>
+                    <td>{{ hcp.price }}</td>
+                    <td>Harvested Crop</td>
+                    <td>{{ hcp.variety.name }}</td>
+                </tr>
+            {% endfor %}
+            {% for product in other_products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ hcp.price }}</td>
+                    <td>Other Product</td>
+                    <td>N/A</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

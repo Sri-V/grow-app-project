@@ -4,24 +4,33 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-        <div class="row align-items-center justify-content-center">
-            <div class="col-sm-12">
-                <h1 class="text-center">BMG Grow App Home</h1>
-                <br>
-            </div>
-            <div class="col-sm-6 border rounded">
-                <a id="link-to-inventory" href="{% url "inventory_home" %}"><h2 class="text-center">Inventory</h2></a>
-            </div>
-            <div class="col-sm-6 border rounded">
-                <a id="link-to-golden-trays" href="{% url "golden_trays_home" %}"><h2 class="text-center">Golden Trays</h2></a>
-            </div>
-            <a id="link-to-environment-data" class="col-12 text-center" href="{% url "environment_data" %}">
-                <br>
-                <h6>Farm Environment Data</h6></a>
-            <a id="link-to-sanitation-records" class="col-12 text-center" href="{% url "sanitation_records" %}">
-                <br>
-                <h6>Sanitation Records</h6></a>
+    <div class="row align-items-center justify-content-center">
+        <div class="col-sm-12">
+            <h1 class="text-center">BMG Grow App Home</h1>
+            <br>
         </div>
+        <div class="col-sm-2">
+            <a href="{% url "dashboard" %}">
+                <input type="button" class="btn btn-primary btn-lg" value="Orders">
+            </a>
+        </div>
+        <div class="col-sm-2">
+            <a href="{% url "inventory_home" %}">
+                <input type="button" class="btn btn-primary btn-lg" value="Inventory">
+            </a>
+        </div>
+        <div class="col-sm-2">
+            <a href="{% url "golden_trays_home" %}">
+                <input type="button" class="btn btn-primary btn-lg" value="Golden Tray">
+            </a>
+        </div>
+        <a id="link-to-environment-data" class="col-12 text-center" href="{% url "environment_data" %}">
+            <br>
+            <h6>Farm Environment Data</h6></a>
+        <a id="link-to-sanitation-records" class="col-12 text-center" href="{% url "sanitation_records" %}">
+            <br>
+            <h6>Sanitation Records</h6></a>
+    </div>
 
 
 {% endblock %}
