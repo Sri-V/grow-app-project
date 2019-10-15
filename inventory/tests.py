@@ -1,5 +1,6 @@
 from django.test import TestCase
-from inventory.models import Crop, Slot, Variety, CropRecord
+from golden_trays.models import Crop, Slot, CropRecord
+from inventory.models import Variety
 from django.contrib.auth.models import User
 from django.test import Client
 
@@ -49,7 +50,7 @@ class NewCropTest(TestCase):
 
     def test_uses_correct_template(self):
         response = self.client.get("/crop/new/")
-        self.assertTemplateUsed(response, "inventory/new_crop.html")
+        self.assertTemplateUsed(response, "golden_trays/new_crop.html")
 
     def test_model_is_updated_correctly(self):
         # And two different plant varieties

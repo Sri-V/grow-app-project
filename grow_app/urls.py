@@ -18,6 +18,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from inventory import views
 from orders import views as orders_views
+import golden_trays.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,30 +32,11 @@ urlpatterns = [
     path('inventory/kill/', views.inventory_kill, name='inventory_kill'),
     path('inventory/plan/', views.inventory_plan, name='inventory_plan'),
     path('inventory/plan/autofill', views.weekday_autofill, name="weekday_autofill"),
-    path('inventory/add_barcodes', views.add_barcodes, name="add_barcodes"),
-    path('golden_trays/', views.golden_trays_home, name="golden_trays_home"),
-    path('golden_trays/search_crop', views.search_crop, name="search_crop"),
     path('growhouse_settings/', views.growhouse_settings, name="growhouse_settings"),
-    path('crop/new/', views.create_crop, name="create_crop"),
     path('crop/new/autofill', views.variety_autofill, name="variety_autofill"),
     path('crop/add_variety', views.add_variety, name="add_variety"),
-    path('crop/<int:crop_id>/record_notes', views.record_notes, name="record_notes"),
-    path('crop/<int:crop_id>/record', views.record_crop_info, name="record_crop_info"),
-    path('crop/<int:crop_id>/', views.crop_detail, name="crop_detail"),
-    path('crop/<int:crop_id>/edit/', views.edit_crop, name="edit_crop"),
-    path('crop/add_attributes/', views.add_crop_attributes, name="add_crop_attributes"),
-    path('crop/add_attribute', views.add_crop_attribute, name="add_crop_attribute"),
-    path('crop/add_option', views.add_attribute_option, name="add_attribute_option"),
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
-    path('slot/<int:slot_id>/', views.slot_detail, name="slot_detail"),
-    path('slot/<int:slot_id>/action', views.slot_action, name="slot_action"),
-    path('slot/<int:slot_id>/action/trash', views.trash_crop, name="trash_crop"),
-    path('slot/<int:slot_id>/action/harvest', views.harvest_crop, name="harvest_crop"),
-    path('slot/<int:slot_id>/action/water', views.water_crop, name="water_crop"),
-    path('barcode/<str:barcode_text>/', views.parse_barcode, name="parse_barcode"),
     path('sanitation_records/', views.sanitation_records, name='sanitation_records'),
-    path('record/<int:record_id>/edit', views.update_crop_record, name="update_crop_record"),
-    path('record/<int:record_id>/delete', views.delete_record, name="delete_record"),
     path('environment_data', views.environment_data, name="environment_data"),
     path('orders/shop', orders_views.shop, name="shop"),
     path('orders/create_account', orders_views.create_account, name="create_account"),
@@ -74,4 +56,5 @@ urlpatterns = [
 urlpatterns += [
     path('accounts/', include('django.contrib.auth.urls')),
     path('logout/', TemplateView.as_view(template_name="registration/logout.html")),
+    path('', include(golden_trays.urls))
 ]
