@@ -243,3 +243,28 @@ def orders(request):
 @staff_member_required
 def customers(request):
     return render(request, "orders/customers.html", context={'customers': RestaurantAccount.objects.all()})
+
+
+def product_details(request, product_name):
+    if request.method == "GET":
+        try:
+            # 'HarvestedCropProduct' or LiveCropProduct'
+            variety = Variety.objects.get(name=product_name)
+            product_group = []
+            print(variety.live_crop_products)
+            product_group += variety.live_crop_products.all()
+            product_group += variety.harvested_crop_products.all()
+            product = None
+        except Variety.DoesNotExist:
+            # 'Other' type of product
+            variety = None
+            product_group = None
+            product = Product.objects.get(name=product_name)
+            pass
+        logged_in = request.user.is_authenticated
+        return render(request, "orders/product_details.html", context={"logged_in": logged_in,
+                                                                       "variety": variety,
+                                                                       "product_group": product_group,
+                                                                       "product": product})
+    if request.method == "POST":
+        return redirect(cart)

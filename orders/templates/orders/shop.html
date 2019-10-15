@@ -66,7 +66,10 @@
                         <div class="row wow fadeIn" id="row-{{ forloop.counter0 }}">
                         </div>
                     {% endif %}
-                    <script>addProduct({{ forloop.counter0 }}, "{{ item.0.name }}", "{{ item.1 }}");</script>
+                    <script>
+                        addProduct({{ forloop.counter0 }}, "{{ item.0.name }}", "{{ item.1 }}");
+                        $("a#{{ item.0.name }}").attr("href", "{% url 'product_details' product_name=item.0.name %}")
+                    </script>
                 {% endfor %}
             </section>
 
