@@ -3,6 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
+from django.template.defaultfilters import register
 
 from inventory.forms import AddProductForm
 from inventory.models import Variety
@@ -48,7 +49,15 @@ def create_account(request):
 
 
 def shop(request):
-    return render(request, "orders/shop.html", context={})
+    if request.method == "GET":
+        stuff_to_display = []
+        for variety in Variety.objects.all():
+            price = HarvestedCropProduct.objects.filter(variety=variety).order_by('price')[0].price \
+                if HarvestedCropProduct.objects.filter(variety=variety).exists() else 0
+            stuff_to_display.append((variety, price))
+
+        print(stuff_to_display)
+        return render(request, "orders/shop.html", context={'products_to_display': stuff_to_display, 'i': 0})
 
 
 @login_required
@@ -117,9 +126,9 @@ def add_product(request):
             tray_types.append(t.name)
         product_form = AddProductForm()
         return render(request, "orders/add_product.html", context={"product_form": product_form,
-                                                                      "varieties": variety_list,
-                                                                      "tray_types": tray_types,
-                                                                      "sizes": sizes})
+                                                                   "varieties": variety_list,
+                                                                   "tray_types": tray_types,
+                                                                   "sizes": sizes})
     if request.method == 'POST':
         variety_list = []
         for v in Variety.objects.all().order_by('name'):
@@ -157,18 +166,18 @@ def add_product(request):
             message = "Successfully added " + product_name + " to your "
             # TODO: option to pre-fill previous form's values
             return render(request, "orders/add_product.html", context={"product_form": product_form,
-                                                                          "varieties": variety_list,
-                                                                          "tray_types": tray_types,
-                                                                          "sizes": sizes,
-                                                                          "success": message})
+                                                                       "varieties": variety_list,
+                                                                       "tray_types": tray_types,
+                                                                       "sizes": sizes,
+                                                                       "success": message})
         else:
             message = "Something went wrong."
             print(message)
             return render(request, "orders/add_product.html", context={"product_form": product_form,
-                                                                          "varieties": variety_list,
-                                                                          "tray_types": tray_types,
-                                                                          "sizes": sizes,
-                                                                          "error": message})
+                                                                       "varieties": variety_list,
+                                                                       "tray_types": tray_types,
+                                                                       "sizes": sizes,
+                                                                       "error": message})
 
 
 @staff_member_required
@@ -180,8 +189,8 @@ def products(request):
                     and not HarvestedCropProduct.objects.filter(id=product.id).exists():
                 other_products.append(product)
         return render(request, "orders/products.html", context={"live_crop_products": LiveCropProduct.objects.all(),
-                                                                  "harvested_crop_products": HarvestedCropProduct.objects.all(),
-                                                                  "other_products": other_products})
+                                                                "harvested_crop_products": HarvestedCropProduct.objects.all(),
+                                                                "other_products": other_products})
     # if request.method == 'POST':
     #     live_crop_products = []
     #     harvested_crop_products = []
@@ -203,13 +212,13 @@ def orders_settings(request):
         (6, 'Saturday'),
     )
 
-
     if request.method == "GET":
         delivery_days = eval(Setting.objects.get(name='DELIVERY_DAYS').value)
         seeding_days = eval(Setting.objects.get(name='SEEDING_DAYS').value)
         lead_time = eval(Setting.objects.get(name='CONSTANT_LEAD_DAYS').value)
         return render(request, "orders/orders_settings.html",
-                      context={"delivery_days": delivery_days, "seeding_days": seeding_days, "weekdays": DAYS_OF_WEEK, "lead_time": lead_time})
+                      context={"delivery_days": delivery_days, "seeding_days": seeding_days, "weekdays": DAYS_OF_WEEK,
+                               "lead_time": lead_time})
     if request.method == "POST":
         delivery_days = [int(i) for i in request.POST.getlist('delivery')]
         seeding_days = [int(i) for i in request.POST.getlist('seeding')]
@@ -229,6 +238,7 @@ def orders_settings(request):
 @staff_member_required
 def orders(request):
     return render(request, "orders/orders.html", context={})
+
 
 @staff_member_required
 def customers(request):
