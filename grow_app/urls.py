@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from inventory import views
-from orders import views as orders_views
+import orders.urls
 import golden_trays.urls
 
 urlpatterns = [
@@ -38,23 +38,11 @@ urlpatterns = [
     path('slot/set_qty', views.set_total_slot_quantity, name="set_total_slot_quantity"),
     path('sanitation_records/', views.sanitation_records, name='sanitation_records'),
     path('environment_data', views.environment_data, name="environment_data"),
-    path('orders/shop', orders_views.shop, name="shop"),
-    path('orders/create_account', orders_views.create_account, name="create_account"),
-    path('orders/', orders_views.orders_home, name="orders_home"),
-    path('orders/account', orders_views.account, name="account"),
-    path('orders/schedule', orders_views.schedule, name="customer_schedule"),
-    path('orders/cart', orders_views.cart, name="cart"),
-    path('orders/create_order', orders_views.create_order, name="create_order"),
-    path('orders/dashboard', orders_views.dashboard, name="dashboard"),
-    path('orders/orders', orders_views.orders, name="orders"),
-    path('orders/customers', orders_views.customers, name="customers"),
-    path('orders/add_product', orders_views.add_product, name="add_product"),
-    path('orders/products', orders_views.products, name="products"),
-    path('orders/orders_settings', orders_views.orders_settings, name="orders_settings"),
 ]
 
 urlpatterns += [
     path('accounts/', include('django.contrib.auth.urls')),
     path('logout/', TemplateView.as_view(template_name="registration/logout.html")),
-    path('', include(golden_trays.urls))
+    path('', include(golden_trays.urls)),
+    path('orders/', include(orders.urls)),
 ]

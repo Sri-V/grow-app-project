@@ -1,7 +1,6 @@
 from orders.models import RestaurantAccount, Product, Order, LiveCropProduct, TrayType, HarvestedCropProduct, \
     MicrogreenSize
-from inventory.models import Crop, CropAttribute, CropAttributeOption, Slot, Variety, SanitationRecord, CropRecord, \
-    KillReason
+from inventory.models import Variety, SanitationRecord, KillReason
 from django import forms
 from django.forms import ModelForm, Textarea, TextInput
 from django.core.exceptions import ValidationError
