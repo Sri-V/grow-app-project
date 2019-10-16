@@ -37,13 +37,11 @@
                             <span class="badge red mr-1">Bestseller</span>
                         </a>
                     </div>
-
-                    <p class="lead">
-{#              <span class="mr-1">#}
-{#                <del>$200</del>#}
-{#              </span>#}
-                        <span>${{ lowest_price }} and up</span>
-                    </p>
+                    {% if lowest_price %}
+                        <p class="lead">
+                            <span>${{ lowest_price }} and up</span>
+                        </p>
+                    {% endif %}
                     {% if variety %}
                         <p class="lead font-weight-bold">{{ variety.name }}</p>
                     {% else %}

@@ -249,16 +249,21 @@ def product_details(request, product_name):
     if request.method == "GET":
         logged_in = request.user.is_authenticated
         try:
-            # 'HarvestedCropProduct' or LiveCropProduct'
+            # Get Variety object and
+            # Find 'HarvestedCropProduct' or LiveCropProduct' for the given variety
             variety = Variety.objects.get(name=product_name)
             product_group = []
             product_group += variety.live_crop_products.all()
             product_group += variety.harvested_crop_products.all()
             product = None
-            lowest_price = product_group[0].price
-            for product in product_group:
-                print(lowest_price)
-                lowest_price = product.price if product.price < lowest_price else lowest_price
+            # If products for the given variety can be found...
+            if product_group:
+                lowest_price = product_group[0].price
+                for product in product_group:
+                    print(lowest_price)
+                    lowest_price = product.price if product.price < lowest_price else lowest_price
+            else:
+                lowest_price = None
         except Variety.DoesNotExist:
             # 'Other' type of product
             variety = None
