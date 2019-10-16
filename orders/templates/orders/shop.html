@@ -67,7 +67,7 @@
                         </div>
                     {% endif %}
                     <script>
-                        addProduct({{ forloop.counter0 }}, "{{ item.0.name }}","{{ item.0.alph_num_name }}", "{{ item.1 }}");
+                        addProduct({{ forloop.counter0 }}, "{{ item.0.name }}","{{ item.0.alph_num_name }}", "{{ item.1 }}", {{ item.2|safe }});
                         $("a#{{ item.0.alph_num_name }}").attr("href", "{% url 'product_details' product_name=item.0.name %}")
                     </script>
                 {% endfor %}
