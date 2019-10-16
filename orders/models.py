@@ -13,10 +13,20 @@ class RestaurantAccount(models.Model):
         return self.restaurant_name
 
 
+class Tag(models.Model):
+    """Represents a tag for types of products."""
+    name = models.CharField(max_length=25)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     """Represents a type of product to be sold."""
     name = models.CharField(max_length=200)
+    alph_num_name = models.CharField(max_length=200, default="")
     price = models.FloatField()
+    tags = models.ManyToManyField(Tag, null=True, related_name="products")
 
     def __str__(self):
         return self.name
@@ -48,14 +58,14 @@ class MicrogreenSize(models.Model):
 
 class LiveCropProduct(Product):
     """Represents live tray microgreens products. Eg. 10 inch tray Sango"""
-    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE, related_name='live_crop_products')
     size = models.ForeignKey(MicrogreenSize, models.CASCADE)
     tray_type = models.ForeignKey(TrayType, on_delete=models.CASCADE)
 
 
 class HarvestedCropProduct(Product):
     """Represents harvested microgreens products. Eg. 3oz clamshell of Shiso"""
-    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE, related_name='harvested_crop_products')
     size = models.ForeignKey(MicrogreenSize, models.CASCADE)
     weight = models.FloatField()
 
