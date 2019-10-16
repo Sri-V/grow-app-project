@@ -13,10 +13,20 @@ class RestaurantAccount(models.Model):
         return self.restaurant_name
 
 
+class Tag(models.Model):
+    """Represents a tag for types of products."""
+    name = models.CharField(max_length=25)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     """Represents a type of product to be sold."""
     name = models.CharField(max_length=200)
+    alph_num_name = models.CharField(max_length=200, default="")
     price = models.FloatField()
+    tags = models.ManyToManyField(Tag, null=True, related_name="products")
 
     def __str__(self):
         return self.name

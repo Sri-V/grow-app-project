@@ -3,7 +3,9 @@ from django.db import models
 class Variety(models.Model):
     """Represents the types of plants that can be grown."""
     name = models.CharField(max_length=50)
+    alph_num_name = models.CharField(max_length=50, default="")  # Alphanumeric characters only, no spaces
     lead_time = models.IntegerField(null=True)  # Standard number of days to grow.
+
     def __str__(self):
         return self.name
 
@@ -47,7 +49,7 @@ class WeekdayRequirement(models.Model):
     )
 
     plant_day = models.CharField(max_length=1, choices=DAYS_OF_WEEK)
-    variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
 
     class Meta:

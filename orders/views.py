@@ -247,11 +247,11 @@ def customers(request):
 
 def product_details(request, product_name):
     if request.method == "GET":
+        logged_in = request.user.is_authenticated
         try:
             # 'HarvestedCropProduct' or LiveCropProduct'
             variety = Variety.objects.get(name=product_name)
             product_group = []
-            print(variety.live_crop_products)
             product_group += variety.live_crop_products.all()
             product_group += variety.harvested_crop_products.all()
             product = None
@@ -261,7 +261,7 @@ def product_details(request, product_name):
             product_group = None
             product = Product.objects.get(name=product_name)
             pass
-        logged_in = request.user.is_authenticated
+        print(product_group)
         return render(request, "orders/product_details.html", context={"logged_in": logged_in,
                                                                        "variety": variety,
                                                                        "product_group": product_group,
