@@ -16,6 +16,7 @@ class RestaurantAccount(models.Model):
 class Tag(models.Model):
     """Represents a tag for types of products."""
     name = models.CharField(max_length=25)
+    color = models.CharField(max_length=25, default="black")
 
     def __str__(self):
         return self.name

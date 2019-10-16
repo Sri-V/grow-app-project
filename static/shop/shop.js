@@ -1,6 +1,6 @@
 new WOW().init();
 
-function addProduct(i, name, alph_num_name, price) {
+function addProduct(i, name, alph_num_name, price, tags) {
     var row_num = i - (i % 4) // Get the correct row for the product
     $('#row-' + row_num).append("<!--New column-->\n" +
         "                <div class=\"col-lg-3 col-md-6 mb-4\">\n" +
@@ -22,9 +22,9 @@ function addProduct(i, name, alph_num_name, price) {
         "                            <h5>\n" +
         "                                <strong>\n" +
         "                                    <a id=\"" + alph_num_name + "\" class=\"dark-grey-text\">" + name + "\n" +
-        "                                        <span class=\"badge badge-pill danger-color\">NEW</span>\n" +
         "                                    </a>\n" +
         "                                </strong>\n" +
+        "                                        <a id=\"tags-"+alph_num_name+"\"></a>\n" +
         "                            </h5>\n" +
         "                            <h4 class=\"font-weight-bold blue-text\">\n" +
         "                                <strong>$" + price + "</strong>\n" +
@@ -32,4 +32,8 @@ function addProduct(i, name, alph_num_name, price) {
         "                        </div>\n" +
         "                    </div>\n" +
         "                </div> ")
+    for (let tag of tags) {
+        $("a#tags-"+ alph_num_name).append("<span class=\"badge badge-pill "+ tag.color +"\">"+ tag.name +"</span>")
+    }
+
 }

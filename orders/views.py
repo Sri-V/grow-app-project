@@ -51,12 +51,19 @@ def create_account(request):
 def shop(request):
     if request.method == "GET":
         stuff_to_display = []
+        tags = []
         for variety in Variety.objects.all():
-            price = HarvestedCropProduct.objects.filter(variety=variety).order_by('price')[0].price \
-                if HarvestedCropProduct.objects.filter(variety=variety).exists() else 0
-            stuff_to_display.append((variety, price))
+            tags = []
+            products = HarvestedCropProduct.objects.filter(variety=variety)
+            price = products.order_by('price')[0].price if products.exists() else 0
+            if products.exists():
+                # Get some tags
+                for tag in products[0].tags.all():
+                    print(products[0].name)
+                    tags.append({"name": tag.name, "color": tag.color})
+            print(tags)
+            stuff_to_display.append((variety, price, tags))
 
-        print(stuff_to_display)
         return render(request, "orders/shop.html", context={'products_to_display': stuff_to_display, 'i': 0})
 
 
@@ -256,12 +263,14 @@ def product_details(request, product_name):
             product_group += variety.live_crop_products.all()
             product_group += variety.harvested_crop_products.all()
             product = None
+            tags = []
             # If products for the given variety can be found...
             if product_group:
                 lowest_price = product_group[0].price
                 for product in product_group:
-                    print(lowest_price)
+                    tags += product.tags.all()
                     lowest_price = product.price if product.price < lowest_price else lowest_price
+                tags = set(tags)
             else:
                 lowest_price = None
         except Variety.DoesNotExist:
@@ -270,12 +279,13 @@ def product_details(request, product_name):
             product_group = None
             product = Product.objects.get(name=product_name)
             lowest_price = product.price
+            tags = product.tags.all()
             pass
-        print(product_group)
         return render(request, "orders/product_details.html", context={"logged_in": logged_in,
                                                                        "variety": variety,
                                                                        "product_group": product_group,
                                                                        "product": product,
-                                                                       "lowest_price": lowest_price})
+                                                                       "lowest_price": lowest_price,
+                                                                       "tags": tags})
     if request.method == "POST":
         return redirect(cart)
