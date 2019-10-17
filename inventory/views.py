@@ -427,7 +427,7 @@ def inventory_harvest_variety(request): # Numbers of trays and yield for a singl
                         in_house.quantity = in_house.quantity - quantity
                         in_house.save()
                         if quantity:
-                            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date)
+                            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=quantity, date=h_date, harvest_yield=h_yield)
                     else:
                         message = "There are only " + str(in_house.quantity) + " " + variety + "s for " + seed_date \
                                   + " in your database and you were trying to harvest " + str(quantity) + ". Check your "
@@ -472,7 +472,7 @@ def inventory_harvest_single(request): # One tray, with detailed records
             in_house.quantity = in_house.quantity - 1 if 1 <= in_house.quantity else 0
             in_house.save()
             # data = json.dumps({'quantity': 1, 'yield': h_yield})
-            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=1, date=h_date)
+            InventoryAction.objects.create(variety=var_obj, action_type='HARVEST', quantity=1, date=h_date, harvest_yield=h_yield)
         except KeyError as e:
             print (e)
             pass # In case there's a variety inconsistency
