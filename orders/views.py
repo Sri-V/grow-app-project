@@ -265,15 +265,15 @@ def product_details(request, product_name):
             # Get Variety object and
             # Find 'HarvestedCropProduct' or LiveCropProduct' for the given variety
             variety = Variety.objects.get(name=product_name)
-            product_group = []
-            product_group += variety.live_crop_products.all()
-            product_group += variety.harvested_crop_products.all()
-            product = None
+            crop_products = []
+            crop_products += variety.live_crop_products.all()
+            crop_products += variety.harvested_crop_products.all()
+            other_product = None
             tags = []
             # If products for the given variety can be found...
-            if product_group:
-                lowest_price = product_group[0].price
-                for product in product_group:
+            if crop_products:
+                lowest_price = crop_products[0].price
+                for product in crop_products:
                     tags += product.tags.all()
                     lowest_price = product.price if product.price < lowest_price else lowest_price
                 tags = set(tags)
@@ -282,15 +282,16 @@ def product_details(request, product_name):
         except Variety.DoesNotExist:
             # 'Other' type of product
             variety = None
-            product_group = None
-            product = Product.objects.get(name=product_name)
+            crop_products = None
+            other_product = Product.objects.get(name=product_name)
             lowest_price = product.price
             tags = product.tags.all()
             pass
         return render(request, "orders/product_details.html", context={"logged_in": logged_in,
+                                                                       "order_form": OrderForm(),
                                                                        "variety": variety,
-                                                                       "product_group": product_group,
-                                                                       "product": product,
+                                                                       "crop_products": crop_products,
+                                                                       "other_product": other_product,
                                                                        "lowest_price": lowest_price,
                                                                        "tags": tags})
     if request.method == "POST":

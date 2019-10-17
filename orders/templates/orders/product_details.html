@@ -3,6 +3,7 @@
 {% block title %}Product Details{% endblock %}
 
 {% block extrahead %}
+    {{ order_form.media }}
 {% endblock %}
 
 {% block content %}
@@ -29,8 +30,8 @@
                     <div class="mb-3">
                         {% for tag in tags %}
                             <a href="">
-                            <span class="badge {{ tag.color }} mr-1">{{ tag.name }}</span>
-                        </a>
+                                <span class="badge {{ tag.color }} mr-1">{{ tag.name }}</span>
+                            </a>
                         {% endfor %}
                     </div>
                     {% if lowest_price %}
@@ -68,16 +69,15 @@
 
                     <p>Creating orders will add it to your cart, but are not confirmed.</p>
 
-                    <form class="justify-content-center text-center p-5">
-                        {% if product_group %}
+                    <form class="justify-content-center text-center p-5" method="POST"
+                          action="{% url "create_order" %}">
+                    {% csrf_token %}
+                        {% if crop_products %}
                             <div class="form-row">
-                                <select class="form-control">
-                                    {% for option in product_group %}
-                                        <option>{{ option.name }} -- {{ option.price }}</option>
-                                    {% endfor %}
-                                </select>
+                                {{ order_form.product }}
                             </div>
                         {% else %}
+                            <!--If no products associated with selected variety, give 'sorry' message.-->
                             {% if variety %}
                                 <div class="alert-light">We're sorry! This variety is not currently available. Please
                                     contact us to request it.
@@ -85,11 +85,17 @@
                             {% endif %}
                         {% endif %}
                         <br>
-                        {% if product_group or product %}
+                        <!--If any type of product exists, you can place an order.-->
+                        {% if crop_products or other_product %}
+                            {% if crop_products %}
+                                {{ order_form.delivery_date }}
+                            {% endif %}
+                            <br>
                             <div class="form-row">
                                 <div class="col">
                                     <!-- Default input -->
-                                    <input type="number" value="1" aria-label="Search" class="form-control"
+                                    <input type="number" name="quantity" value="1" aria-label="Search"
+                                           class="form-control"
                                            style="width: 100px">
                                 </div>
                                 <div class="col">
