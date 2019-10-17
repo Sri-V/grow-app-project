@@ -1,5 +1,5 @@
 from orders.models import RestaurantAccount, Product, Order, LiveCropProduct, TrayType, HarvestedCropProduct, \
-    MicrogreenSize
+    MicrogreenSize, Tag
 from inventory.models import Variety, SanitationRecord, KillReason
 from django import forms
 from django.forms import ModelForm, Textarea, TextInput
@@ -24,3 +24,26 @@ class OrderForm(forms.Form):
         },
         attrs={'class': 'form-control'}))
 
+
+class AddProductForm(forms.Form):
+    product_name = forms.CharField(max_length=200)
+    price = forms.FloatField(min_value=0.0)
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(),
+                                          widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+
+    def get_live_crop_fields(self):
+        variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                         widget=forms.Select(attrs={'class': 'form-control'}))
+        size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+        tray_type = forms.ModelChoiceField(queryset=TrayType.objects.all(),
+                                           widget=forms.Select(attrs={'class': 'form-control'}))
+        return [variety, size, tray_type]
+
+    def get_harvested_crop_fields(self):
+        variety = forms.ModelChoiceField(queryset=Variety.objects.all(),
+                                         widget=forms.Select(attrs={'class': 'form-control'}))
+        size = forms.ModelChoiceField(queryset=MicrogreenSize.objects.all(),
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+        weight = forms.FloatField(min_value=0.0)
+        return [variety, size, weight]

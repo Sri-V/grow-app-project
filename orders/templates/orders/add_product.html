@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 
 {% block title %}Add Product{% endblock %}
 
@@ -6,37 +6,39 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
         function getFormFields() {
-            $("#extra-form-fields").empty()
+            var $fields = $("#extra-form-fields")
+            var $variety_input = $("#variety-input")
+            var $tray_input = $("#tray-input")
+            var $size_input = $("#size_input")
+            var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
+            var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
+            $fields.empty()
             var productType = document.getElementById("select-product-type");
             if (productType.value == 'Live Crop Product') {
-                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
-                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
-                var tray_type_input ="<select id=\"tray-input\" name=\"tray-type\" class=\"form-control\"></select>"
-                $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
-                $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
-                $("#extra-form-fields").append("<label for=\"#tray-input\">Tray Type: </label>", tray_type_input)
+
+                var tray_type_input = "<select id=\"tray-input\" name=\"tray-type\" class=\"form-control\"></select>"
+                $fields.append("<label for=\"#variety-input\">Variety: </label>", variety_input)
+                $fields.append("<label for=\"#size-input\">Size: </label>", size_input)
+                $fields.append("<label for=\"#tray-input\">Tray Type: </label>", tray_type_input)
                 for (let v of {{ varieties|safe }}) {
-                    $("#variety-input").append("<option>"+ v +"</option>")
+                    $variety_input.append("<option>" + v + "</option>")
                 }
                 for (let v of {{ tray_types|safe }}) {
-                        $("#tray-input").append("<option>"+ v +"</option>")
-                    }
-                for (let v of {{ sizes|safe }}) {
-                        $("#size-input").append("<option>"+ v +"</option>")
-                    }
-            }
-            else if (productType.value == 'Harvested Crop Product') {
-                var variety_input = "<select id=\"variety-input\" name=\"variety\" class=\"form-control\"></select>"
-                var size_input = "<select id=\"size-input\" name=\"size\" class=\"form-control\"></select>"
-                var weight_input = "<input id=\"weight-input\" name=\"weight\" class=\"form-control\" type=\"number\" placeholder=\"3oz\">"
-                $("#extra-form-fields").append("<label for=\"#variety-input\">Variety: </label>", variety_input)
-                $("#extra-form-fields").append("<label for=\"#size-input\">Size: </label>", size_input)
-                $("#extra-form-fields").append("<label for=\"#weight-input\">Weight: </label>", weight_input)
-                for (let v of {{ varieties|safe }}) {
-                    $("#variety-input").append("<option>" + v + "</option>")
+                    $tray_input.append("<option>" + v + "</option>")
                 }
                 for (let v of {{ sizes|safe }}) {
-                    $("#size-input").append("<option>" + v + "</option>")
+                    $size_input.append("<option>" + v + "</option>")
+                }
+            } else if (productType.value == 'Harvested Crop Product') {
+                var weight_input = "<input id=\"weight-input\" name=\"weight\" class=\"form-control\" type=\"number\" placeholder=\"3oz\">"
+                $fields.append("<label for=\"#variety-input\">Variety: </label>", variety_input)
+                $fields.append("<label for=\"#size-input\">Size: </label>", size_input)
+                $fields.append("<label for=\"#weight-input\">Weight: </label>", weight_input)
+                for (let v of {{ varieties|safe }}) {
+                    $variety_input.append("<option>" + v + "</option>")
+                }
+                for (let v of {{ sizes|safe }}) {
+                    $size_input.append("<option>" + v + "</option>")
                 }
             }
         }
@@ -44,7 +46,7 @@
     <h1>Add Product</h1>
     {% if success %}
         <div class="alert alert-success" role="alert">
-            {{ success }}<a href="#" class="alert-link">catalog</a>
+            {{ success }}<a href="{% url "products" %}" class="alert-link">catalog</a>
         </div>
     {% endif %}
     {% if error %}
