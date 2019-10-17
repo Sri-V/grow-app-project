@@ -5,16 +5,16 @@ from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.template.defaultfilters import register
 
-from inventory.forms import AddProductForm
 from inventory.models import Variety
 from orders.models import RestaurantAccount, Order, Product, HarvestedCropProduct, LiveCropProduct, MicrogreenSize, \
     TrayType, Setting
-from orders.forms import OrderForm
+from orders.forms import *
 from datetime import date, datetime, timedelta
 # from dateutil import parser
 # from google_sheets.upload_to_sheet import upload_data_to_sheets
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+import re
 
 
 # from django.shortcuts import get_object_or_404
@@ -149,29 +149,29 @@ def add_product(request):
         product_form = AddProductForm()
         form = AddProductForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
+            print(request.POST)
             fields = request.POST
             product_name = fields['product_name']
+            alph_num_name = alphanumeric(product_name)
             price = fields['price']
-            try:
-                if fields['select-product-type'] == 'Live Crop Product':
-                    print("Live crop product!")
-                    variety = Variety.objects.get(name=fields['variety'])
-                    size = MicrogreenSize.objects.get(name=fields['size'])
-                    tray_type = TrayType.objects.get(name=fields['tray-type'])
-                    LiveCropProduct.objects.create(name=product_name, price=price, variety=variety,
-                                                   size=size, tray_type=tray_type)
-                elif fields['select-product-type'] == 'Harvested Crop Product':
-                    variety = Variety.objects.get(name=fields['variety'])
-                    size = MicrogreenSize.objects.get(name=fields['size'])
-                    weight = int(fields['weight'])
-                    HarvestedCropProduct.objects.create(name=product_name, price=price, variety=variety,
-                                                        size=size, weight=weight)
-            except KeyError:
-                Product.objects.create(name=product_name, price=price)
-                pass
+            if fields['select-product-type'] == 'Live Crop Product':
+                variety = Variety.objects.get(name=fields['variety'])
+                size = MicrogreenSize.objects.get(name=fields['size'])
+                tray_type = TrayType.objects.get(name=fields['tray-type'])
+                LiveCropProduct.objects.create(name=product_name, alph_num_name=alph_num_name, price=price,
+                                               variety=variety,
+                                               size=size, tray_type=tray_type)
+            elif fields['select-product-type'] == 'Harvested Crop Product':
+                variety = Variety.objects.get(name=fields['variety'])
+                size = MicrogreenSize.objects.get(name=fields['size'])
+                weight = int(fields['weight'])
+                HarvestedCropProduct.objects.create(name=product_name, alph_num_name=alph_num_name, price=price,
+                                                    variety=variety,
+                                                    size=size, weight=weight)
+            elif fields['select-product-type'] == 'Other Product':
+                Product.objects.create(name=product_name, price=price, alph_num_name=alph_num_name)
+
             message = "Successfully added " + product_name + " to your "
-            # TODO: option to pre-fill previous form's values
             return render(request, "orders/add_product.html", context={"product_form": product_form,
                                                                        "varieties": variety_list,
                                                                        "tray_types": tray_types,
@@ -185,6 +185,11 @@ def add_product(request):
                                                                        "tray_types": tray_types,
                                                                        "sizes": sizes,
                                                                        "error": message})
+
+
+def alphanumeric(s):
+    """Convert string to alphanumeric characters"""
+    return re.sub(r'\W+', '', s)
 
 
 @staff_member_required

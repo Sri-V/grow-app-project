@@ -38,7 +38,7 @@
                 <tr>
                     <td>{{ product.id }}</td>
                     <td>{{ product.name }}</td>
-                    <td>{{ hcp.price }}</td>
+                    <td>{{ product.price }}</td>
                     <td>Other Product</td>
                     <td>N/A</td>
                 </tr>
@@ -46,4 +46,5 @@
             </tbody>
         </table>
     </div>
+    <a class="btn btn-light" href="{% url "add_product" %}">Add Product</a>
 {% endblock %}
