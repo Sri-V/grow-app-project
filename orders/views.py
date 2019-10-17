@@ -249,7 +249,8 @@ def orders_settings(request):
 
 @staff_member_required
 def orders(request):
-    return render(request, "orders/orders.html", context={})
+    if request.method == "GET":
+        return render(request, "orders/orders.html", context={"orders": Order.objects.all().order_by('delivery_date')})
 
 
 @staff_member_required

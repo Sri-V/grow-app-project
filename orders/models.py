@@ -7,7 +7,7 @@ class RestaurantAccount(models.Model):
     """Represents a restaurant customer of Boston Microgreens."""
     phone = models.CharField(max_length=20)
     restaurant_name = models.CharField(max_length=200)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='restaurant_account')
 
     def __str__(self):
         return self.restaurant_name
