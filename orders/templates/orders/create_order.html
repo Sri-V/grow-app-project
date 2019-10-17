@@ -11,19 +11,19 @@
         {{ form.as_p }}
         <input id="form-order-submit" type="submit" class="btn btn-primary" value="Place Order">
     </form>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="/static/jquery.datetimepicker.js"></script>
-    <script>
-        var date = new Date();
-        var currentMonth = date.getMonth();
-        var currentDate = date.getDate();
-        var currentYear = date.getFullYear();
-        $('#datetimepicker1').datetimepicker({
-            pickTime: false,
-            format: "MM-DD-YYYY",
-            daysOfWeekDisabled: [0],
-            startDate: new Date(currentYear, currentMonth, currentDate)
-        });
-    </script>
+{#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>#}
+{#    <script src="/static/jquery.datetimepicker.js"></script>#}
+{#    <script>#}
+{#        var date = new Date();#}
+{#        var currentMonth = date.getMonth();#}
+{#        var currentDate = date.getDate();#}
+{#        var currentYear = date.getFullYear();#}
+{#        $('#datetimepicker1').datetimepicker({#}
+{#            pickTime: false,#}
+{#            format: "MM-DD-YYYY",#}
+{#            daysOfWeekDisabled: [0],#}
+{#            startDate: new Date(currentYear, currentMonth, currentDate)#}
+{#        });#}
+{#    </script>#}
 
 {% endblock %}
