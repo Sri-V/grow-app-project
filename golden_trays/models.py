@@ -29,7 +29,7 @@ class Crop(models.Model):
     -> History recorded as a CropRecord, but linked by the crop's ID.
     """
 
-    variety = models.ForeignKey(Variety, on_delete=models.PROTECT)
+    variety = models.ForeignKey(Variety, on_delete=models.CASCADE)
     crop_yield = models.FloatField(null=True, blank=True)  # measured in cm
     leaf_wingspan = models.FloatField(null=True, blank=True)  # measured in cm
     seeding_density = models.FloatField(null=True, blank=True)  # measured in g/tray
@@ -108,6 +108,6 @@ class CropRecord(models.Model):
 class Slot(models.Model):
     """Represents an address on a grow rack for a single Crop. Has a barcode and links to a Crop object"""
     barcode = models.CharField(max_length=50, blank=True, unique=True)
-    current_crop = models.OneToOneField(Crop, on_delete=models.DO_NOTHING, related_name='current_slot', blank=True, null=True)
+    current_crop = models.OneToOneField(Crop, on_delete=models.SET_NULL, related_name='current_slot', blank=True, null=True)
 
 
