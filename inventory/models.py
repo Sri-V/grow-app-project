@@ -66,7 +66,7 @@ class InventoryAction(models.Model):
         ('KILL', 'Killed'),
     )
 
-    variety = models.ForeignKey(Variety, on_delete=models.DO_NOTHING)
+    variety = models.ForeignKey(Variety, on_delete=models.SET_NULL, null=True)
     date = models.DateField(auto_now_add=True)
     action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
     quantity = models.IntegerField(default=0, null=True)
